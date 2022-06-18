@@ -1,0 +1,21 @@
+[package]
+name = "ink-stroke-modeler-rs"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0"
+cxx = "1.0"
+autocxx = "0.22"
+
+[build-dependencies]
+anyhow = "1.0"
+autocxx-build = "0.22"
+cmake = "0.1"
+
+[dev-dependencies]
+anyhow = "1.0"
+svg = "0.10"

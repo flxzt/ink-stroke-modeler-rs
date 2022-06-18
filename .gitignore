@@ -1,0 +1,6 @@
+/target
+/Cargo.lock
+/.vscode
+/ink-stroke-modeler/build
+/test
+/expand

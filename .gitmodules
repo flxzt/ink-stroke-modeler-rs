@@ -1,0 +1,3 @@
+[submodule "ink-stroke-modeler"]
+	path = ink-stroke-modeler
+	url = https://github.com/flxzt/ink-stroke-modeler
