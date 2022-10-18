@@ -8,7 +8,33 @@ macro_rules! build_print {
 }
 
 fn main() -> anyhow::Result<()> {
-    let _out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
+    let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
+
+    let install_lib_dir = {
+        let mut p = out_dir.clone();
+        p.push("lib64");
+
+        if p.exists() {
+            p
+        } else {
+            let mut p = out_dir.clone();
+            p.push("lib");
+            p
+        }
+    };
+
+    let install_include_dir = {
+        let mut p = out_dir.clone();
+        p.push("include");
+        p
+    };
+
+    let cmake_config_dir = {
+        let mut p = install_lib_dir.clone();
+        p.push("cmake");
+
+        p
+    };
 
     let bindings_files = vec![
         PathBuf::from("build.rs"),
@@ -16,41 +42,34 @@ fn main() -> anyhow::Result<()> {
         PathBuf::from("include/extras.h"),
     ];
 
-    let bindings_cpp_sources = vec![
-        PathBuf::from("src/extras.cc")
-    ];
+    let bindings_cpp_sources = vec![PathBuf::from("src/extras.cc")];
 
-    let cmake_dst_path = cmake::Config::new("ink-stroke-modeler").build();
+    let _absl_cmake_install_dir = cmake::Config::new("abseil-cpp")
+        .define("ABSL_PROPAGATE_CXX_STD", "ON")
+        .define("BUILD_TESTING", "OFF")
+        .define("CMAKE_INSTALL_PREFIX", &out_dir)
+        .build();
 
-    let cmake_lib_paths = {
-        let mut paths = vec![];
+    let _ink_stroke_modeler_cmake_install_dir = cmake::Config::new("ink-stroke-modeler")
+        .cxxflag(format!(
+            "-L{} -I{}",
+            install_lib_dir.to_string_lossy(),
+            install_include_dir.to_string_lossy()
+        ))
+        .define("INK_STROKE_MODELER_FIND_DEPENDENCIES", "ON")
+        .define("INK_STROKE_MODELER_BUILD_TESTING", "OFF")
+        .define("INK_STROKE_MODELER_ENABLE_INSTALL", "ON")
+        .define("CMAKE_INSTALL_PREFIX", &out_dir)
+        .define("CMAKE_MODULE_PATH", &cmake_config_dir)
+        .define("CMAKE_INSTALL_LIBDIR", &install_lib_dir)
+        .define("CMAKE_INSTALL_INCLUDEDIR", &install_include_dir)
+        .build();
 
-        let mut lib = cmake_dst_path.clone();
-        lib.push("lib");
-
-        let mut lib64 = cmake_dst_path.clone();
-        lib64.push("lib64");
-
-        if lib.exists() {
-            paths.push(lib);
-        }
-        if lib64.exists() {
-            paths.push(lib64);
-        }
-
-        paths
-    };
-
-    let mut cmake_incl_path = cmake_dst_path.clone();
-    cmake_incl_path.push("include");
-
-    // It's necessary to use an absolute path here because the
-    // C++ codegen and the macro codegen appears to be run from different
-    // working directories.
     let include_paths = vec![
         PathBuf::from("include"),
+        PathBuf::from("absl"),
         PathBuf::from("ink-stroke-modeler"),
-        cmake_incl_path,
+        install_include_dir,
     ];
 
     let mut builder = autocxx_build::Builder::new("src/lib.rs", &include_paths)
@@ -63,26 +82,24 @@ fn main() -> anyhow::Result<()> {
         .compile("ink-stroke-modeler-rs");
 
     // Linking
-    for cmake_lib_path in cmake_lib_paths {
-        println!(
-            "cargo:rustc-link-search=native={}",
-            cmake_lib_path.display()
-        );
+    println!(
+        "cargo:rustc-link-search=native={}",
+        install_lib_dir.display()
+    );
 
-        for lib in std::fs::read_dir(cmake_lib_path)? {
-            let lib = lib?;
-            let lib_name = lib.file_name().to_string_lossy().to_string();
+    for lib in std::fs::read_dir(install_lib_dir)? {
+        let lib = lib?;
+        let lib_name = lib.file_name().to_string_lossy().to_string();
 
-            if lib_name.starts_with("libabsl") || lib_name.starts_with("libink_stroke_modeler") {
-                println!(
-                    "cargo:rustc-link-lib=static={}",
-                    lib.path()
-                        .file_stem()
-                        .unwrap()
-                        .to_string_lossy()
-                        .trim_start_matches("lib")
-                );
-            }
+        if lib_name.starts_with("libabsl") || lib_name.starts_with("libink_stroke_modeler") {
+            println!(
+                "cargo:rustc-link-lib=static={}",
+                lib.path()
+                    .file_stem()
+                    .unwrap()
+                    .to_string_lossy()
+                    .trim_start_matches("lib")
+            );
         }
     }
 
