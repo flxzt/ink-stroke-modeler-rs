@@ -76,8 +76,10 @@ fn main() -> anyhow::Result<()> {
         .extra_clang_args(&["-std=c++17"])
         .build()?;
     builder
+        .compiler("clang++")
         .flag_if_supported("-std=c++17")
         .includes(include_paths.iter())
+        .cpp_link_stdlib(Some("stdc++"))
         .files(bindings_cpp_sources.iter())
         .compile("ink-stroke-modeler-rs");
 
