@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+use path_slash::PathBufExt;
 
 #[allow(unused)]
 macro_rules! build_print {
@@ -47,7 +48,7 @@ fn main() -> anyhow::Result<()> {
     let _absl_cmake_install_dir = cmake::Config::new("abseil-cpp")
         .define("ABSL_PROPAGATE_CXX_STD", "ON")
         .define("BUILD_TESTING", "OFF")
-        .define("CMAKE_INSTALL_PREFIX", &out_dir)
+        .define("CMAKE_INSTALL_PREFIX", &out_dir.to_slash_lossy().to_string())
         .build();
 
     let _ink_stroke_modeler_cmake_install_dir = cmake::Config::new("ink-stroke-modeler")
@@ -59,10 +60,10 @@ fn main() -> anyhow::Result<()> {
         .define("INK_STROKE_MODELER_FIND_DEPENDENCIES", "ON")
         .define("INK_STROKE_MODELER_BUILD_TESTING", "OFF")
         .define("INK_STROKE_MODELER_ENABLE_INSTALL", "ON")
-        .define("CMAKE_INSTALL_PREFIX", &out_dir)
-        .define("CMAKE_MODULE_PATH", &cmake_config_dir)
-        .define("CMAKE_INSTALL_LIBDIR", &install_lib_dir)
-        .define("CMAKE_INSTALL_INCLUDEDIR", &install_include_dir)
+        .define("CMAKE_INSTALL_PREFIX", out_dir.to_slash_lossy().to_string())
+        .define("CMAKE_MODULE_PATH", cmake_config_dir.to_slash_lossy().to_string())
+        .define("CMAKE_INSTALL_LIBDIR", install_lib_dir.to_slash_lossy().to_string())
+        .define("CMAKE_INSTALL_INCLUDEDIR", &install_include_dir.to_slash_lossy().to_string())
         .build();
 
     let include_paths = vec![

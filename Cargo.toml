@@ -15,6 +15,7 @@ autocxx = "0.22"
 anyhow = "1.0"
 autocxx-build = "0.22"
 cmake = "0.1"
+path-slash = "0.2.1"
 
 [dev-dependencies]
 anyhow = "1.0"
