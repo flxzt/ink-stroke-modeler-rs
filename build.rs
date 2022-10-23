@@ -1,5 +1,5 @@
-use std::path::PathBuf;
 use path_slash::PathBufExt;
+use std::path::PathBuf;
 
 #[allow(unused)]
 macro_rules! build_print {
@@ -11,31 +11,16 @@ macro_rules! build_print {
 fn main() -> anyhow::Result<()> {
     let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
 
-    let install_lib_dir = {
-        let mut p = out_dir.clone();
-        p.push("lib64");
+    build_print!("{out_dir:?}");
 
-        if p.exists() {
-            p
-        } else {
-            let mut p = out_dir.clone();
-            p.push("lib");
-            p
-        }
+    let install_lib_dir = if out_dir.join("lib64").exists() {
+        out_dir.join("lib64")
+    } else {
+        out_dir.join("lib")
     };
 
-    let install_include_dir = {
-        let mut p = out_dir.clone();
-        p.push("include");
-        p
-    };
-
-    let cmake_config_dir = {
-        let mut p = install_lib_dir.clone();
-        p.push("cmake");
-
-        p
-    };
+    let install_include_dir = out_dir.join("include");
+    let cmake_config_dir = install_lib_dir.join("cmake");
 
     let bindings_files = vec![
         PathBuf::from("build.rs"),
@@ -48,37 +33,62 @@ fn main() -> anyhow::Result<()> {
     let _absl_cmake_install_dir = cmake::Config::new("abseil-cpp")
         .define("ABSL_PROPAGATE_CXX_STD", "ON")
         .define("BUILD_TESTING", "OFF")
-        .define("CMAKE_INSTALL_PREFIX", &out_dir.to_slash_lossy().to_string())
+        .define(
+            "CMAKE_INSTALL_PREFIX",
+            &out_dir.to_slash_lossy().to_string(),
+        )
+        .define(
+            "CMAKE_MODULE_PATH",
+            &cmake_config_dir.to_slash_lossy().to_string(),
+        )
+        .define(
+            "CMAKE_INSTALL_LIBDIR",
+            &install_lib_dir.to_slash_lossy().to_string(),
+        )
+        .define(
+            "CMAKE_INSTALL_INCLUDEDIR",
+            &install_include_dir.to_slash_lossy().to_string(),
+        )
         .build();
 
     let _ink_stroke_modeler_cmake_install_dir = cmake::Config::new("ink-stroke-modeler")
-        .cxxflag(format!(
-            "-L{} -I{}",
-            install_lib_dir.to_string_lossy(),
-            install_include_dir.to_string_lossy()
-        ))
         .define("INK_STROKE_MODELER_FIND_DEPENDENCIES", "ON")
         .define("INK_STROKE_MODELER_BUILD_TESTING", "OFF")
         .define("INK_STROKE_MODELER_ENABLE_INSTALL", "ON")
-        .define("CMAKE_INSTALL_PREFIX", out_dir.to_slash_lossy().to_string())
-        .define("CMAKE_MODULE_PATH", cmake_config_dir.to_slash_lossy().to_string())
-        .define("CMAKE_INSTALL_LIBDIR", install_lib_dir.to_slash_lossy().to_string())
-        .define("CMAKE_INSTALL_INCLUDEDIR", &install_include_dir.to_slash_lossy().to_string())
+        .define(
+            "CMAKE_INSTALL_PREFIX",
+            &out_dir.to_slash_lossy().to_string(),
+        )
+        .define(
+            "CMAKE_MODULE_PATH",
+            &cmake_config_dir.to_slash_lossy().to_string(),
+        )
+        .define(
+            "CMAKE_INSTALL_LIBDIR",
+            &install_lib_dir.to_slash_lossy().to_string(),
+        )
+        .define(
+            "CMAKE_INSTALL_INCLUDEDIR",
+            &install_include_dir.to_slash_lossy().to_string(),
+        )
         .build();
 
     let include_paths = vec![
         PathBuf::from("include"),
-        PathBuf::from("absl"),
+        PathBuf::from("absl-cpp"),
         PathBuf::from("ink-stroke-modeler"),
         install_include_dir,
     ];
 
-    let mut builder = autocxx_build::Builder::new("src/lib.rs", &include_paths)
-        .extra_clang_args(&["-std=c++17"])
-        .build()?;
+    let mut builder = autocxx_build::Builder::new(
+        "src/lib.rs",
+        include_paths.iter(),
+    )
+    .extra_clang_args(&["-std=c++17"])
+    .build()?;
     builder
         .compiler("clang++")
-        .flag_if_supported("-std=c++17")
+        .flag_if_supported("-v -std=c++17")
         .includes(include_paths.iter())
         .cpp_link_stdlib(Some("stdc++"))
         .files(bindings_cpp_sources.iter())
