@@ -1,5 +1,7 @@
-use path_slash::PathBufExt;
 use std::path::PathBuf;
+
+use miette::IntoDiagnostic;
+use path_slash::PathBufExt;
 
 #[allow(unused)]
 macro_rules! build_print {
@@ -8,10 +10,10 @@ macro_rules! build_print {
     }
 }
 
-fn main() -> anyhow::Result<()> {
-    let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
+fn main() -> miette::Result<()> {
+    let out_dir = PathBuf::from(std::env::var("OUT_DIR").into_diagnostic()?);
 
-    build_print!("{out_dir:?}");
+    build_print!("OUT_DIR: {out_dir:?}");
 
     let install_lib_dir = if out_dir.join("lib64").exists() {
         out_dir.join("lib64")
@@ -75,25 +77,30 @@ fn main() -> anyhow::Result<()> {
 
     let include_paths = vec![
         PathBuf::from("include"),
-        PathBuf::from("absl-cpp"),
-        PathBuf::from("ink-stroke-modeler"),
+        //PathBuf::from("absl-cpp"),
+        //PathBuf::from("ink-stroke-modeler"),
         install_include_dir,
     ];
 
-    let mut builder = autocxx_build::Builder::new(
-        "src/lib.rs",
-        include_paths.iter(),
-    )
-    .extra_clang_args(&["-v", "-std=c++17"])
-    .build()?;
+    let mut builder =
+        autocxx_build::Builder::new(PathBuf::from("src/lib.rs"), include_paths.iter())
+            .extra_clang_args(&["-v", "-std=c++17"])
+            .build()?;
+
+    build_print!("autocxx build done");
+
     builder
         .compiler("clang++")
         .flag_if_supported("-v")
         .flag_if_supported("-std=c++17")
-        .includes(include_paths.iter())
+        // include paths already passed in by the autocxx builder
+        //.includes(include_paths.iter())
         .cpp_link_stdlib(Some("stdc++"))
         .files(bindings_cpp_sources.iter())
-        .compile("ink-stroke-modeler-rs");
+
+        .try_compile("ink-stroke-modeler-rs").into_diagnostic()?;
+
+    build_print!("cc build done");
 
     // Linking
     println!(
@@ -101,8 +108,8 @@ fn main() -> anyhow::Result<()> {
         install_lib_dir.display()
     );
 
-    for lib in std::fs::read_dir(install_lib_dir)? {
-        let lib = lib?;
+    for lib in std::fs::read_dir(install_lib_dir).into_diagnostic()? {
+        let lib = lib.into_diagnostic()?;
         let lib_name = lib.file_name().to_string_lossy().to_string();
 
         if lib_name.starts_with("libabsl") || lib_name.starts_with("libink_stroke_modeler") {

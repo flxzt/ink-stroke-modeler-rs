@@ -13,9 +13,11 @@ autocxx = "0.22"
 
 [build-dependencies]
 anyhow = "1.0"
+miette = {version = "4.3.0", features = ["fancy"] }
 autocxx-build = "0.22"
 cmake = "0.1"
 path-slash = "0.2.1"
+# dunce = "1.0"
 
 [dev-dependencies]
 anyhow = "1.0"
