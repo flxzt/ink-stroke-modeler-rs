@@ -84,11 +84,12 @@ fn main() -> anyhow::Result<()> {
         "src/lib.rs",
         include_paths.iter(),
     )
-    .extra_clang_args(&["-std=c++17"])
+    .extra_clang_args(&["-v", "-std=c++17"])
     .build()?;
     builder
         .compiler("clang++")
-        .flag_if_supported("-v -std=c++17")
+        .flag_if_supported("-v")
+        .flag_if_supported("-std=c++17")
         .includes(include_paths.iter())
         .cpp_link_stdlib(Some("stdc++"))
         .files(bindings_cpp_sources.iter())
