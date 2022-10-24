@@ -84,18 +84,18 @@ fn main() -> miette::Result<()> {
 
     let mut builder =
         autocxx_build::Builder::new(PathBuf::from("src/lib.rs"), include_paths.iter())
-            .extra_clang_args(&["-v", "-std=c++17"])
+            .extra_clang_args(&["-std=c++17"])
             .build()?;
 
     build_print!("autocxx build done");
 
     builder
-        .compiler("clang++")
-        .flag_if_supported("-v")
+        //.compiler("clang++")
+        //.flag_if_supported("-v")
         .flag_if_supported("-std=c++17")
         // include paths already passed in by the autocxx builder
         //.includes(include_paths.iter())
-        .cpp_link_stdlib(Some("stdc++"))
+        //.cpp_link_stdlib(Some("stdc++"))
         .files(bindings_cpp_sources.iter())
 
         .try_compile("ink-stroke-modeler-rs").into_diagnostic()?;
