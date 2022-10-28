@@ -24,7 +24,7 @@ fn main() -> miette::Result<()> {
     let bindings_cpp_sources = vec![PathBuf::from("src/extras.cc")];
 
     let _absl_cmake_install_dir = cmake::Config::new("abseil-cpp")
-        .define("CMAKE_CXX_FLAGS","-std=c++17")
+        .define("CMAKE_CXX_FLAGS", "-std=c++17 -fPIC")
         .define("ABSL_PROPAGATE_CXX_STD", "ON")
         .define("BUILD_TESTING", "OFF")
         .define(
@@ -46,7 +46,7 @@ fn main() -> miette::Result<()> {
         .build();
 
     let _ink_stroke_modeler_cmake_install_dir = cmake::Config::new("ink-stroke-modeler")
-        .define("CMAKE_CXX_FLAGS","-std=c++17")
+        .define("CMAKE_CXX_FLAGS", "-std=c++17 -fPIC")
         .define("INK_STROKE_MODELER_FIND_DEPENDENCIES", "ON")
         .define("INK_STROKE_MODELER_BUILD_TESTING", "OFF")
         .define("INK_STROKE_MODELER_ENABLE_INSTALL", "ON")
@@ -86,10 +86,10 @@ fn main() -> miette::Result<()> {
         .flag_if_supported("-std=c++17")
         // include paths already passed in by the autocxx builder
         //.includes(include_paths.iter())
-        //.cpp_link_stdlib(Some("stdc++"))
+        //.cpp_set_stdlib(Some("stdc++"))
         .files(bindings_cpp_sources.iter())
-
-        .try_compile("ink-stroke-modeler-rs").into_diagnostic()?;
+        .try_compile("ink-stroke-modeler-rs")
+        .into_diagnostic()?;
 
     // Linking
     println!(
