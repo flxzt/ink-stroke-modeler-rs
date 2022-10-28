@@ -24,7 +24,9 @@ fn main() -> miette::Result<()> {
     let bindings_cpp_sources = vec![PathBuf::from("src/extras.cc")];
 
     let _absl_cmake_install_dir = cmake::Config::new("abseil-cpp")
-        .define("CMAKE_CXX_FLAGS", "-std=c++17 -fPIC")
+        .define("CMAKE_CXX_STANDARD", "17")
+        // Rust needs -fPIE or -fPIC
+        .define("CMAKE_POSITION_INDEPENDENT_CODE", "ON")
         .define("ABSL_PROPAGATE_CXX_STD", "ON")
         .define("BUILD_TESTING", "OFF")
         .define(
@@ -46,7 +48,9 @@ fn main() -> miette::Result<()> {
         .build();
 
     let _ink_stroke_modeler_cmake_install_dir = cmake::Config::new("ink-stroke-modeler")
-        .define("CMAKE_CXX_FLAGS", "-std=c++17 -fPIC")
+        .define("CMAKE_CXX_STANDARD", "17")
+        // Rust needs -fPIE or -fPIC
+        .define("CMAKE_POSITION_INDEPENDENT_CODE", "ON")
         .define("INK_STROKE_MODELER_FIND_DEPENDENCIES", "ON")
         .define("INK_STROKE_MODELER_BUILD_TESTING", "OFF")
         .define("INK_STROKE_MODELER_ENABLE_INSTALL", "ON")
