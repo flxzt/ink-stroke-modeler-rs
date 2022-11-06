@@ -6,14 +6,8 @@ use path_slash::PathBufExt;
 fn main() -> miette::Result<()> {
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").into_diagnostic()?);
 
-    let install_lib_dir = if out_dir.join("lib64").exists() {
-        out_dir.join("lib64")
-    } else {
-        out_dir.join("lib")
-    };
-
+    let install_lib_dir = out_dir.join("lib");
     let install_include_dir = out_dir.join("include");
-    let cmake_config_dir = install_lib_dir.join("cmake");
 
     let bindings_files = vec![
         PathBuf::from("build.rs"),
@@ -29,13 +23,10 @@ fn main() -> miette::Result<()> {
         .define("CMAKE_POSITION_INDEPENDENT_CODE", "ON")
         .define("ABSL_PROPAGATE_CXX_STD", "ON")
         .define("BUILD_TESTING", "OFF")
+        .define("CMAKE_PREFIX_PATH", &out_dir.to_slash_lossy().to_string())
         .define(
             "CMAKE_INSTALL_PREFIX",
             &out_dir.to_slash_lossy().to_string(),
-        )
-        .define(
-            "CMAKE_MODULE_PATH",
-            &cmake_config_dir.to_slash_lossy().to_string(),
         )
         .define(
             "CMAKE_INSTALL_LIBDIR",
@@ -54,13 +45,11 @@ fn main() -> miette::Result<()> {
         .define("INK_STROKE_MODELER_FIND_DEPENDENCIES", "ON")
         .define("INK_STROKE_MODELER_BUILD_TESTING", "OFF")
         .define("INK_STROKE_MODELER_ENABLE_INSTALL", "ON")
+        // This Should take priority for find_package() when searching for absl to use our compiled version instead of the system-provided package
+        .define("CMAKE_PREFIX_PATH", &out_dir.to_slash_lossy().to_string())
         .define(
             "CMAKE_INSTALL_PREFIX",
             &out_dir.to_slash_lossy().to_string(),
-        )
-        .define(
-            "CMAKE_MODULE_PATH",
-            &cmake_config_dir.to_slash_lossy().to_string(),
         )
         .define(
             "CMAKE_INSTALL_LIBDIR",
@@ -85,7 +74,6 @@ fn main() -> miette::Result<()> {
             .build()?;
 
     builder
-        //.compiler("clang++")
         //.flag_if_supported("-v")
         .flag_if_supported("-std=c++17")
         // include paths already passed in by the autocxx builder
