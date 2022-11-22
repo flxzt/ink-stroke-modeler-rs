@@ -57,7 +57,7 @@ autocxx::include_cpp! {
     generate!("result_get_orientation")
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[allow(non_camel_case_types)]
 pub enum ModelerInputEventType {
     kDown,
@@ -219,7 +219,7 @@ impl ModelerResult {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 #[allow(unused)]
 pub enum PredictionParams {
     StrokeEnd,
@@ -228,7 +228,7 @@ pub enum PredictionParams {
 
 impl PredictionParams {}
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct KalmanPredictorParams {
     pub process_noise: f64,
     pub measurement_noise: f64,
@@ -290,7 +290,7 @@ impl KalmanPredictorParams {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct StrokeModelerParams {
     pub wobble_smoother_timeout: f64,
     pub wobble_smoother_speed_floor: f32,
