@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["ink_stroke_modeler_rs"];
