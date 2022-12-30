@@ -155,34 +155,36 @@ void stroke_modeler_reset_w_params(
 
 std::vector<ink::stroke_model::Result> stroke_modeler_update(ink::stroke_model::StrokeModeler &stroke_modeler, ink::stroke_model::Input input)
 {
-    absl::StatusOr status = stroke_modeler.Update(input);
+    std::vector<ink::stroke_model::Result> results;
+    absl::Status status = stroke_modeler.Update(input, results);
 
     if (!status.ok())
     {
         std::cout << "update stroke modeler failed, status: "
-                  << status.status().ToString()
+                  << status.ToString()
                   << "\n";
 
         return std::vector<ink::stroke_model::Result>();
     }
 
-    return status.value();
+    return results;
 }
 
-std::vector<ink::stroke_model::Result> stroke_modeler_predict(const ink::stroke_model::StrokeModeler &stroke_modeler)
+std::vector<ink::stroke_model::Result> stroke_modeler_predict(ink::stroke_model::StrokeModeler &stroke_modeler)
 {
-    absl::StatusOr status = stroke_modeler.Predict();
+    std::vector<ink::stroke_model::Result> results;
+    absl::Status status = stroke_modeler.Predict(results);
 
     if (!status.ok())
     {
         std::cout << "predict with stroke modeler failed, status: "
-                  << status.status().ToString()
+                  << status.ToString()
                   << "\n";
 
         return std::vector<ink::stroke_model::Result>();
     }
 
-    return status.value();
+    return results;
 }
 
 ink::stroke_model::Input input_new(ink::stroke_model::Input::EventType event_type, ink::stroke_model::Vec2 pos, double time, float pressure, float tilt, float orientation)
