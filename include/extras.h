@@ -106,7 +106,7 @@ void stroke_modeler_reset_w_params(
 
 std::vector<ink::stroke_model::Result> stroke_modeler_update(ink::stroke_model::StrokeModeler &stroke_modeler, ink::stroke_model::Input input);
 
-std::vector<ink::stroke_model::Result> stroke_modeler_predict(const ink::stroke_model::StrokeModeler &stroke_modeler);
+std::vector<ink::stroke_model::Result> stroke_modeler_predict(ink::stroke_model::StrokeModeler &stroke_modeler);
 
 ink::stroke_model::Input input_new(ink::stroke_model::Input::EventType event_type, ink::stroke_model::Vec2 pos, double time, float pressure, float tilt, float orientation);
 ink::stroke_model::Input::EventType input_get_event_type(const ink::stroke_model::Input &input);
