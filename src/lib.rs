@@ -404,8 +404,8 @@ impl StrokeModeler {
             .collect()
     }
 
-    pub fn predict(&self) -> Vec<ModelerResult> {
-        let results = crate::ffi::stroke_modeler_predict(&self.0);
+    pub fn predict(&mut self) -> Vec<ModelerResult> {
+        let results = crate::ffi::stroke_modeler_predict(self.0.pin_mut());
 
         results
             .into_iter()
