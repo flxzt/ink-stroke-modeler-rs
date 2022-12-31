@@ -911,8 +911,8 @@
             .collect()
     }
 
-    <span class="kw">pub fn </span>predict(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;ModelerResult&gt; {
-        <span class="kw">let </span>results = <span class="kw">crate</span>::ffi::stroke_modeler_predict(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>);
+    <span class="kw">pub fn </span>predict(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Vec&lt;ModelerResult&gt; {
+        <span class="kw">let </span>results = <span class="kw">crate</span>::ffi::stroke_modeler_predict(<span class="self">self</span>.<span class="number">0</span>.pin_mut());
 
         results
             .into_iter()
