@@ -11,42 +11,33 @@ jobs:
     concurrency: deploy-docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
           submodules: recursive
 
       - name: Toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Cache
-        uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@v2
 
       - name: Clean docs dir
         run: rm -rf docs
         shell: bash
 
       - name: Clean Rust docs dir
-        uses: actions-rs/cargo@v1
-        with:
-          command: clean
-          args: --manifest-path ./Cargo.toml --doc
+        run: cargo clean --manifest-path ./Cargo.toml --doc
 
       - name: Build Rust docs
-        uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --manifest-path ./Cargo.toml --all-features --no-deps
+        run: cargo doc --manifest-path ./Cargo.toml --all-features --no-deps
 
       - name: Move Rust docs
         run: mkdir -p docs && mv target/doc/* docs/.
         shell: bash
 
       - name: Configure root page
-        run: echo '<meta http-equiv="refresh" content="0; url=ink_stroke_modeler_rs">' > docs/index.html
+        run: echo '<meta http-equiv="refresh" content="0; url=wave">' > docs/index.html
 
       - name: Deploy docs
         uses: peaceiris/actions-gh-pages@v3
