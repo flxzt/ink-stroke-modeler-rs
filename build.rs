@@ -18,7 +18,7 @@ fn main() -> miette::Result<()> {
     let bindings_cpp_sources = vec![PathBuf::from("src/extras.cc")];
 
     let _absl_cmake_install_dir = cmake::Config::new("abseil-cpp")
-        .define("CMAKE_CXX_STANDARD", "17")
+        .define("CMAKE_CXX_STANDARD", "20")
         // Rust needs -fPIE or -fPIC
         .define("CMAKE_POSITION_INDEPENDENT_CODE", "ON")
         .define("ABSL_PROPAGATE_CXX_STD", "ON")
@@ -39,13 +39,13 @@ fn main() -> miette::Result<()> {
         .build();
 
     let _ink_stroke_modeler_cmake_install_dir = cmake::Config::new("ink-stroke-modeler")
-        .define("CMAKE_CXX_STANDARD", "17")
+        .define("CMAKE_CXX_STANDARD", "20")
         // Rust needs -fPIE or -fPIC
         .define("CMAKE_POSITION_INDEPENDENT_CODE", "ON")
         .define("INK_STROKE_MODELER_FIND_DEPENDENCIES", "ON")
         .define("INK_STROKE_MODELER_BUILD_TESTING", "OFF")
         .define("INK_STROKE_MODELER_ENABLE_INSTALL", "ON")
-        // This Should take priority for find_package() when searching for absl to use our compiled version instead of the system-provided package
+        // This takes priority in find_package() when searching for absl to use our compiled version instead of the system-provided package
         .define("CMAKE_PREFIX_PATH", &out_dir.to_slash_lossy().to_string())
         .define(
             "CMAKE_INSTALL_PREFIX",
@@ -70,12 +70,12 @@ fn main() -> miette::Result<()> {
 
     let mut builder =
         autocxx_build::Builder::new(PathBuf::from("src/lib.rs"), include_paths.iter())
-            .extra_clang_args(&["-std=c++17"])
+            .extra_clang_args(&["-std=c++20"])
             .build()?;
 
     builder
         //.flag_if_supported("-v")
-        .flag_if_supported("-std=c++17")
+        .flag_if_supported("-std=c++20")
         // include paths already passed in by the autocxx builder
         //.includes(include_paths.iter())
         //.cpp_set_stdlib(Some("stdc++"))

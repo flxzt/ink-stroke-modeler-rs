@@ -36,6 +36,7 @@ autocxx::include_cpp! {
 
     generate!("bd_stroke_model_params_new_w_stroke_end_predictor")
     generate!("bd_stroke_model_params_new_w_kalman_predictor")
+    generate!("bd_stroke_model_params_new_w_disabled_predictor")
 
     generate!("stroke_modeler_new")
     generate!("stroke_modeler_reset")
@@ -51,6 +52,7 @@ autocxx::include_cpp! {
     generate!("input_get_tilt")
     generate!("input_get_orientation")
 
+    generate!("results_new")
     generate!("result_make_unique")
     generate!("result_get_position")
     generate!("result_get_velocity")
@@ -58,6 +60,12 @@ autocxx::include_cpp! {
     generate!("result_get_pressure")
     generate!("result_get_tilt")
     generate!("result_get_orientation")
+}
+
+#[derive(Debug, thiserror::Error, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum ModelerError {
+    #[error("Absl Status Code: {0}")]
+    AbslStatusCode(i32),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -90,18 +98,16 @@ impl From<ModelerInputEventType> for stroke_model::Input_EventType {
 
 pub struct ModelerInput(cxx::UniquePtr<stroke_model::Input>);
 
-impl std::fmt::Display for ModelerInput {
+impl std::fmt::Debug for ModelerInput {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "input: {{ event_type: {:?}, pos: {:?}, time: {}, pressure: {}, tilt: {}, orientation: {} }}",
-            self.get_event_type(),
-            self.get_pos(),
-            self.get_time(),
-            self.get_pressure(),
-            self.get_tilt(),
-            self.get_orientation(),
-        )
+        f.debug_struct("ModelerInput")
+            .field("event_type", &self.get_event_type())
+            .field("pos", &self.get_pos())
+            .field("time", &self.get_time())
+            .field("pressure", &self.get_pressure())
+            .field("tilt", &self.get_tilt())
+            .field("orientation", &self.get_orientation())
+            .finish()
     }
 }
 
@@ -172,18 +178,16 @@ impl From<cxx::UniquePtr<stroke_model::Result>> for ModelerResult {
     }
 }
 
-impl std::fmt::Display for ModelerResult {
+impl std::fmt::Debug for ModelerResult {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "res: {{ pos: {:?}, velocity: {:?}, time: {}, pressure: {}, tilt: {}, orientation: {} }}",
-            self.get_pos(),
-            self.get_velocity(),
-            self.get_time(),
-            self.get_pressure(),
-            self.get_tilt(),
-            self.get_orientation(),
-        )
+        f.debug_struct("ModelerResult")
+            .field("pos", &self.get_pos())
+            .field("velocity", &self.get_velocity())
+            .field("time", &self.get_time())
+            .field("pressure", &self.get_pressure())
+            .field("tilt", &self.get_tilt())
+            .field("orientation", &self.get_orientation())
+            .finish()
     }
 }
 
@@ -227,6 +231,7 @@ impl ModelerResult {
 pub enum PredictionParams {
     StrokeEnd,
     Kalman(KalmanPredictorParams),
+    Disabled,
 }
 
 impl PredictionParams {}
@@ -368,6 +373,15 @@ impl StrokeModelerParams {
                 )
                 .within_unique_ptr()
             }
+            PredictionParams::Disabled => {
+                crate::ffi::bd_stroke_model_params_new_w_disabled_predictor(
+                    wobble_smoother_params,
+                    position_modeler_params,
+                    sampling_params,
+                    stylus_state_params,
+                )
+                .within_unique_ptr()
+            }
         }
     }
 }
@@ -387,30 +401,54 @@ impl StrokeModeler {
         Self(crate::ffi::stroke_modeler_new(params.into_ffi()).within_unique_ptr())
     }
 
-    pub fn reset(&mut self) {
-        crate::ffi::stroke_modeler_reset(self.0.pin_mut());
+    pub fn reset(&mut self) -> Result<(), ModelerError> {
+        let c: autocxx::c_int = crate::ffi::stroke_modeler_reset(self.0.pin_mut());
+        if c == autocxx::c_int(0) {
+            Ok(())
+        } else {
+            Err(ModelerError::AbslStatusCode(c.into()))
+        }
     }
 
-    pub fn reset_w_params(&mut self, params: StrokeModelerParams) {
-        crate::ffi::stroke_modeler_reset_w_params(self.0.pin_mut(), params.into_ffi());
+    pub fn reset_w_params(&mut self, params: StrokeModelerParams) -> Result<(), ModelerError> {
+        let c: autocxx::c_int =
+            crate::ffi::stroke_modeler_reset_w_params(self.0.pin_mut(), params.into_ffi());
+        if c == autocxx::c_int(0) {
+            Ok(())
+        } else {
+            Err(ModelerError::AbslStatusCode(c.into()))
+        }
     }
 
-    pub fn update(&mut self, input: ModelerInput) -> Vec<ModelerResult> {
-        let results = crate::ffi::stroke_modeler_update(self.0.pin_mut(), input.into_ffi());
-
-        results
-            .into_iter()
-            .map(|r| ModelerResult::from(crate::ffi::result_make_unique(r)))
-            .collect()
+    pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerResult>, ModelerError> {
+        let mut results = crate::ffi::results_new();
+        let c: autocxx::c_int = crate::ffi::stroke_modeler_update(
+            self.0.pin_mut(),
+            input.into_ffi(),
+            results.pin_mut(),
+        );
+        if c == autocxx::c_int(0) {
+            Ok(results
+                .into_iter()
+                .map(|r| ModelerResult::from(crate::ffi::result_make_unique(r)))
+                .collect::<Vec<ModelerResult>>())
+        } else {
+            Err(ModelerError::AbslStatusCode(c.into()))
+        }
     }
 
-    pub fn predict(&mut self) -> Vec<ModelerResult> {
-        let results = crate::ffi::stroke_modeler_predict(self.0.pin_mut());
-
-        results
-            .into_iter()
-            .map(|r| ModelerResult::from(crate::ffi::result_make_unique(r)))
-            .collect()
+    pub fn predict(&mut self) -> Result<Vec<ModelerResult>, ModelerError> {
+        let mut results = crate::ffi::results_new();
+        let c: autocxx::c_int =
+            crate::ffi::stroke_modeler_predict(self.0.pin_mut(), results.pin_mut());
+        if c == autocxx::c_int(0) {
+            Ok(results
+                .into_iter()
+                .map(|r| ModelerResult::from(crate::ffi::result_make_unique(r)))
+                .collect::<Vec<ModelerResult>>())
+        } else {
+            Err(ModelerError::AbslStatusCode(c.into()))
+        }
     }
 }
 
@@ -487,7 +525,7 @@ mod tests {
         let mut modeler = crate::StrokeModeler::default();
 
         for res in inputs.into_iter().flat_map(|i| modeler.update(i)) {
-            println!("{res}")
+            println!("{res:?}")
         }
     }
 
@@ -495,13 +533,16 @@ mod tests {
     fn modeler_reset() {
         let mut modeler = crate::StrokeModeler::default();
 
-        modeler.reset();
+        assert_eq!(Ok(()), modeler.reset());
     }
 
     #[test]
     fn modeler_reset_w_params() {
         let mut modeler = crate::StrokeModeler::default();
 
-        modeler.reset_w_params(crate::StrokeModelerParams::suggested());
+        assert_eq!(
+            Ok(()),
+            modeler.reset_w_params(crate::StrokeModelerParams::suggested())
+        );
     }
 }

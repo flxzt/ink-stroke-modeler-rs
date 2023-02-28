@@ -1,6 +1,8 @@
 #![allow(unused)]
 
-use ink_stroke_modeler_rs::{ModelerInput, ModelerInputEventType, ModelerResult, StrokeModeler};
+use ink_stroke_modeler_rs::{
+    ModelerError, ModelerInput, ModelerInputEventType, ModelerResult, StrokeModeler,
+};
 use svg::Node;
 
 fn main() -> anyhow::Result<()> {
@@ -75,7 +77,13 @@ fn main() -> anyhow::Result<()> {
 
     let results = stroke
         .into_iter()
-        .flat_map(|i| modeler.update(i))
+        .filter_map(|i| {
+            modeler
+                .update(i)
+                .map_err(|e| eprintln!("modeler updated, Err: {e:?}"))
+                .ok()
+        })
+        .flatten()
         .collect::<Vec<ModelerResult>>();
 
     let result_elements = results
