@@ -1,10 +1,14 @@
-<svg height="4" width="6" x="0" xmlns="http://www.w3.org/2000/svg" y="0">
-<rect fill="white" height="4" width="6" x="0" y="0"/>
-<line stroke="black" stroke-width="0.01" x1="1" x2="1.2" y1="1" y2="2"/>
-<line stroke="black" stroke-width="0.01" x1="1.2" x2="1.4" y1="2" y2="2.3"/>
-<line stroke="black" stroke-width="0.01" x1="1.4" x2="3.5" y1="2.3" y2="2"/>
-<line stroke="black" stroke-width="0.01" x1="3.5" x2="4" y1="2" y2="2.5"/>
-<line stroke="black" stroke-width="0.01" x1="4" x2="5" y1="2.5" y2="3"/>
-<line stroke="black" stroke-width="0.01" x1="5" x2="4.8" y1="3" y2="3.1"/>
-<line stroke="black" stroke-width="0.01" x1="4.8" x2="4.5" y1="3.1" y2="3"/>
+<svg height="300" width="300" x="0" xmlns="http://www.w3.org/2000/svg" y="0">
+<rect fill="white" height="300" width="300" x="0" y="0"/>
+<line stroke="hsl(200, 100%, 91%" stroke-linecap="round" stroke-width="2" x1="90" x2="30" y1="30" y2="45"/>
+<line stroke="hsl(200, 100%, 50%" stroke-linecap="round" stroke-width="2" x1="30" x2="60" y1="45" y2="240"/>
+<line stroke="hsl(200, 100%, 29%" stroke-linecap="round" stroke-width="2" x1="60" x2="105" y1="240" y2="270"/>
+<line stroke="hsl(200, 100%, 31%" stroke-linecap="round" stroke-width="2" x1="105" x2="120" y1="270" y2="150"/>
+<line stroke="hsl(200, 100%, 56%" stroke-linecap="round" stroke-width="2" x1="120" x2="180" y1="150" y2="30"/>
+<line stroke="hsl(200, 100%, 83%" stroke-linecap="round" stroke-width="2" x1="180" x2="240" y1="30" y2="120"/>
+<line stroke="hsl(200, 100%, 42%" stroke-linecap="round" stroke-width="2" x1="240" x2="210" y1="120" y2="150"/>
+<line stroke="hsl(200, 100%, 29%" stroke-linecap="round" stroke-width="2" x1="210" x2="150" y1="150" y2="210"/>
+<line stroke="hsl(200, 100%, 31%" stroke-linecap="round" stroke-width="2" x1="150" x2="210" y1="210" y2="240"/>
+<line stroke="hsl(200, 100%, 33%" stroke-linecap="round" stroke-width="2" x1="210" x2="255" y1="240" y2="240"/>
+<line stroke="hsl(200, 100%, 42%" stroke-linecap="round" stroke-width="2" x1="255" x2="270" y1="240" y2="270"/>
 </svg>
