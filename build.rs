@@ -45,7 +45,8 @@ fn main() -> miette::Result<()> {
         .define("INK_STROKE_MODELER_FIND_DEPENDENCIES", "ON")
         .define("INK_STROKE_MODELER_BUILD_TESTING", "OFF")
         .define("INK_STROKE_MODELER_ENABLE_INSTALL", "ON")
-        // This takes priority in find_package() when searching for absl to use our compiled version instead of the system-provided package
+        // This takes priority in find_package() when searching for absl to use our compiled version
+        // instead of the system-provided package
         .define("CMAKE_PREFIX_PATH", &out_dir.to_slash_lossy().to_string())
         .define(
             "CMAKE_INSTALL_PREFIX",

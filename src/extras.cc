@@ -1,3 +1,4 @@
+// extras.cc
 
 #include "extras.h"
 
@@ -13,14 +14,14 @@
 #include "ink_stroke_modeler/types.h"
 #include "rust/cxx.h"
 
-static ink::stroke_model::PredictionParams convert_bd_prediction_params(
-    BdPredictionParams bd_prediction_params);
+static ink::stroke_model::PredictionParams
+convert_bd_prediction_params(BdPredictionParams bd_prediction_params);
 
-static ink::stroke_model::StrokeModelParams convert_bd_stroke_modeler_params(
-    BdStrokeModelParams bd_params);
+static ink::stroke_model::StrokeModelParams
+convert_bd_stroke_modeler_params(BdStrokeModelParams bd_params);
 
-static ink::stroke_model::PredictionParams convert_bd_prediction_params(
-    BdPredictionParams bd_prediction_params) {
+static ink::stroke_model::PredictionParams
+convert_bd_prediction_params(BdPredictionParams bd_prediction_params) {
   if (std::holds_alternative<BdStrokeEndPredictorParams>(
           bd_prediction_params)) {
     return ink::stroke_model::StrokeEndPredictorParams{};
@@ -60,8 +61,8 @@ static ink::stroke_model::PredictionParams convert_bd_prediction_params(
   }
 }
 
-static ink::stroke_model::StrokeModelParams convert_bd_stroke_modeler_params(
-    BdStrokeModelParams bd_params) {
+static ink::stroke_model::StrokeModelParams
+convert_bd_stroke_modeler_params(BdStrokeModelParams bd_params) {
   return ink::stroke_model::StrokeModelParams{
       .wobble_smoother_params{
           .timeout = ink::stroke_model::Duration(
@@ -131,8 +132,8 @@ BdStrokeModelParams bd_stroke_model_params_new_w_disabled_predictor(
   };
 }
 
-ink::stroke_model::StrokeModeler stroke_modeler_new(
-    BdStrokeModelParams bd_params) {
+ink::stroke_model::StrokeModeler
+stroke_modeler_new(BdStrokeModelParams bd_params) {
   ink::stroke_model::StrokeModelParams params =
       convert_bd_stroke_modeler_params(bd_params);
 
@@ -200,21 +201,22 @@ int stroke_modeler_predict(
   return (int)status.code();
 }
 
-ink::stroke_model::Input input_new(
-    ink::stroke_model::Input::EventType event_type, ink::stroke_model::Vec2 pos,
-    double time, float pressure, float tilt, float orientation) {
+ink::stroke_model::Input
+input_new(ink::stroke_model::Input::EventType event_type,
+          ink::stroke_model::Vec2 pos, double time, float pressure, float tilt,
+          float orientation) {
   return ink::stroke_model::Input{
       event_type, pos,  ink::stroke_model::Time(time),
       pressure,   tilt, orientation};
 }
 
-ink::stroke_model::Input::EventType input_get_event_type(
-    const ink::stroke_model::Input &input) {
+ink::stroke_model::Input::EventType
+input_get_event_type(const ink::stroke_model::Input &input) {
   return input.event_type;
 }
 
-ink::stroke_model::Vec2 input_get_position(
-    const ink::stroke_model::Input &input) {
+ink::stroke_model::Vec2
+input_get_position(const ink::stroke_model::Input &input) {
   return input.position;
 }
 
@@ -238,20 +240,20 @@ std::vector<ink::stroke_model::Result> results_new() {
   return std::vector<ink::stroke_model::Result>();
 }
 
-// cxx does not have unique pointers in returned CxxVector's, so we need this
-// function to make every element a unique_ptr afterwards
-std::unique_ptr<ink::stroke_model::Result> result_make_unique(
-    ink::stroke_model::Result result) {
+// Cxx does not have unique pointers in returned CxxVector's, so we need this
+// function to make every element a unique_ptr afterwards.
+std::unique_ptr<ink::stroke_model::Result>
+result_make_unique(ink::stroke_model::Result result) {
   return std::make_unique<ink::stroke_model::Result>(result);
 }
 
-ink::stroke_model::Vec2 result_get_position(
-    const ink::stroke_model::Result &result) {
+ink::stroke_model::Vec2
+result_get_position(const ink::stroke_model::Result &result) {
   return result.position;
 }
 
-ink::stroke_model::Vec2 result_get_velocity(
-    const ink::stroke_model::Result &result) {
+ink::stroke_model::Vec2
+result_get_velocity(const ink::stroke_model::Result &result) {
   return result.velocity;
 }
 

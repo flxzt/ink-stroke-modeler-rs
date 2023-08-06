@@ -6,7 +6,7 @@ use ink_stroke_modeler_rs::{
 use svg::Node;
 
 fn main() -> anyhow::Result<()> {
-    let bounds = AABB {
+    let bounds = Aabb {
         mins: (0.0, 0.0),
         maxs: (300.0, 300.0),
     };
@@ -148,7 +148,7 @@ fn main() -> anyhow::Result<()> {
 #[derive(Debug, Clone, Copy)]
 struct Element {
     pos: (f32, f32),
-    vel: Option<(f32, f32)>,
+    velocity: Option<(f32, f32)>,
     time: f64,
     pressure: f32,
     tilt: f32,
@@ -158,34 +158,34 @@ struct Element {
 impl Element {
     fn from_modeler_input(i: &ModelerInput) -> Self {
         Self {
-            pos: i.get_pos(),
-            vel: None,
-            time: i.get_time(),
-            pressure: i.get_pressure(),
-            tilt: i.get_tilt(),
-            orientation: i.get_orientation(),
+            pos: i.pos(),
+            velocity: None,
+            time: i.time(),
+            pressure: i.pressure(),
+            tilt: i.tilt(),
+            orientation: i.orientation(),
         }
     }
 
     fn from_modeler_result(r: &ModelerResult) -> Self {
         Self {
-            pos: r.get_pos(),
-            vel: Some(r.get_velocity()),
-            time: r.get_time(),
-            pressure: r.get_pressure(),
-            tilt: r.get_tilt(),
-            orientation: r.get_orientation(),
+            pos: r.pos(),
+            velocity: Some(r.velocity()),
+            time: r.time(),
+            pressure: r.pressure(),
+            tilt: r.tilt(),
+            orientation: r.orientation(),
         }
     }
 }
 
 #[derive(Debug, Clone, Copy)]
-struct AABB {
+struct Aabb {
     mins: (f32, f32),
     maxs: (f32, f32),
 }
 
-impl AABB {
+impl Aabb {
     fn new_invalid() -> Self {
         Self {
             mins: (f32::MAX, f32::MAX),
@@ -210,7 +210,7 @@ impl AABB {
 
 fn create_svg(
     elements: &[Element],
-    bounds: AABB,
+    bounds: Aabb,
     file: impl AsRef<std::path::Path>,
 ) -> anyhow::Result<()> {
     let mut doc = svg::Document::new()
