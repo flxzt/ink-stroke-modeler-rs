@@ -5,7 +5,6 @@ use path_slash::PathBufExt;
 
 fn main() -> miette::Result<()> {
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").into_diagnostic()?);
-
     let install_lib_dir = out_dir.join("lib");
     let install_include_dir = out_dir.join("include");
 
@@ -14,15 +13,12 @@ fn main() -> miette::Result<()> {
         PathBuf::from("src/lib.rs"),
         PathBuf::from("include/extras.h"),
     ];
-
     let bindings_cpp_sources = vec![PathBuf::from("src/extras.cc")];
 
     let _absl_cmake_install_dir = cmake::Config::new("abseil-cpp")
         .define("CMAKE_CXX_STANDARD", "20")
         // Rust needs -fPIE or -fPIC
         .define("CMAKE_POSITION_INDEPENDENT_CODE", "ON")
-        .define("ABSL_PROPAGATE_CXX_STD", "ON")
-        .define("BUILD_TESTING", "OFF")
         .define("CMAKE_PREFIX_PATH", &out_dir.to_slash_lossy().to_string())
         .define(
             "CMAKE_INSTALL_PREFIX",
@@ -36,16 +32,17 @@ fn main() -> miette::Result<()> {
             "CMAKE_INSTALL_INCLUDEDIR",
             &install_include_dir.to_slash_lossy().to_string(),
         )
+        .define("BUILD_TESTING", "OFF")
+        // this possibly circumvents build failure with mingw. see: https://github.com/abseil/abseil-cpp/issues/1510
+        .define("BUILD_SHARED_LIBS", "OFF")
+        .define("ABSL_PROPAGATE_CXX_STD", "ON")
         .build();
 
     let _ink_stroke_modeler_cmake_install_dir = cmake::Config::new("ink-stroke-modeler")
         .define("CMAKE_CXX_STANDARD", "20")
         // Rust needs -fPIE or -fPIC
         .define("CMAKE_POSITION_INDEPENDENT_CODE", "ON")
-        .define("INK_STROKE_MODELER_FIND_DEPENDENCIES", "ON")
-        .define("INK_STROKE_MODELER_BUILD_TESTING", "OFF")
-        .define("INK_STROKE_MODELER_ENABLE_INSTALL", "ON")
-        // This takes priority in find_package() when searching for absl to use our compiled version
+        // This takes priority in cmake's find_package() when searching for absl to use our compiled version
         // instead of the system-provided package
         .define("CMAKE_PREFIX_PATH", &out_dir.to_slash_lossy().to_string())
         .define(
@@ -60,6 +57,9 @@ fn main() -> miette::Result<()> {
             "CMAKE_INSTALL_INCLUDEDIR",
             &install_include_dir.to_slash_lossy().to_string(),
         )
+        .define("INK_STROKE_MODELER_FIND_DEPENDENCIES", "ON")
+        .define("INK_STROKE_MODELER_BUILD_TESTING", "OFF")
+        .define("INK_STROKE_MODELER_ENABLE_INSTALL", "ON")
         .build();
 
     let include_paths = vec![
@@ -73,7 +73,6 @@ fn main() -> miette::Result<()> {
         autocxx_build::Builder::new(PathBuf::from("src/lib.rs"), include_paths.iter())
             .extra_clang_args(&["-std=c++20"])
             .build()?;
-
     builder
         //.flag_if_supported("-v")
         .flag_if_supported("-std=c++20")
@@ -85,6 +84,7 @@ fn main() -> miette::Result<()> {
         .into_diagnostic()?;
 
     // Linking
+
     println!(
         "cargo:rustc-link-search=native={}",
         install_lib_dir.display()
@@ -106,7 +106,7 @@ fn main() -> miette::Result<()> {
         }
     }
 
-    // Files
+    // Re-run when files are modified
     for source in bindings_files.iter().chain(bindings_cpp_sources.iter()) {
         println!("cargo:rerun-if-changed={}", source.display());
     }
