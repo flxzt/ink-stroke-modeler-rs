@@ -77,11 +77,11 @@ fn main() -> miette::Result<()> {
 
     let mut builder =
         autocxx_build::Builder::new(PathBuf::from("src/lib.rs"), include_paths.iter())
-            .extra_clang_args(&["-std=c++20"])
+            .extra_clang_args(&["-std=gnu++20"])
             .build()?;
     builder
         //.flag_if_supported("-v")
-        .flag_if_supported("-std=c++20")
+        .flag_if_supported("-std=gnu++20")
         // include paths already passed in by the autocxx builder
         //.includes(include_paths.iter())
         //.cpp_set_stdlib(Some("stdc++"))
