@@ -3,9 +3,7 @@
 #[cfg(test)]
 mod ink_stroke_modeler {
 
-    use na::vec2;
-
-    use crate::utils::{interp, nearest_point_on_segment, normalize01_32};
+    use crate::utils::{interp, interp2, nearest_point_on_segment, normalize01_32};
 
     // import parent
     use super::super::*;
@@ -76,53 +74,38 @@ mod ink_stroke_modeler {
 
     #[test]
     fn test_interp_vec2() {
-        assert_eq!(
-            interp(vec2!(1.0, 2.0), vec2!(3.0, 5.0), 0.5),
-            vec2!(2.0, 3.5)
-        );
-
-        assert_eq!(
-            interp(vec2!(-5.0, 5.0), vec2!(-15.0, 0.0), 0.4),
-            vec2!(-9.0, 3.0)
-        );
-
-        assert_eq!(
-            interp(vec2!(7.0, 9.0), vec2!(25.0, 30.0), -0.1),
-            vec2!(7.0, 9.0)
-        );
-
-        assert_eq!(
-            interp(vec2!(12.0, 5.0), vec2!(13.0, 14.0), 3.2),
-            vec2!(13.0, 14.0)
-        );
+        assert_eq!(interp2((1.0, 2.0), (3.0, 5.0), 0.5), (2.0, 3.5));
+        assert_eq!(interp2((-5.0, 5.0), (-15.0, 0.0), 0.4), (-9.0, 3.0));
+        assert_eq!(interp2((7.0, 9.0), (25.0, 30.0), -0.1), (7.0, 9.0));
+        assert_eq!(interp2((12.0, 5.0), (13.0, 14.0), 3.2), (13.0, 14.0));
     }
 
     #[test]
     fn test_nearest_point() {
         assert_eq!(
-            nearest_point_on_segment(vec2!(0.0, 0.0), vec2!(1.0, 0.0), vec2!(0.25, 0.5),),
+            nearest_point_on_segment((0.0, 0.0), (1.0, 0.0), (0.25, 0.5),),
             0.25
         );
         assert_eq!(
-            nearest_point_on_segment(vec2!(3.0, 4.0), vec2!(5.0, 6.0), vec2!(-1.0, -1.0),),
+            nearest_point_on_segment((3.0, 4.0), (5.0, 6.0), (-1.0, -1.0),),
             0.0
         );
         assert_eq!(
-            nearest_point_on_segment(vec2!(20.0, 10.0), vec2!(10.0, 5.0), vec2!(2.0, 2.0),),
+            nearest_point_on_segment((20.0, 10.0), (10.0, 5.0), (2.0, 2.0),),
             1.0
         );
         assert_eq!(
-            nearest_point_on_segment(vec2!(0.0, 5.0), vec2!(5.0, 0.0), vec2!(3.0, 3.0),),
+            nearest_point_on_segment((0.0, 5.0), (5.0, 0.0), (3.0, 3.0),),
             0.5
         );
 
         // degenerate cases
         assert_eq!(
-            nearest_point_on_segment(vec2!(0.0, 0.0), vec2!(0.0, 0.0), vec2!(5.0, 10.0),),
+            nearest_point_on_segment((0.0, 0.0), (0.0, 0.0), (5.0, 10.0),),
             0.0
         );
         assert_eq!(
-            nearest_point_on_segment(vec2!(3.0, 7.0), vec2!(3.0, 7.0), vec2!(0.0, -20.0),),
+            nearest_point_on_segment((3.0, 7.0), (3.0, 7.0), (0.0, -20.0),),
             0.0
         );
     }

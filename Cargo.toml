@@ -8,7 +8,3 @@ rust-version = "1.65"
 [dev-dependencies]
 anyhow = "1.0"
 svg = "0.16.0"
-
-[dependencies]
-na = "0.32.2"
-nan = "0.1.0"

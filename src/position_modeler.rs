@@ -112,9 +112,9 @@ impl PositionModeler {
             }
 
             if nearest_point_on_segment(
-                na::vec2!(previous_state.pos.0, previous_state.pos.1),
-                na::vec2!(candidate.pos.0, candidate.pos.1),
-                na::vec2!(anchor_pos.0, anchor_pos.1),
+                (previous_state.pos.0, previous_state.pos.1),
+                (candidate.pos.0, candidate.pos.1),
+                (anchor_pos.0, anchor_pos.1),
             ) < 1.0
             {
                 // overshoot, try with a smaller delta t
