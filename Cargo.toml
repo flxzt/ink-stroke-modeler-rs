@@ -4,19 +4,11 @@ license = "MIT OR Apache-2.0"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.65"
-build = "build.rs"
-
-[dependencies]
-autocxx = "0.26.0"
-cxx = "1.0"
-thiserror = "1.0"
-
-[build-dependencies]
-autocxx-build = "0.26.0"
-cmake = "0.1.50"
-miette = {version = "7.2", features = ["fancy"] }
-path-slash = "0.2.1"
 
 [dev-dependencies]
 anyhow = "1.0"
 svg = "0.16.0"
+
+[dependencies]
+na = "0.32.2"
+nan = "0.1.0"

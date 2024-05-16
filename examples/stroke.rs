@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use ink_stroke_modeler_rs::{
-    ModelerError, ModelerInput, ModelerInputEventType, ModelerResult, StrokeModeler,
+    ModelerInput, ModelerInputEventType, ModelerParams, ModelerResult, StrokeModeler
 };
 use svg::Node;
 
@@ -17,96 +17,72 @@ fn main() -> anyhow::Result<()> {
             (90.0, 30.0),
             0.0,
             0.25,
-            0.0,
-            0.0,
         ),
         ModelerInput::new(
             ModelerInputEventType::kMove,
             (30.0, 45.0),
             0.02,
             0.3,
-            0.0,
-            0.0,
         ),
         ModelerInput::new(
             ModelerInputEventType::kMove,
             (60.0, 240.0),
             0.04,
             0.7,
-            0.0,
-            0.0,
         ),
         ModelerInput::new(
             ModelerInputEventType::kMove,
             (105.0, 270.0),
             0.06,
             1.0,
-            0.0,
-            0.0,
         ),
         ModelerInput::new(
             ModelerInputEventType::kMove,
             (120.0, 150.0),
             0.10,
             0.6,
-            0.0,
-            0.0,
         ),
         ModelerInput::new(
             ModelerInputEventType::kMove,
             (180.0, 30.0),
             0.12,
             0.3,
-            0.0,
-            0.0,
         ),
         ModelerInput::new(
             ModelerInputEventType::kMove,
             (240.0, 120.0),
             0.16,
             0.3,
-            0.0,
-            0.0,
         ),
         ModelerInput::new(
             ModelerInputEventType::kMove,
             (210.0, 150.0),
             0.18,
             0.9,
-            0.0,
-            0.0,
         ),
         ModelerInput::new(
             ModelerInputEventType::kMove,
             (150.0, 210.0),
             0.20,
             0.8,
-            0.0,
-            0.0,
         ),
         ModelerInput::new(
             ModelerInputEventType::kMove,
             (210.0, 240.0),
             0.22,
             0.8,
-            0.0,
-            0.0,
         ),
         ModelerInput::new(
             ModelerInputEventType::kMove,
             (255.0, 240.0),
             0.24,
             0.7,
-            0.0,
-            0.0,
         ),
         ModelerInput::new(
             ModelerInputEventType::kUp,
             (270.0, 270.0),
             0.26,
             0.5,
-            0.0,
-            0.0,
         ),
     ];
     let input_elements = input_stroke
@@ -130,11 +106,10 @@ fn main() -> anyhow::Result<()> {
                 .ok()
         })
         .flatten()
-        .collect::<Vec<ModelerResult>>();
-
+        .collect::<Vec<ModelerInput>>();
     let result_elements = result_stroke
         .iter()
-        .map(Element::from_modeler_result)
+        .map(Element::from_modeler_input)
         .collect::<Vec<Element>>();
     create_svg(
         &result_elements,
@@ -151,8 +126,6 @@ struct Element {
     velocity: Option<(f32, f32)>,
     time: f64,
     pressure: f32,
-    tilt: f32,
-    orientation: f32,
 }
 
 impl Element {
@@ -162,8 +135,6 @@ impl Element {
             velocity: None,
             time: i.time(),
             pressure: i.pressure(),
-            tilt: i.tilt(),
-            orientation: i.orientation(),
         }
     }
 
@@ -173,8 +144,6 @@ impl Element {
             velocity: Some(r.velocity()),
             time: r.time(),
             pressure: r.pressure(),
-            tilt: r.tilt(),
-            orientation: r.orientation(),
         }
     }
 }
