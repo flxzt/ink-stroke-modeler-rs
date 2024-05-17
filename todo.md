@@ -10,5 +10,6 @@
 - [ ] review the code one more time
 - [x] performance and less `Copy` traits (copy less data around)
 - [ ] adapt the default settings (cm for distance and seconds for time != what's rnote reporting)
-- [ ] docstrings updates
+- [x] docstrings updates
+    - [ ] doctest for each submodule ? + an architecture file ? For now the actual underlying implementation/mechanic still is a little obscure
 - [ ] API changes (f32 vs f64, and using rust durations) ?

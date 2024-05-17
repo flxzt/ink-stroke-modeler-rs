@@ -1,0 +1,50 @@
+<h2>Stylus state modeler</h2>
+<p>Up till now we have only used the raw input stream to create a new
+smoothed stream of positions, leaving behind the pressure attribute.
+This is what’s done here, to model the state of the stylus for these new
+position based on the pressure data of the raw input strokes.<br />
+<strong>Algorithm</strong> Stylus state modeler<br />
+<strong>Input</strong> :</p>
+<ul>
+<li><p>input stream with pressure information
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">{</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>y</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>ν</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mn>0</mn><mo>≤</mo><mi>k</mi><mo>≤</mo><mi>n</mi><mo stretchy="true" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\left\{ \left( p\lbrack k\rbrack = \left( x\lbrack k\rbrack,y\lbrack k\rbrack \right),\nu\lbrack k\rbrack \right),0 \leq k \leq n \right\}</annotation></semantics></math></p></li>
+<li><p>query position
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">q = (x,y)</annotation></semantics></math></p></li>
+<li><p>search window
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mtext mathvariant="normal">search</mtext></msub><annotation encoding="application/x-tex">n_{\text{search}}</annotation></semantics></math>
+(From <code>stylus_state_modeler_max_input_samples</code>),</p></li>
+</ul>
+<p><br />
+<strong>initialize</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">d = \infty</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">index</mtext><mo>=</mo><mtext mathvariant="normal">None</mtext></mrow><annotation encoding="application/x-tex">\text{index} = \text{None}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">interp </mtext><mspace width="0.333em"></mspace></mrow><mo>=</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> None</mtext></mrow></mrow><annotation encoding="application/x-tex">\text{interp } = \text{ None}</annotation></semantics></math><br />
+<strong>for</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mi>n</mi><mo>−</mo><msub><mi>n</mi><mtext mathvariant="normal">search</mtext></msub></mrow><annotation encoding="application/x-tex">i = n - n_{\text{search}}</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+<strong>do</strong><br />
+- <strong>Find</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mi>i</mi></msub><annotation encoding="application/x-tex">q_{i}</annotation></semantics></math>
+the position that’s closest to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+on the segment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\left\lbrack p\lbrack i\rbrack,p\lbrack i + 1\rbrack \right\rbrack</annotation></semantics></math>
+and denote
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>∈</mo><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">r \in \lbrack 0,1\rbrack</annotation></semantics></math>
+the value such that
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>q</mi><mi>i</mi></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mi>r</mi><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">q_{i} = (1 - r)p\lbrack i\rbrack + rp\lbrack i + 1\rbrack</annotation></semantics></math><br />
+- <strong>if</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo>∥</mo><mrow><mi>q</mi><mo>−</mo><msub><mi>q</mi><mi>i</mi></msub></mrow></mrow><mo>∥</mo><mo>&lt;</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">\left. \parallel{q - q_{i}} \right.\parallel &lt; d</annotation></semantics></math><br />
+-
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>d</mi><mo>←</mo><mrow><mo>∥</mo><mrow><mi>q</mi><mo>−</mo><msub><mi>q</mi><mi>i</mi></msub></mrow></mrow><mo>∥</mo><mo>&lt;</mo><mi>d</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">index </mtext><mspace width="0.333em"></mspace></mrow><mo>=</mo><mi>i</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">interp </mtext><mspace width="0.333em"></mspace></mrow><mo>=</mo><mi>r</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{array}{r}
+d \leftarrow \left. \parallel{q - q_{i}} \right.\parallel &lt; d \\
+\text{index } = i \\
+\text{interp } = r
+\end{array}</annotation></semantics></math><br />
+- <strong>endif</strong><br />
+<strong>endfor</strong><br />
+<strong>calculate</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ν</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>ν</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">index</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo>+</mo><mi>r</mi><mi>ν</mi><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mtext mathvariant="normal">index </mtext><mspace width="0.333em"></mspace></mrow><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\nu = (1 - r)\nu\left\lbrack \text{index} \right\rbrack + r\nu\left\lbrack \text{index } + 1 \right\rbrack</annotation></semantics></math><br />
+<strong>Output</strong> : interpolated pressure
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ν</mi><annotation encoding="application/x-tex">\nu</annotation></semantics></math></p>

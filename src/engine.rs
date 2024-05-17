@@ -26,6 +26,11 @@ pub struct WobbleSample {
     pub time: f64,
 }
 
+#[doc = include_str!("../docs/notations.html")]
+#[doc = include_str!("../docs/resampling.html")]
+#[doc = include_str!("../docs/position_modeling.html")]
+#[doc = include_str!("../docs/stylus_state_modeler.html")]
+#[doc = include_str!("../docs/stroke_end.html")]
 impl StrokeModeler {
     pub fn new(params: ModelerParams) -> Self {
         Self {
@@ -80,16 +85,11 @@ impl StrokeModeler {
     /// (This does not require that any previous results returned remain in the results vector, as it is
     /// appended to without examining the existing contents)
     ///
-    /// maybe better to change the API to have it not be copied everytime but using a reference ?
-    /// As it's expected to be called 100s of times on a stroke, with a relatively small results part each time
-    ///
     /// If this does not return an error, results will contain at least one Result, and potentially
     /// more if the inputs are slower than the minimum output rate
     ///
     /// for now rnote's wrapper codes verify that the input is not duplicated and time increases between strokes
-    /// but this is tested in the ink-stroke-modeler code as well and would fail it
-    ///
-    /// Normally, there is a match on the kdown, kMove or KUp part done to process the event
+    /// This is not tested here, as we suppose that these things are verified beforehand
     pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerResult>, i32> {
         // print to stdout the value (for raw values)
         // println!(
@@ -284,7 +284,7 @@ impl StrokeModeler {
     ///uses a moving average of position and interpolating between this
     ///position and the raw position based on the speed.
     ///high speeds movements won't be smoothed but low speed will.
-    #[doc =include_str!("./wobble_doc.html")]
+    #[doc = include_str!("../docs/wobble.html")]
     pub fn wobble_update(&mut self, event: &ModelerInput) -> (f32, f32) {
         match self.wobble_decque.len() {
             0 => {

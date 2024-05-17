@@ -20,6 +20,9 @@ pub fn normalize01_32(start: f32, end: f32, value: f32) -> f32 {
     }
 }
 
+/// interpolate the value
+/// 
+/// normal interpolation clamped to \[0,1\] for the `interp_amount`
 pub fn interp<T>(start: T, end: T, interp_amount: f32) -> T
 where
     T: Sub<Output = T>,
@@ -30,6 +33,7 @@ where
     start + (end - start) * interp_amount.clamp(0.0, 1.0)
 }
 
+/// interpolation (with the `interp_amount` clamped between 0 and 1) for `(f32,f32)` types
 pub fn interp2(start: (f32, f32), end: (f32, f32), interp_amount: f32) -> (f32, f32) {
     (
         start.0 + interp_amount.clamp(0.0, 1.0) * (end.0 - start.0),
@@ -37,9 +41,9 @@ pub fn interp2(start: (f32, f32), end: (f32, f32), interp_amount: f32) -> (f32, 
     )
 }
 
-// returns the point on the line segment from `segment_start` to `segment_end`
-// that is closest to `point`, represented as the ratio of the length
-// along the segment
+/// returns the point on the line segment from `segment_start` to `segment_end`
+/// that is closest to `point`, represented as the ratio of the length
+/// along the segment
 pub fn nearest_point_on_segment(start: (f32, f32), end: (f32, f32), point: (f32, f32)) -> f32 {
     if start == end {
         0.0_f32
@@ -51,6 +55,7 @@ pub fn nearest_point_on_segment(start: (f32, f32), end: (f32, f32), point: (f32,
     }
 }
 
+/// dot product for `(f32,32)` types
 pub fn dot(x: (f32, f32), y: (f32, f32)) -> f32 {
     x.0 * y.0 + x.1 * y.1
 }

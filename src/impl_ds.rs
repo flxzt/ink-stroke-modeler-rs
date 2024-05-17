@@ -3,7 +3,9 @@ use super::*;
 
 // implementation for all structures
 
-// impl for ModelerInput
+/// To create a new input
+///
+/// This is kinda superfluous because initializattion as a struct can also be done
 impl ModelerInput {
     pub fn new(
         event_type: ModelerInputEventType,
@@ -17,10 +19,11 @@ impl ModelerInput {
             time,
             pressure,
         }
-        // probably needs to be changed because of mutability and access
     }
 
-    // helper methods : still somewhat useful for compat + mutability
+    // helper methods : superfluous if we make the params of the struct public
+    // we don't have to do a ffi unwrap
+
     pub fn event_type(&self) -> ModelerInputEventType {
         self.event_type
     }
@@ -181,7 +184,8 @@ impl Default for ModelerResult {
         }
     }
 }
-
+/// Utility to compare [ModelerResult] up to `tol =1e-4` (not settable for now)
+/// with printed output for debug purposes
 pub fn compare_results(left: Vec<ModelerResult>, right: Vec<ModelerResult>) -> bool {
     if left.len() != right.len() {
         // debug prints

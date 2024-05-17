@@ -9,16 +9,18 @@ pub mod testing;
 pub mod utils;
 
 use position_modeler::PositionModeler;
-// imports
+// imports/ re exports
 use engine::WobbleSample;
-use state_modeler::StateModeler;
+// re export
+pub use state_modeler::StateModeler;
 
+/// struct holding all information for input event
 #[derive(Clone, Debug, PartialEq)]
 pub struct ModelerInput {
-    event_type: ModelerInputEventType,
-    pos: (f32, f32),
-    time: f64,
-    pressure: f32,
+    pub event_type: ModelerInputEventType,
+    pub pos: (f32, f32),
+    pub time: f64,
+    pub pressure: f32,
     // tilt and orientation are optional parameters, so we remove them here to
     // make our lives easier
 }
@@ -34,15 +36,19 @@ impl Default for ModelerInput {
     }
 }
 
-// modeler Input event Type
+/// modeler Input event Type
 #[derive(Debug, Clone, Copy,PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[allow(non_camel_case_types)]
 pub enum ModelerInputEventType {
+    /// For the first pen down event (pen touches the screen)
     kDown,
+    /// For events between the first (`kDown`) and last (`Up`) event (pen moving on the screen)
     kMove,
+    /// For the last event (pen going up)
     kUp,
 }
 
+/// all parameters for the modeler
 #[derive(Debug, Clone, PartialEq, PartialOrd, Copy)]
 pub struct ModelerParams {
     /// these parameters are used to apply smoothing to the input to reduce
@@ -118,7 +124,8 @@ pub struct ModelerParams {
     pub stylus_state_modeler_max_input_samples: usize,
 }
 
-// result struct
+/// result struct
+/// contains the position, time, presusre as well as the velocity and acceleration data
 #[derive(Debug, PartialEq)]
 pub struct ModelerResult {
     pos: (f32, f32),
@@ -128,8 +135,7 @@ pub struct ModelerResult {
     pressure: f32,
 }
 
-/// same as before but no pressure
-///
+/// A [ModelerResult] that does not have yet a pressure information
 #[derive(Clone, Debug)]
 pub struct ModelerPartial {
     pos: (f32, f32),
