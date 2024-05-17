@@ -184,9 +184,23 @@ impl Default for ModelerResult {
 
 pub fn compare_results(left: Vec<ModelerResult>, right: Vec<ModelerResult>) -> bool {
     if left.len() != right.len() {
+        //println!("left : {:?} right {:?}",left.len(),right.len());
+        // iterate
+        //println!("left");
+        // for el in left {
+        // println!("{:?}",el);
+        // }
+        // println!("right");
+        // for el in right {
+        // println!("{:?}",el);
+        // }
         false
     } else {
-        left.into_iter().zip(right).all(|x| x.0.near(x.1))
+        left.into_iter().zip(right).all(|x| {
+            // println!("left : {:?}",x.0);
+            // println!("right {:?}",x.1);
+            x.0.near(x.1)
+        })
     }
 }
 

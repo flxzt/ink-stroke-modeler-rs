@@ -227,6 +227,7 @@ input).
     ],
     ind,
     [$Delta t <- (Delta t)/2$],
+    [*continue* #comment[this candidate will be discarded, try again with a smaller time step instead]], 
     ded,
     [*else*],
     ind,

@@ -1,5 +1,7 @@
 - [ ] check if `n_steps` robustness should be changed to pass all the tests in `position_modeler_test.cc`
 - [ ] tests for the stroke modeler
+    - We don't append to a vec passed in arguments (`UpdateAppendsToResults`)
+    - `RejectInputIfNegativeTimeDelta` and `RejectDuplicateInput` are not implemented here and are cases that are caught in the rnote code ...
 - [ ] review the code one more time
 - [ ] performance and less `Copy` traits (copy less data around)
 - [ ] use more `reserve`s on vec like the C++ code to speed up vec allocations

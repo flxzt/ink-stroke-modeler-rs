@@ -96,8 +96,10 @@ impl PositionModeler {
         for _ in 0..max_iterations {
             let previous_state = self.state;
             let candidate = self.update(anchor_pos, previous_state.time + delta_time);
+            //println!("candidate {:?}",candidate);
 
             if dist(previous_state.pos, candidate.pos) < stop_distance {
+                //println!("not making progress, stopping");
                 // reset the state
                 self.state = initial_state;
                 // stop, we aren't making progres anymore
@@ -113,11 +115,13 @@ impl PositionModeler {
                 // overshoot, try with a smaller delta t
                 delta_time *= 0.5;
                 self.state = previous_state;
+                continue;
             } else {
                 out_events.push(candidate);
             }
 
             if dist(candidate.pos, anchor_pos) < stop_distance {
+                //println!("very close to the anchor, stopping");
                 // reset the state
                 self.state = initial_state;
                 return out_events;

@@ -227,6 +227,10 @@ impl StrokeModeler {
                         pressure: self.state_modeler.query(state_pos.pos),
                     });
                 }
+
+                // remove the last event
+                self.last_event = None;
+
                 Ok(vec_out)
             }
         }
