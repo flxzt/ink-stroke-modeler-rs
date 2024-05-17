@@ -3,7 +3,10 @@
 #[cfg(test)]
 mod ink_stroke_modeler {
 
-    use crate::utils::{interp, interp2, nearest_point_on_segment, normalize01_32};
+    use crate::{
+        impl_ds::compare_results,
+        utils::{interp, interp2, nearest_point_on_segment, normalize01_32},
+    };
 
     // import parent
     use super::super::*;
@@ -298,10 +301,87 @@ mod ink_stroke_modeler {
                 pressure: 0.2,
             },
         ];
-        println!("hello");
 
         for res in inputs.into_iter().flat_map(|i| modeler.update(i)) {
             println!("{res:?}");
         }
+    }
+
+    //tests for the end of stroke prediction
+    #[test]
+    fn test_empty_prediction() {
+        let mut engine = StrokeModeler::new(ModelerParams::suggested());
+        assert!(engine.predict().is_err());
+    }
+
+    #[test]
+    fn test_singleinput() {
+        let mut engine = StrokeModeler::default();
+        engine
+            .update(ModelerInput {
+                pos: (4.0, 5.0),
+                event_type: ModelerInputEventType::kDown,
+                time: 2.0,
+                pressure: 1.0,
+            })
+            .unwrap();
+        assert_eq!(engine.predict().unwrap().len(), 0);
+    }
+
+    // tests for the stroke modeler
+    #[test]
+    fn input_rate_slower() {
+        let delta_time = 1. / 30.;
+        let mut time = 0.0;
+        let mut engine = StrokeModeler::default();
+
+        let first_iter = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kDown,
+            pos: (3., 4.),
+            time: time,
+            pressure: 1.0,
+        });
+        assert!(first_iter.is_ok());
+        assert!(compare_results(
+            first_iter.unwrap(),
+            vec![ModelerResult {
+                pos: (3.0, 4.0),
+                ..ModelerResult::default()
+            }]
+        ));
+
+        assert!(engine.predict().is_ok());
+        assert!(engine.predict().unwrap().is_empty());
+
+        time += delta_time;
+        assert!(compare_results(
+            engine
+                .update(ModelerInput {
+                    event_type: ModelerInputEventType::kMove,
+                    pos: (3.2, 4.2),
+                    time: time,
+                    pressure: 1.0
+                })
+                .unwrap(),
+            vec![
+            //ModelerResult {}
+            ]
+        ));
+    }
+
+    #[test]
+    fn reset_keep_params() {
+        let input = ModelerInput {
+            event_type: ModelerInputEventType::kDown,
+            pos: (3.0, 4.0),
+            time: 0.0,
+            pressure: 1.0,
+        };
+        let mut engine = StrokeModeler::default();
+        assert!(engine.reset().is_ok());
+        assert!(engine.update(input).is_ok());
+
+        assert!(engine.reset_w_params(ModelerParams::suggested()).is_ok());
+        assert!(engine.update(input).is_ok());
     }
 }

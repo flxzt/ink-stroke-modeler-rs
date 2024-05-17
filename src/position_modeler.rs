@@ -13,7 +13,6 @@ pub struct PositionModeler {
 
 impl PositionModeler {
     pub fn new(params: ModelerParams, first_input: ModelerInput) -> Self {
-        //println!("{:?}",first_input.pos);
         Self {
             position_modeler_spring_mass_constant: params.position_modeler_spring_mass_constant,
             position_modeler_drag_constant: params.position_modeler_drag_constant,
@@ -28,7 +27,6 @@ impl PositionModeler {
     // Given the position of the anchor and the time, updates the model and
     // returns the new state of the pen tip
     pub fn update(&mut self, anchor_pos: (f32, f32), time: f64) -> ModelerPartial {
-        //println!("{:?}",anchor_pos);
         let delta_time = (time - self.state.time) as f32;
 
         self.state.acceleration = (
@@ -46,13 +44,8 @@ impl PositionModeler {
             self.state.pos.1 + delta_time * self.state.velocity.1,
         );
         self.state.time = time;
-        //println!("state pos: {:?}", self.state.pos);
 
-        return self.state;
-        // return ModelerPartial {
-        //     pos: anchor_pos,
-        //     ..self.state
-        // }
+        self.state
     }
 
     // maybe not needed after all ? was a missed element ?
@@ -131,7 +124,7 @@ impl PositionModeler {
             }
         }
         self.state = initial_state;
-        return out_events;
+        out_events
     }
 }
 
@@ -143,13 +136,13 @@ impl ModelerPartial {
     #[allow(dead_code)]
     fn near(self, compare: ModelerPartial) -> bool {
         let tol = 0.0005; //for now fixed here
-        return (self.pos.0 - compare.pos.0).abs() < tol
+        (self.pos.0 - compare.pos.0).abs() < tol
             && (self.pos.1 - compare.pos.1).abs() < tol
             && (self.velocity.0 - compare.velocity.0).abs() < tol
             && (self.velocity.1 - compare.velocity.1).abs() < tol
             && (self.acceleration.0 - compare.acceleration.0).abs() < tol
             && (self.acceleration.1 - compare.acceleration.1).abs() < tol
-            && (self.time - compare.time).abs() < tol as f64;
+            && (self.time - compare.time).abs() < tol as f64
     }
 }
 
@@ -596,10 +589,10 @@ fn model_end_of_stroke_stationnary() {
         },
     ];
 
-    assert!(result.into_iter().zip(expected).fold(true, |acc, x| {
-        //println!("{acc:?}, {:?}, {:?}",x.0,x.1);
-        acc && x.0.near(x.1)
-    }));
+    assert!(result
+        .into_iter()
+        .zip(expected)
+        .fold(true, |acc, x| { acc && x.0.near(x.1) }));
 }
 
 #[test]
@@ -667,10 +660,10 @@ fn end_of_stroke_motion() {
             time: 1.0547,
         },
     ];
-    assert!(result.into_iter().zip(expected).fold(true, |acc, x| {
-        //println!("{acc:?}, {:?}, {:?}",x.0,x.1);
-        acc && x.0.near(x.1)
-    }));
+    assert!(result
+        .into_iter()
+        .zip(expected)
+        .fold(true, |acc, x| { acc && x.0.near(x.1) }));
 }
 
 #[test]
@@ -750,8 +743,8 @@ fn end_of_stroke_maxiters() {
             time: 1.0010,
         },
     ];
-    assert!(result.into_iter().zip(expected).fold(true, |acc, x| {
-        //println!("{acc:?}, {:?}, {:?}",x.0,x.1);
-        acc && x.0.near(x.1)
-    }));
+    assert!(result
+        .into_iter()
+        .zip(expected)
+        .fold(true, |acc, x| { acc && x.0.near(x.1) }));
 }

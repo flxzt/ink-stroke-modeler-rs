@@ -136,8 +136,6 @@ impl StrokeModeler {
 
                 let p_start = latest_el.pos();
                 let p_end = self.wobble_update(&input);
-
-                //println!("{:?}", (p_end.0-input.pos.0,p_end.1-input.pos.1)); //see if this has an effect
                 // seems like speeds are way higher than normal speed encountered so no smoothing occurs here
 
                 // there was an error with the last el not being taken with .. but is part of it with ..=
@@ -176,11 +174,9 @@ impl StrokeModeler {
                 let p_start = latest_el.pos();
                 let p_end = self.wobble_update(&input);
 
-                let mut vec_out = Vec::<ModelerResult>::new();
-                vec_out.reserve(
+                let mut vec_out = Vec::<ModelerResult>::with_capacity(
                     (n_tsteps as usize) + self.params.sampling_end_of_stroke_max_iterations,
                 );
-
                 let mut start_part: Vec<ModelerResult> = self
                     .position_modeler
                     .as_mut()
@@ -221,7 +217,7 @@ impl StrokeModeler {
 
                 vec_out.append(&mut second_part);
 
-                if vec_out.len() == 0 {
+                if vec_out.is_empty() {
                     let state_pos = self.position_modeler.as_mut().unwrap().state;
                     vec_out.push(ModelerResult {
                         pos: state_pos.pos,
@@ -276,7 +272,6 @@ impl StrokeModeler {
     ///high speeds movements won't be smoothed but low speed will.
     #[doc =include_str!("./wobble_doc.html")]
     pub fn wobble_update(&mut self, event: &ModelerInput) -> (f32, f32) {
-        //println!("len wobble decque {:?}",self.wobble_decque.len());
         match self.wobble_decque.len() {
             0 => {
                 self.wobble_decque.push_back(WobbleSample {
@@ -286,7 +281,7 @@ impl StrokeModeler {
                     duration: 0.0,
                     time: event.time,
                 });
-                return event.pos;
+                event.pos
             }
             _ => {
                 let last_el = self.wobble_decque.back().unwrap();
@@ -299,8 +294,8 @@ impl StrokeModeler {
                 self.wobble_decque.push_back(WobbleSample {
                     position: event.pos,
                     weighted_position: weighted_pos,
-                    distance: distance,
-                    duration: duration,
+                    distance,
+                    duration,
                     time: event.time,
                 });
                 let last_pos = self.wobble_weighted_pos_sum;
@@ -312,7 +307,6 @@ impl StrokeModeler {
                 while self.wobble_decque.front().unwrap().time
                     < event.time - self.params.wobble_smoother_timeout
                 {
-                    //println!("pop");
                     let front_el = self.wobble_decque.pop_front().unwrap();
 
                     let last_pos = self.wobble_weighted_pos_sum;
@@ -325,9 +319,8 @@ impl StrokeModeler {
                 }
 
                 if self.wobble_duration_sum < 1e-12 {
-                    return event.pos;
+                    event.pos
                 } else {
-                    //println!("whole decque {:?}",self.wobble_decque);
                     // calulate the average position
 
                     // weird f32 and f64 mix
@@ -342,11 +335,10 @@ impl StrokeModeler {
                         self.params.wobble_smoother_speed_ceiling,
                         avg_speed,
                     );
-                    //println!("avg position : {:?}, true position : {:?}, norm value : {:?}, speed : {:?}",avg_position,event.pos,norm_value,avg_speed);
-                    return (
+                    (
                         interp(avg_position.0, event.pos.0, norm_value),
                         interp(avg_position.1, event.pos.1, norm_value),
-                    );
+                    )
                 }
             }
         }

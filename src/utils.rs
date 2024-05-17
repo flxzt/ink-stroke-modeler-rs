@@ -27,14 +27,14 @@ where
     T: Copy,
     T: Mul<f32, Output = T>,
 {
-    return start + (end - start) * interp_amount.clamp(0.0, 1.0);
+    start + (end - start) * interp_amount.clamp(0.0, 1.0)
 }
 
 pub fn interp2(start: (f32, f32), end: (f32, f32), interp_amount: f32) -> (f32, f32) {
-    return (
+    (
         start.0 + interp_amount.clamp(0.0, 1.0) * (end.0 - start.0),
         start.1 + interp_amount.clamp(0.0, 1.0) * (end.1 - start.1),
-    );
+    )
 }
 
 // returns the point on the line segment from `segment_start` to `segment_end`
@@ -42,12 +42,12 @@ pub fn interp2(start: (f32, f32), end: (f32, f32), interp_amount: f32) -> (f32, 
 // along the segment
 pub fn nearest_point_on_segment(start: (f32, f32), end: (f32, f32), point: (f32, f32)) -> f32 {
     if start == end {
-        0.0 as f32
+        0.0_f32
     } else {
         let seg_vector = (end.0 - start.0, end.1 - start.1);
         let proj_vector = (point.0 - start.0, point.1 - start.1);
 
-        return (dot(proj_vector, seg_vector) / dot(seg_vector, seg_vector)).clamp(0.0, 1.0);
+        (dot(proj_vector, seg_vector) / dot(seg_vector, seg_vector)).clamp(0.0, 1.0)
     }
 }
 

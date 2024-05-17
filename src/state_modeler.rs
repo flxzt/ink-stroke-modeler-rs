@@ -44,7 +44,7 @@ impl StateModeler {
     pub fn query(&mut self, pos: (f32, f32)) -> f32 {
         // iterate over the decque
         match self.last_strokes.len() {
-            0 => return 1.0,
+            0 => 1.0,
             1 => return self.last_strokes.front().unwrap().pressure,
             _ => {
                 let mut distance = f32::INFINITY;
@@ -68,7 +68,7 @@ impl StateModeler {
                     }
                 }
 
-                return interp(start_pressure, end_pressure, r);
+                interp(start_pressure, end_pressure, r)
             }
         }
     }
