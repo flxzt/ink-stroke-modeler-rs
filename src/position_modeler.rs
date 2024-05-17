@@ -85,13 +85,13 @@ impl PositionModeler {
         &mut self,
         anchor_pos: (f32, f32),
         delta_time: f64,
-        max_iterations: i32,
+        max_iterations: usize,
         stop_distance: f32,
     ) -> Vec<ModelerPartial> {
         let initial_state = self.state;
         let mut delta_time = delta_time;
 
-        let mut out_events = Vec::<ModelerPartial>::new();
+        let mut out_events = Vec::<ModelerPartial>::with_capacity(max_iterations);
         for _ in 0..max_iterations {
             let previous_state = self.state;
             let candidate = self.update(anchor_pos, previous_state.time + delta_time);

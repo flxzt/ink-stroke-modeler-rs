@@ -20,7 +20,7 @@ impl ModelerInput {
         // probably needs to be changed because of mutability and access
     }
 
-    // helper methods : still useful for compat + mutability
+    // helper methods : still somewhat useful for compat + mutability
     pub fn event_type(&self) -> ModelerInputEventType {
         self.event_type
     }
@@ -220,7 +220,9 @@ impl Default for StrokeModeler {
 
         Self {
             params,
-            wobble_decque: VecDeque::new(),
+            wobble_decque: VecDeque::with_capacity(
+                (2.0 * params.sampling_min_output_rate * params.wobble_smoother_timeout) as usize,
+            ),
             wobble_weighted_pos_sum: (0.0, 0.0),
             wobble_duration_sum: 0.0,
             wobble_distance_sum: 0.0,

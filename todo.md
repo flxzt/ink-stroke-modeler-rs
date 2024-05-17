@@ -6,7 +6,7 @@
     - Same for `IgnoreTDownWhileStrokeIsInProgress`
 - [ ] check if `n_steps` robustness should be changed to pass all the tests in `position_modeler_test.cc`
      - some of these things are things done in the rnote code instead so that error wouldn't happen here
-- [ ] use more `reserve`s on vec like the C++ code to speed up vec allocations
+- [x] use more `reserve`s on vec like the C++ code to speed up vec allocations
 - [ ] review the code one more time
 - [ ] performance and less `Copy` traits (copy less data around)
 - [ ] adapt the default settings (cm for distance and seconds for time != what's rnote reporting)

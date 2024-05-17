@@ -31,7 +31,9 @@ impl StrokeModeler {
         Self {
             params,
             last_event: None,
-            wobble_decque: VecDeque::new(),
+            wobble_decque: VecDeque::with_capacity(
+                (2.0 * params.sampling_min_output_rate * params.wobble_smoother_timeout) as usize,
+            ),
             wobble_duration_sum: 0.0,
             wobble_weighted_pos_sum: (0.0, 0.0),
             wobble_distance_sum: 0.0,
@@ -45,7 +47,9 @@ impl StrokeModeler {
     /// as is and can't be uninitialized
     pub fn reset(&mut self) -> Result<(), i32> {
         self.last_event = None;
-        self.wobble_decque = VecDeque::new();
+        self.wobble_decque = VecDeque::with_capacity(
+            (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout) as usize,
+        );
         self.wobble_duration_sum = 0.0;
         self.wobble_weighted_pos_sum = (0.0, 0.0);
         self.position_modeler = None;
@@ -61,7 +65,9 @@ impl StrokeModeler {
     pub fn reset_w_params(&mut self, params: ModelerParams) -> Result<(), i32> {
         self.params = params;
         self.last_event = None;
-        self.wobble_decque = VecDeque::new();
+        self.wobble_decque = VecDeque::with_capacity(
+            (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout) as usize,
+        );
         self.wobble_duration_sum = 0.0;
         self.wobble_weighted_pos_sum = (0.0, 0.0);
         self.wobble_distance_sum = 0.0;
@@ -118,7 +124,7 @@ impl StrokeModeler {
                 // get the latest element
                 if self.last_event.is_none() {
                     return Err(1);
-                } 
+                }
                 let latest_el = self.last_event.unwrap();
                 let latest_time = latest_el.time();
                 let new_time = input.time();
@@ -166,7 +172,7 @@ impl StrokeModeler {
                 // get the latest element
                 if self.last_event.is_none() {
                     return Err(1);
-                } 
+                }
                 let latest_el = self.last_event.unwrap();
                 let latest_time = latest_el.time();
                 let new_time = input.time();
@@ -183,32 +189,32 @@ impl StrokeModeler {
                 let mut vec_out = Vec::<ModelerResult>::with_capacity(
                     (n_tsteps as usize) + self.params.sampling_end_of_stroke_max_iterations,
                 );
-                let mut start_part: Vec<ModelerResult> = self
-                    .position_modeler
-                    .as_mut()
-                    .unwrap()
-                    .update_along_linear_path(p_start, latest_time, p_end, new_time, n_tsteps)
-                    .into_iter()
-                    .map(|i| ModelerResult {
-                        pressure: self.state_modeler.query(i.pos),
-                        pos: i.pos,
-                        velocity: i.velocity,
-                        time: i.time,
-                        acceleration: i.acceleration,
-                    })
-                    .collect();
 
-                vec_out.append(&mut start_part);
+                vec_out.extend(
+                    self.position_modeler
+                        .as_mut()
+                        .unwrap()
+                        .update_along_linear_path(p_start, latest_time, p_end, new_time, n_tsteps)
+                        .into_iter()
+                        .map(|i| ModelerResult {
+                            pressure: self.state_modeler.query(i.pos),
+                            pos: i.pos,
+                            velocity: i.velocity,
+                            time: i.time,
+                            acceleration: i.acceleration,
+                        }),
+                );
 
                 // model the end of stroke
-                let mut second_part: Vec<ModelerResult> = self
+                vec_out.extend(
+                    self
                     .position_modeler
                     .as_mut()
                     .unwrap()
                     .model_end_of_stroke(
                         input.pos,
                         1. / self.params.sampling_min_output_rate,
-                        self.params.sampling_end_of_stroke_max_iterations as i32,
+                        self.params.sampling_end_of_stroke_max_iterations,
                         self.params.sampling_end_of_stroke_stopping_distance,
                     )
                     .into_iter()
@@ -219,9 +225,7 @@ impl StrokeModeler {
                         acceleration: i.acceleration,
                         time: i.time,
                     })
-                    .collect();
-
-                vec_out.append(&mut second_part);
+                );
 
                 if vec_out.is_empty() {
                     let state_pos = self.position_modeler.as_mut().unwrap().state;
@@ -260,7 +264,7 @@ impl StrokeModeler {
                 .model_end_of_stroke(
                     self.last_event.unwrap().pos,
                     1. / self.params.sampling_min_output_rate,
-                    self.params.sampling_end_of_stroke_max_iterations as i32,
+                    self.params.sampling_end_of_stroke_max_iterations,
                     self.params.sampling_end_of_stroke_stopping_distance,
                 )
                 .into_iter()

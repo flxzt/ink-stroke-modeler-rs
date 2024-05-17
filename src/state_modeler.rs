@@ -16,7 +16,7 @@ impl Default for StateModeler {
     fn default() -> Self {
         Self {
             stylus_state_modeler_max_input_samples: 10,
-            last_strokes: VecDeque::new(),
+            last_strokes: VecDeque::with_capacity(11),
         }
     }
 }
@@ -25,7 +25,7 @@ impl StateModeler {
     pub fn new(param: usize) -> Self {
         Self {
             stylus_state_modeler_max_input_samples: param,
-            last_strokes: VecDeque::new(),
+            last_strokes: VecDeque::with_capacity(param+1),
         }
     }
     pub fn update(&mut self, input: ModelerInput) {
