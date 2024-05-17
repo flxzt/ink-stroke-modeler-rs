@@ -5,6 +5,27 @@ use super::*;
 use crate::utils::interp;
 use crate::utils::normalize01_32;
 
+/// smooth out the input position from high frequency noise
+/// uses a moving average of position and interpolating between this
+/// position and the raw position based on the speed.
+/// high speeds movements won't be smoothed but low speed will.
+///
+/// wrapper time to include all needed information
+/// in the Deque
+#[derive(Debug)]
+pub struct WobbleSample {
+    /// raw position
+    pub position: (f32, f32),
+    /// position weighted by the duration
+    pub weighted_position: (f32, f32),
+    /// distance to the previous element
+    pub distance: f32,
+    /// time distance to the previous element
+    pub duration: f64,
+    /// time of the event
+    pub time: f64,
+}
+
 impl StrokeModeler {
     pub fn new(params: ModelerParams) -> Self {
         Self {
@@ -15,7 +36,7 @@ impl StrokeModeler {
             wobble_weighted_pos_sum: (0.0, 0.0),
             wobble_distance_sum: 0.0,
             position_modeler: None,
-            past_events: Vec::new(),
+            state_modeler: StateModeler::default(),
         }
     }
 
@@ -82,19 +103,23 @@ impl StrokeModeler {
                 self.position_modeler = Some(PositionModeler::new(self.params, input));
 
                 self.last_event = Some(input);
-                self.past_events.push(input);
-                Ok(self.past_events.clone())
+                self.state_modeler
+                    .reset(self.params.stylus_state_modeler_max_input_samples);
+                self.state_modeler.update(input);
+                Ok(vec![input])
             }
-            _ => {
+            ModelerInputEventType::kMove => {
                 // get the latest element
                 let latest_el = self.last_event.unwrap();
                 let latest_time = latest_el.time();
                 let new_time = input.time();
+                self.state_modeler.update(input);
 
                 // calculate the number of element to predict
                 let n_tsteps = (((new_time - latest_time) * self.params.sampling_min_output_rate)
                     .ceil() as i32)
                     .min(i32::MAX);
+
                 // this does not check for very large inputs
                 // this does not error if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]
@@ -116,21 +141,86 @@ impl StrokeModeler {
                     .unwrap()
                     .update_along_linear_path(p_start, latest_time, p_end, new_time, n_tsteps)
                     .into_iter()
-                    .map(|i| {
-                        ModelerInput {
-                            event_type: latest_el.event_type,
-                            // for now we fake the pressure
-                            pressure: input.pressure(),
-                            pos: i.pos,
-                            time: i.time,
-                        }
+                    .map(|i| ModelerInput {
+                        event_type: latest_el.event_type,
+                        pressure: self.state_modeler.query(i.pos),
+                        pos: i.pos,
+                        time: i.time,
                     })
                     .collect();
 
                 // push the latest element (should we push everything we also interpolated as well ?)
-                self.past_events.push(input);
                 self.last_event = Some(input);
 
+                Ok(vec_out)
+            }
+            ModelerInputEventType::kUp => {
+                // get the latest element
+                let latest_el = self.last_event.unwrap();
+                let latest_time = latest_el.time();
+                let new_time = input.time();
+                self.state_modeler.update(input);
+
+                // calculate the number of element to predict
+                let n_tsteps = (((new_time - latest_time) * self.params.sampling_min_output_rate)
+                    .ceil() as i32)
+                    .min(i32::MAX);
+
+                let p_start = latest_el.pos();
+                let p_end = self.wobble_update(&input);
+
+                let mut vec_out = Vec::<ModelerInput>::new();
+                vec_out.reserve(
+                    (n_tsteps as usize) + self.params.sampling_end_of_stroke_max_iterations,
+                );
+
+                let mut start_part: Vec<ModelerInput> = self
+                    .position_modeler
+                    .as_mut()
+                    .unwrap()
+                    .update_along_linear_path(p_start, latest_time, p_end, new_time, n_tsteps)
+                    .into_iter()
+                    .map(|i| ModelerInput {
+                        event_type: latest_el.event_type,
+                        pressure: self.state_modeler.query(i.pos),
+                        pos: i.pos,
+                        time: i.time,
+                    })
+                    .collect();
+
+                vec_out.append(&mut start_part);
+
+                // model the end of stroke
+                let mut second_part: Vec<ModelerInput> = self
+                    .position_modeler
+                    .as_mut()
+                    .unwrap()
+                    .model_end_of_stroke(
+                        input.pos,
+                        1. / self.params.sampling_min_output_rate,
+                        self.params.sampling_end_of_stroke_max_iterations as i32,
+                        self.params.sampling_end_of_stroke_stopping_distance,
+                    )
+                    .into_iter()
+                    .map(|i| ModelerInput {
+                        event_type: latest_el.event_type,
+                        pressure: self.state_modeler.query(i.pos),
+                        pos: i.pos,
+                        time: i.time,
+                    })
+                    .collect();
+
+                vec_out.append(&mut second_part);
+
+                if vec_out.len() == 0 {
+                    let state_pos = self.position_modeler.as_mut().unwrap().state;
+                    vec_out.push(ModelerInput {
+                        event_type: ModelerInputEventType::kUp,
+                        pos: state_pos.pos,
+                        time: state_pos.time,
+                        pressure: self.state_modeler.query(state_pos.pos),
+                    });
+                }
                 Ok(vec_out)
             }
         }
@@ -138,27 +228,40 @@ impl StrokeModeler {
 
     /// Models the given input prediction without changing the internal model state
     ///
-    /// and then (?) clears and fills the results parameters with the new predicted results ?
-    /// Any previously generated prediction results are no longer valid
-    ///
     /// Returns an error if the model has not yet been initialized,
-    /// if there is no stroke in progress, or if prediction has been disabled
-    ///
-    /// The output is limited to results where the predictor has sufficient confidence
-    ///
-    /// results.clear ? on the start of this part of code ?
-    /// TODO test that it does not work with [PredictionParams::Disabled]
-    /// There should be a last input existing (maybe we should have it somewhere as a variable ?)
+    /// if there is no stroke in progress
     pub fn predict(&mut self) -> Result<Vec<ModelerInput>, String> {
         // for now return the latest element if it exists from the input
-        if self.past_events.is_empty()
-            || self.params.prediction_params == PredictionParams::Disabled
-        {
+        if self.last_event.is_none() {
+            // no data to predict from
             Err(String::from("empty input events"))
         } else {
-            let last_event = self.past_events.last().unwrap().clone();
-            self.past_events = Vec::new(); //empty
-            Ok(vec![last_event])
+            // construct the prediction
+            let previous_state = self.position_modeler.as_mut().unwrap().state;
+
+            let predict = self
+                .position_modeler
+                .as_mut()
+                .unwrap()
+                .model_end_of_stroke(
+                    self.last_event.unwrap().pos,
+                    1. / self.params.sampling_min_output_rate,
+                    self.params.sampling_end_of_stroke_max_iterations as i32,
+                    self.params.sampling_end_of_stroke_stopping_distance,
+                )
+                .into_iter()
+                .map(|i| ModelerInput {
+                    event_type: ModelerInputEventType::kMove,
+                    pos: i.pos,
+                    time: i.time,
+                    pressure: self.state_modeler.query(i.pos),
+                })
+                .collect();
+
+            // reset the state
+            self.position_modeler.as_mut().unwrap().state = previous_state;
+
+            Ok(predict)
         }
     }
     ///implements the wobble logic

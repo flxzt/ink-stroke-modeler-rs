@@ -4,13 +4,14 @@ use std::collections::VecDeque;
 pub mod engine;
 pub mod impl_ds;
 pub mod position_modeler;
+pub mod state_modeler;
 pub mod testing;
 pub mod utils;
-pub mod wobble_smoother;
 
 use position_modeler::PositionModeler;
 // imports
-use wobble_smoother::WobbleSample;
+use engine::WobbleSample;
+use state_modeler::StateModeler;
 
 // this file contains all structs that are used in the program
 /// Kalman predictor data
@@ -153,30 +154,6 @@ pub enum ModelerInputEventType {
     kUp,
 }
 
-/// enum for the type of the prediction strategy used
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-#[allow(unused)]
-pub enum PredictionParams {
-    /// this structs indicate the "stroke end" strategy should be used,
-    /// which models a prediction as though the last seen input was the end
-    /// of stroke.
-    ///
-    /// Can't predict too far into the future, it only catches up quickly
-    /// to the position of the raw input but not further
-    ///
-    /// No tunable parameters (same PositionModelerParams and SamplingParams as the overall model ?)
-    StrokeEnd,
-    /// a Kalman filter-based prediction strategy is used
-    ///
-    /// This can predict an extension of the stroke beyond the last input position
-    /// in addition to the catch up step
-    Kalman(KalmanPredictorParams),
-    /// type to indicate no prediction should be used.
-    /// Attempting to construct a prediction in combination with
-    /// this settings results in an error.
-    Disabled,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct ModelerParams {
     /// these parameters are used to apply smoothing to the input to reduce
@@ -238,21 +215,18 @@ pub struct ModelerParams {
     /// if it does not stop due to the constraint of the `sampling_end_of_stroke_stopping_distance`
     ///
     /// Should be positive and is capped at 1000 (to limit the memory requirements)
-    pub sampling_end_of_stroke_max_iterations: i32,
+    pub sampling_end_of_stroke_max_iterations: usize,
     /// Maximum number of outputs to generate per call to Update or Predict.
     /// related to issues if input events are received with too long of a delay
     /// See what's done in the rnote call and on this end to limit things like this
     ///
     /// Should be strictly positive
-    pub sampling_max_outputs_per_call: i32,
+    pub sampling_max_outputs_per_call: usize,
     /// the maximum number of raw inputs to look at when
     /// searching for the nearest states when interpolating
     ///
     /// Should be strictly positive
-    pub stylus_state_modeler_max_input_samples: i32,
-    /// enum for the type of the prediction strategy used
-    /// see [PredictionParams]
-    pub prediction_params: PredictionParams,
+    pub stylus_state_modeler_max_input_samples: usize,
 }
 
 // result struct
@@ -303,5 +277,5 @@ pub struct StrokeModeler {
     // only created on the first stroke
     position_modeler: Option<PositionModeler>,
     last_event: Option<ModelerInput>,
-    past_events: Vec<ModelerInput>, // for now used
+    state_modeler: StateModeler,
 }

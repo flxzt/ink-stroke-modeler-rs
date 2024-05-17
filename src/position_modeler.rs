@@ -8,7 +8,7 @@ pub struct PositionModeler {
     position_modeler_spring_mass_constant: f32,
     position_modeler_drag_constant: f32,
     // last state
-    state: ModelerPartial,
+    pub state: ModelerPartial,
 }
 
 impl PositionModeler {
@@ -135,7 +135,7 @@ impl PositionModeler {
     }
 }
 
-fn dist(start: (f32, f32), end: (f32, f32)) -> f32 {
+pub fn dist(start: (f32, f32), end: (f32, f32)) -> f32 {
     ((start.0 - end.0).powi(2) + (start.1 - end.1).powi(2)).sqrt()
 }
 

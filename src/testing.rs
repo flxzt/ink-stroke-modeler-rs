@@ -9,32 +9,7 @@ mod ink_stroke_modeler {
     use super::super::*;
     #[test]
     fn validation_modeler_params() {
-        let s = ModelerParams::new(
-            -1.0,
-            -1.0,
-            -1.0,
-            -1.0,
-            -1.0,
-            -1.0,
-            -1.0,
-            -5,
-            -5,
-            -5,
-            PredictionParams::Disabled,
-        );
-        println!("{:?}", s); // use --nocapture to show the result here
-                             // verify that we actually have an error
-        match s {
-            Ok(_) => assert!(false),
-            Err(_) => assert!(true),
-        }
-    }
-
-    #[test]
-    fn validation_kalmanpredictorparams() {
-        let s = KalmanPredictorParams::new(
-            -1.0, -1.0, -1, -1, -1.0, 1.0, 1.0, -1.0, -1, -1.0, -1.0, -1.0, -1.0, -1.0,
-        );
+        let s = ModelerParams::new(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 0, 0, 0);
         println!("{:?}", s); // use --nocapture to show the result here
                              // verify that we actually have an error
         match s {

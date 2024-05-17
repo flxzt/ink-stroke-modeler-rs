@@ -3,127 +3,6 @@ use super::*;
 
 // implementation for all structures
 
-// for now most parameters won't be used
-impl KalmanPredictorParams {
-    /// returns a suggested tuning for the kalman predictor
-    /// - `process_noise`: `1.0`,
-    /// - `measurement_noise`: `1.0`,
-    /// - `min_stable_iteration`: `4,`
-    /// - `max_time_samples`: `20`,
-    /// - `min_catchup_velocity`: `0.02`,
-    /// - `acceleration_weight`: `0.5`,
-    /// - `jerk_weight`: `0.1`,
-    /// - `prediction_interval`: `0.02`,
-    /// - `confidence_desired_number_of_samples`: `20`,
-    /// - `confidence_max_estimation_distance`: `1.5`,
-    /// - `confidence_min_travel_speed`: `1.0`,
-    /// - `confidence_max_travel_speed`: `5.0`,
-    /// - `confidence_max_linear_deviation`: `10.0`,
-    /// - `confidence_baseline_linearity_confidence`: `0.4`,
-    pub fn suggested() -> Self {
-        Self {
-            process_noise: 1.0,
-            measurement_noise: 1.0,
-            min_stable_iteration: 4,
-            max_time_samples: 20,
-            min_catchup_velocity: 0.02,
-            acceleration_weight: 0.5,
-            jerk_weight: 0.1,
-            prediction_interval: 0.02,
-            confidence_desired_number_of_samples: 20,
-            confidence_max_estimation_distance: 1.5,
-            confidence_min_travel_speed: 1.0,
-            confidence_max_travel_speed: 1.5,
-            confidence_max_linear_deviation: 10.0,
-            confidence_baseline_linearity_confidence: 0.4,
-        }
-    }
-
-    pub fn new(
-        process_noise: f64,
-        measurement_noise: f64,
-        min_stable_iteration: i32,
-        max_time_samples: i32,
-        min_catchup_velocity: f32,
-        acceleration_weight: f32,
-        jerk_weight: f32,
-        prediction_interval: f64,
-        confidence_desired_number_of_samples: i32,
-        confidence_max_estimation_distance: f32,
-        confidence_min_travel_speed: f32,
-        confidence_max_travel_speed: f32,
-        confidence_max_linear_deviation: f32,
-        confidence_baseline_linearity_confidence: f32,
-    ) -> Result<Self, String> {
-        let tests = [
-            process_noise > 0.0,
-            measurement_noise > 0.0,
-            min_stable_iteration > 0,
-            max_time_samples > 0,
-            min_catchup_velocity > 0.0,
-            acceleration_weight.is_finite(),
-            jerk_weight.is_finite(),
-            prediction_interval > 0.0,
-            confidence_desired_number_of_samples > 0,
-            confidence_max_estimation_distance > 0.0,
-            confidence_min_travel_speed > 0.0,
-            confidence_max_travel_speed > 0.0,
-            confidence_min_travel_speed < confidence_max_travel_speed,
-            confidence_max_linear_deviation > 0.0,
-            (0.0..=1.0).contains(&confidence_baseline_linearity_confidence),
-        ];
-
-        match tests.iter().fold(true, |acc, x| acc & x) {
-            true => Ok(Self {
-                process_noise,
-                measurement_noise,
-                min_stable_iteration,
-                max_time_samples,
-                min_catchup_velocity,
-                acceleration_weight,
-                jerk_weight,
-                prediction_interval,
-                confidence_desired_number_of_samples,
-                confidence_max_estimation_distance,
-                confidence_min_travel_speed,
-                confidence_max_travel_speed,
-                confidence_max_linear_deviation,
-                confidence_baseline_linearity_confidence,
-            }),
-            false => {
-                let error_messages = [
-                    "`process_noise` should be positive; ",
-                    "`measurement_noise` should be positive; ",
-                    "`min_stable_iteration` should be positive; ",
-                    "`max_time_samples` should be positive; ",
-                    "`min_catchup_velocity` should be positive; ",
-                    "`acceleration_weight` should be finite; ",
-                    "`jerk_weight` should be finite; ",
-                    "`prediction_interval` should be positive; ",
-                    "`confidence_desired_number_of_samples` should be positive; ",
-                    "`confidence_max_estimation_distance` should be positive; ",
-                    "`confidence_min_travel_speed` should be positive; ",
-                    "`confidence_max_travel_speed` should be positive; ",
-                    "`confidence_min_travel_speed` should be < to `confidence_max_travel_speed`; ",
-                    "`confidence_max_linear_deviation` should be positive; ",
-                    "`confidence_baseline_linearity_confidence` should be in the interval [0,1]; ",
-                ];
-
-                //Collect errors
-                let error_acc = tests
-                    .iter()
-                    .zip(error_messages)
-                    .filter(|x| !*(x.0))
-                    .fold(String::from("the following errors occured : "), |acc, x| {
-                        acc + x.1
-                    });
-
-                Err(error_acc)
-            }
-        }
-    }
-}
-
 // impl for ModelerInput
 impl ModelerInput {
     pub fn new(
@@ -172,8 +51,7 @@ impl ModelerParams {
             sampling_end_of_stroke_stopping_distance: 0.001,
             sampling_end_of_stroke_max_iterations: 20,
             sampling_max_outputs_per_call: 20,
-            stylus_state_modeler_max_input_samples: 100_000,
-            prediction_params: PredictionParams::StrokeEnd,
+            stylus_state_modeler_max_input_samples: 10,
         }
     }
 
@@ -185,10 +63,9 @@ impl ModelerParams {
         position_modeler_drag_constant: f32,
         sampling_min_output_rate: f64,
         sampling_end_of_stroke_stopping_distance: f32,
-        sampling_end_of_stroke_max_iterations: i32,
-        sampling_max_outputs_per_call: i32,
-        stylus_state_modeler_max_input_samples: i32,
-        prediction_params: PredictionParams,
+        sampling_end_of_stroke_max_iterations: usize,
+        sampling_max_outputs_per_call: usize,
+        stylus_state_modeler_max_input_samples: usize,
     ) -> Result<Self, String> {
         let parameter_tests = [
             position_modeler_spring_mass_constant > 0.0,
@@ -232,7 +109,6 @@ impl ModelerParams {
                 sampling_end_of_stroke_max_iterations,
                 sampling_max_outputs_per_call,
                 stylus_state_modeler_max_input_samples,
-                prediction_params,
             })
         } else {
             //Collect errors
@@ -285,7 +161,7 @@ impl Default for StrokeModeler {
 
             last_event: None,
             position_modeler: None,
-            past_events: Vec::new(),
+            state_modeler: StateModeler::default(),
         }
     }
 }

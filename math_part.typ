@@ -81,7 +81,7 @@ To reduce high frequency noise.
     [
       $
         forall j in [|0,n|],
-        p'[j] =                                                                                                             &
+        p'[j] =                                                                                                               &
         min((overline(v)[j] - v_"min")/(v_"max" - v_"min") bb(1)_(\[v_"min",oo\[) (overline(v)[j]), 1) overline(p)[
         j
         ] \ + &(1 - min((overline(v)[j] - v_"min")/(v_"max" - v_"min") bb(1)_(\[v_"min",oo\[) (overline(v)[j]))) p[j]
@@ -134,7 +134,7 @@ position.
 == Position modeling
 
 #definition[The raw input is processed as follow
-
+   
   raw input $->$ wobble smoother $->$ upsampled $->$ position modeling]
 
 #definition[
@@ -167,7 +167,7 @@ the output
   - Output : smoothed stream ${(p_f [k],v_f [k],a_f [k]), 0 <= k <=n}$
   We define $Phi[k] = p[k]$. An euler scheme integration scheme is used with the initial conditions being $v[0] = 0$ and $p_f [0] = p[0]$ (same
   initial conditions)
-
+   
   Update rule is simply
   $
     a_f [j] = (p[j]- p_f [j-1]) / k_"spring" - k_"drag" v_f [j-1]\
@@ -222,16 +222,22 @@ input).
     ded,
     [*endif*],
     [*if* 
-    $angle.l p_c - p_o ["end"], p["end"] - p_o ["end"] angle.r < norm(p_c - p_o ["end"])$
-    #comment[#text(black)[we've overshot the anchor, we retry with a smaller step]]
-    ], ind,
-    [$Delta t <- (Delta t)/2$],ded,
-    [*else*],ind,
+      $angle.l p_c - p_o ["end"], p["end"] - p_o ["end"] angle.r < norm(p_c - p_o ["end"])$
+      #comment[#text(black)[we've overshot the anchor, we retry with a smaller step]]
+    ],
+    ind,
+    [$Delta t <- (Delta t)/2$],
+    ded,
+    [*else*],
+    ind,
     [$q_0["end +1"] = (p_c, v_c, q_c)$ #comment[#text(black)[We append the result to the end of the $q_0$ vector]]],
     ded,
     [*endif*],
-    [*if* $norm(p_c - p["end"]) < d_"stop"$],ind,[*return*
-    #comment[We are within tolerance of the anchor, we stop iterating]],ded,
+    [*if* $norm(p_c - p["end"]) < d_"stop"$],
+    ind,
+    [*return*
+      #comment[We are within tolerance of the anchor, we stop iterating]],
+    ded,
     [*endif*],
     no-number,
     [*Output* : ${q_o [k] = (s_o [k], v_o [k], a_o [k]), 0 <= k <= n (<= K_"max" - 1)}$],
@@ -240,14 +246,37 @@ input).
 
 == Stylus state modeler 
 
-Up till now we have only used the raw input stream to create a new smoothed stream of positions, leaving behind the pressure attribute. This is what's done here, to model the state of the stylus for these new position based on the pressure data of the raw input strokes.
+Up till now we have only used the raw input stream to create a new smoothed stream of positions, leaving behind the
+pressure attribute. This is what's done here, to model the state of the stylus for these new position based on the
+pressure data of the raw input strokes.
 
 #algorithm(
   caption: [Stylus state modeler],
   pseudocode(
     no-number,
-    [*Input*],
+    [*Input* : 
+    - input stream with pressure information ${(p[k]=(x[k],y[k]),pr[k]),0 <=k <= n}$
+    - query position $q = (x,y)$
+    - search window $n_"search"$ #comment[From `stylus_state_modeler_max_input_samples`],
+    ],
+    [*initialize* $d = oo$, $"index"="None"$, $"interp" = "None"$],
+    [*for* $i=0$ to $n-1$ *do*],
+    ind,
+    [*Find* $q_i$ the position that's closest to $q$ on the segment $[p[i],p[i+1]]$ and denote $r in [0,1]$ the value such
+      that $
+        q_i = (1-r) p[i] + r p[i+1]$],
+    [*if* $norm(q - q_i) < d$],
+    ind,
+    [$d <- norm(q - q_i) < d\
+      "index" =i\
+      "interp" = r $],
+    [*endif*],
+    ded,
+    [*endfor*],
+    [*calculate* $
+        pr = (1-r) pr["index"] + r pr["index" +1]
+      $],
     no-number,
-    [*Output*]
-  )
+    [*Output* : interpolated pressure $pr$],
+  ),
 )
