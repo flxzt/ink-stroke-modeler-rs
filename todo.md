@@ -1,10 +1,13 @@
-- [ ] check if `n_steps` robustness should be changed to pass all the tests in `position_modeler_test.cc`
 - [ ] tests for the stroke modeler
     - We don't append to a vec passed in arguments (`UpdateAppendsToResults`)
     - `RejectInputIfNegativeTimeDelta` and `RejectDuplicateInput` are not implemented here and are cases that are caught in the rnote code ...
+    - `FarApartTimesDoNotCrashForUp` and `FarApartTimesDoNotCrashForMove` : the rnote code already prevents this happening
+    - Same for `IgnoreTDownWhileStrokeIsInProgress`
+- [ ] check if `n_steps` robustness should be changed to pass all the tests in `position_modeler_test.cc`
+     - some of these things are things done in the rnote code instead so that error wouldn't happen here
+- [ ] use more `reserve`s on vec like the C++ code to speed up vec allocations
 - [ ] review the code one more time
 - [ ] performance and less `Copy` traits (copy less data around)
-- [ ] use more `reserve`s on vec like the C++ code to speed up vec allocations
 - [ ] adapt the default settings (cm for distance and seconds for time != what's rnote reporting)
 - [ ] docstrings updates
 - [ ] API changes (f32 vs f64, and using rust durations) ?

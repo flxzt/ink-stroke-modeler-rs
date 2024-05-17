@@ -1590,6 +1590,693 @@ mod ink_stroke_modeler {
 
     #[test]
     fn wobble_smoothed() {
-        
+        let delta_time = 0.0167;
+        let mut engine = StrokeModeler::default();
+
+        let mut time = 4.0;
+        let res1 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kDown,
+            pos: (-6.0, -2.0),
+            time: time,
+            pressure: 1.0,
+        });
+        assert!(res1.is_ok());
+        assert!(compare_results(
+            res1.unwrap(),
+            vec![ModelerResult {
+                pos: (-6.0, -2.0),
+                time: 4.0,
+                ..ModelerResult::default()
+            }]
+        ));
+
+        time += delta_time;
+
+        let res2 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (-6.02, -2.0),
+            time: time,
+            ..ModelerInput::default()
+        });
+        assert!(res2.is_ok());
+        assert!(compare_results(
+            res2.unwrap(),
+            vec![
+                ModelerResult {
+                    pos: (-6.0003, -2.0),
+                    velocity: (-0.0615, 0.0),
+                    acceleration: (-14.7276, 0.0),
+                    time: 4.0042,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0009, -2.0),
+                    velocity: (-0.1628, 0.0),
+                    acceleration: (-24.2725, 0.0),
+                    time: 4.0084,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0021, -2.0),
+                    velocity: (-0.2868, 0.0),
+                    acceleration: (-29.6996, 0.0),
+                    time: 4.0125,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0039, -2.0),
+                    velocity: (-0.4203, 0.0),
+                    acceleration: (-31.9728, 0.0),
+                    time: 4.0167,
+                    pressure: 1.0
+                },
+            ]
+        ));
+
+        time += delta_time;
+        let res3 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (-6.02, -2.02),
+            time: time,
+            pressure: 1.0,
+        });
+        assert!(res3.is_ok());
+        assert!(compare_results(
+            res3.unwrap(),
+            vec![
+                ModelerResult {
+                    pos: (-6.0059, -2.0001),
+                    velocity: (-0.4921, -0.0307),
+                    acceleration: (-17.1932, -7.3638),
+                    time: 4.0209,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0081, -2.0005),
+                    velocity: (-0.5170, -0.0814),
+                    acceleration: (-5.9729, -12.1355),
+                    time: 4.0251,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0102, -2.0010),
+                    velocity: (-0.5079, -0.1434),
+                    acceleration: (2.1807, -14.8493),
+                    time: 4.0292,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0122, -2.0019),
+                    velocity: (-0.4755, -0.2101),
+                    acceleration: (7.7710, -15.9860),
+                    time: 4.0334,
+                    pressure: 1.0
+                },
+            ]
+        ));
+        time += delta_time;
+        let res4 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (-6.04, -2.02),
+            time: time,
+            pressure: 1.0,
+        });
+        assert!(res4.is_ok());
+        assert!(compare_results(
+            res4.unwrap(),
+            vec![
+                ModelerResult {
+                    pos: (-6.0141, -2.0030),
+                    velocity: (-0.4489, -0.2563),
+                    acceleration: (6.3733, -11.0507), //this is where the difference occurs, fail test
+                    time: 4.0376,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0159, -2.0042),
+                    velocity: (-0.4277, -0.2856),
+                    acceleration: (5.0670, -7.0315),
+                    time: 4.0418,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0176, -2.0055),
+                    velocity: (-0.4115, -0.3018),
+                    acceleration: (3.8950, -3.8603),
+                    time: 4.0459,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0193, -2.0067),
+                    velocity: (-0.3994, -0.3078),
+                    acceleration: (2.8758, -1.4435),
+                    time: 4.0501,
+                    pressure: 1.0
+                },
+            ]
+        ));
+
+        time += delta_time;
+        let res5 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (-6.04, -2.04),
+            time: time,
+            pressure: 1.0,
+        });
+        assert!(res5.is_ok());
+        assert!(compare_results(
+            res5.unwrap(),
+            vec![
+                ModelerResult {
+                    pos: (-6.0209, -2.0082),
+                    velocity: (-0.3910, -0.3372),
+                    acceleration: (2.0142, -7.0427),
+                    time: 4.0543,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0225, -2.0098),
+                    velocity: (-0.3856, -0.3814),
+                    acceleration: (1.3090, -10.5977),
+                    time: 4.0585,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0241, -2.0116),
+                    velocity: (-0.3825, -0.4338),
+                    acceleration: (0.7470, -12.5399),
+                    time: 4.0626,
+                    pressure: 1.0
+                },
+                ModelerResult {
+                    pos: (-6.0257, -2.0136),
+                    velocity: (-0.3811, -0.4891),
+                    acceleration: (0.3174, -13.2543),
+                    time: 4.0668,
+                    pressure: 1.0
+                },
+            ]
+        ))
     }
+
+    #[test]
+    fn reset_stroke() {
+        let mut engine = StrokeModeler::default();
+        let delta_time = 1. / 50.;
+        let mut time = 0.0;
+        assert!(engine.reset().is_ok());
+        let res = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kDown,
+            pos: (-8.0, -10.0),
+            time: time,
+            pressure: 1.0,
+        });
+        assert!(res.is_ok());
+        assert!(!res.unwrap().is_empty());
+        assert!(engine.predict().is_ok());
+        assert!(engine.predict().unwrap().is_empty());
+
+        time += delta_time;
+        let res2 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            time: time,
+            ..ModelerInput::default()
+        });
+        assert!(res2.is_ok());
+        assert!(!res2.unwrap().is_empty());
+        assert!(engine.predict().is_ok());
+        assert!(!engine.predict().unwrap().is_empty());
+
+        time += delta_time;
+        let res3 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            time: time,
+            pos: (-11.0, -5.0),
+            ..ModelerInput::default()
+        });
+        assert!(res3.is_ok());
+        assert!(!res3.unwrap().is_empty());
+        assert!(engine.predict().is_ok());
+        assert!(!engine.predict().unwrap().is_empty());
+
+        assert!(engine.reset().is_ok());
+        assert!(engine.predict().is_err());
+    }
+
+    #[test]
+    fn ignore_input_before_down() {
+        let mut engine = StrokeModeler::default();
+
+        assert!(engine
+            .update(ModelerInput {
+                event_type: ModelerInputEventType::kMove,
+                ..ModelerInput::default()
+            })
+            .is_err());
+        assert!(engine
+            .update(ModelerInput {
+                event_type: ModelerInputEventType::kUp,
+                ..ModelerInput::default()
+            })
+            .is_err());
+    }
+
+    #[test]
+    fn alternate_params() {
+        let delta_time = 1. / 50.;
+        let mut engine = StrokeModeler::new(ModelerParams {
+            sampling_min_output_rate: 70.0,
+            stylus_state_modeler_max_input_samples: 20,
+            ..ModelerParams::suggested()
+        });
+
+        let mut time = 3.0;
+
+        let res1 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kDown,
+            pos: (0.0, 0.0),
+            time: time,
+            pressure: 0.5,
+        });
+        assert!(res1.is_ok());
+        assert!(compare_results(
+            res1.unwrap(),
+            vec![ModelerResult {
+                time: 3.0,
+                pressure: 0.5,
+                ..ModelerResult::default()
+            }]
+        ));
+
+        assert!(engine.predict().is_ok());
+        assert!(engine.predict().unwrap().is_empty());
+
+        time += delta_time;
+
+        let res2 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (0.0, 0.5),
+            time: time,
+            pressure: 0.4,
+        });
+        assert!(res2.is_ok());
+        assert!(compare_results(
+            res2.unwrap(),
+            vec![
+                ModelerResult {
+                    pos: (0.0, 0.0736),
+                    velocity: (0.0, 7.3636),
+                    acceleration: (0.0, 736.3636),
+                    time: 3.0100,
+                    pressure: 0.4853
+                },
+                ModelerResult {
+                    pos: (0.0, 0.2198),
+                    velocity: (0.0, 14.6202),
+                    acceleration: (0.0, 725.6529),
+                    time: 3.0200,
+                    pressure: 0.4560
+                },
+            ]
+        ));
+
+        assert!(engine.predict().is_ok());
+        assert!(compare_results(
+            engine.predict().unwrap(),
+            vec![
+                ModelerResult {
+                    pos: (0.0, 0.3823),
+                    velocity: (0.0, 11.3709),
+                    acceleration: (0.0, -227.4474),
+                    time: 3.0343,
+                    pressure: 0.4235
+                },
+                ModelerResult {
+                    pos: (0.0, 0.4484),
+                    velocity: (0.0, 4.6285),
+                    acceleration: (0.0, -471.9660),
+                    time: 3.0486,
+                    pressure: 0.4103
+                },
+                ModelerResult {
+                    pos: (0.0, 0.4775),
+                    velocity: (0.0, 2.0389),
+                    acceleration: (0.0, -181.2747),
+                    time: 3.0629,
+                    pressure: 0.4045
+                },
+                ModelerResult {
+                    pos: (0.0, 0.4902),
+                    velocity: (0.0, 0.8873),
+                    acceleration: (0.0, -80.6136),
+                    time: 3.0771,
+                    pressure: 0.4020
+                },
+                ModelerResult {
+                    pos: (0.0, 0.4957),
+                    velocity: (0.0, 0.3868),
+                    acceleration: (0.0, -35.0318),
+                    time: 3.0914,
+                    pressure: 0.4009
+                },
+                ModelerResult {
+                    pos: (0.0, 0.4981),
+                    velocity: (0.0, 0.1686),
+                    acceleration: (0.0, -15.2760),
+                    time: 3.1057,
+                    pressure: 0.4004
+                },
+                ModelerResult {
+                    pos: (0.0, 0.4992),
+                    velocity: (0.0, 0.0735),
+                    acceleration: (0.0, -6.6579),
+                    time: 3.1200,
+                    pressure: 0.4002
+                },
+            ]
+        ));
+        time += delta_time;
+
+        let res3 = engine.update(ModelerInput {
+            pos: (0.2, 1.0),
+            time: time,
+            pressure: 0.3,
+            event_type: ModelerInputEventType::kMove,
+        });
+        assert!(res3.is_ok());
+        assert!(compare_results(
+            res3.unwrap(),
+            vec![
+                ModelerResult {
+                    pos: (0.0295, 0.4169),
+                    velocity: (2.9455, 19.7093),
+                    acceleration: (294.5455, 508.9161),
+                    time: 3.0300,
+                    pressure: 0.4166
+                },
+                ModelerResult {
+                    pos: (0.0879, 0.6439),
+                    velocity: (5.8481, 22.6926),
+                    acceleration: (290.2612, 298.3311),
+                    time: 3.0400,
+                    pressure: 0.3691
+                },
+            ]
+        ));
+
+        assert!(engine.predict().is_ok());
+        assert!(compare_results(
+            engine.predict().unwrap(),
+            vec![
+                ModelerResult {
+                    pos: (0.1529, 0.8487),
+                    velocity: (4.5484, 14.3374),
+                    acceleration: (-90.9790, -584.8687),
+                    time: 3.0543,
+                    pressure: 0.3293
+                },
+                ModelerResult {
+                    pos: (0.1794, 0.9338),
+                    velocity: (1.8514, 5.9577),
+                    acceleration: (-188.7864, -586.5760),
+                    time: 3.0686,
+                    pressure: 0.3128
+                },
+                ModelerResult {
+                    pos: (0.1910, 0.9712),
+                    velocity: (0.8156, 2.6159),
+                    acceleration: (-72.5099, -233.9289),
+                    time: 3.0829,
+                    pressure: 0.3056
+                },
+                ModelerResult {
+                    pos: (0.1961, 0.9874),
+                    velocity: (0.3549, 1.1389),
+                    acceleration: (-32.2455, -103.3868),
+                    time: 3.0971,
+                    pressure: 0.3024
+                },
+                ModelerResult {
+                    pos: (0.1983, 0.9945),
+                    velocity: (0.1547, 0.4965),
+                    acceleration: (-14.0127, -44.9693),
+                    time: 3.1114,
+                    pressure: 0.3011
+                },
+                ModelerResult {
+                    pos: (0.1993, 0.9976),
+                    velocity: (0.0674, 0.2164),
+                    acceleration: (-6.1104, -19.6068),
+                    time: 3.1257,
+                    pressure: 0.3005
+                },
+                ModelerResult {
+                    pos: (0.1997, 0.9990),
+                    velocity: (0.0294, 0.0943),
+                    acceleration: (-2.6631, -8.5455),
+                    time: 3.1400,
+                    pressure: 0.3002
+                },
+            ]
+        ));
+
+        time += delta_time;
+        let res4 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (0.4, 1.4),
+            time: time,
+            pressure: 0.2,
+        });
+        assert!(res4.is_ok());
+        assert!(compare_results(
+            res4.unwrap(),
+            vec![
+                ModelerResult {
+                    pos: (0.1668, 0.8712),
+                    velocity: (7.8837, 22.7349),
+                    acceleration: (203.5665, 4.2224),
+                    time: 3.0500,
+                    pressure: 0.3245
+                },
+                ModelerResult {
+                    pos: (0.2575, 1.0906),
+                    velocity: (9.0771, 21.9411),
+                    acceleration: (119.3324, -79.3721),
+                    time: 3.0600,
+                    pressure: 0.2761
+                },
+            ]
+        ));
+        assert!(engine.predict().is_ok());
+        assert!(compare_results(
+            engine.predict().unwrap(),
+            vec![
+                ModelerResult {
+                    pos: (0.3395, 1.2676),
+                    velocity: (5.7349, 12.3913),
+                    acceleration: (-233.9475, -668.4906),
+                    time: 3.0743,
+                    pressure: 0.2325
+                },
+                ModelerResult {
+                    pos: (0.3735, 1.3421),
+                    velocity: (2.3831, 5.2156),
+                    acceleration: (-234.6304, -502.2992),
+                    time: 3.0886,
+                    pressure: 0.2142
+                },
+                ModelerResult {
+                    pos: (0.3885, 1.3748),
+                    velocity: (1.0463, 2.2854),
+                    acceleration: (-93.5716, -205.1091),
+                    time: 3.1029,
+                    pressure: 0.2062
+                },
+                ModelerResult {
+                    pos: (0.3950, 1.3890),
+                    velocity: (0.4556, 0.9954),
+                    acceleration: (-41.3547, -90.3064),
+                    time: 3.1171,
+                    pressure: 0.2027
+                },
+                ModelerResult {
+                    pos: (0.3978, 1.3952),
+                    velocity: (0.1986, 0.4339),
+                    acceleration: (-17.9877, -39.3021),
+                    time: 3.1314,
+                    pressure: 0.2012
+                },
+                ModelerResult {
+                    pos: (0.3990, 1.3979),
+                    velocity: (0.0866, 0.1891),
+                    acceleration: (-7.8428, -17.1346),
+                    time: 3.1457,
+                    pressure: 0.2005
+                },
+                ModelerResult {
+                    pos: (0.3996, 1.3991),
+                    velocity: (0.0377, 0.0824),
+                    acceleration: (-3.4182, -7.4680),
+                    time: 3.1600,
+                    pressure: 0.2002
+                },
+            ]
+        ));
+        time += delta_time;
+        let res5 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kUp,
+            pos: (0.7, 1.7),
+            pressure: 0.1,
+            time: time,
+        });
+        assert!(res5.is_ok());
+        assert!(compare_results(
+            res5.unwrap(),
+            vec![
+                ModelerResult {
+                    pos: (0.3691, 1.2874),
+                    velocity: (11.1558, 19.6744),
+                    acceleration: (207.8707, -226.6725),
+                    time: 3.0700,
+                    pressure: 0.2256
+                },
+                ModelerResult {
+                    pos: (0.4978, 1.4640),
+                    velocity: (12.8701, 17.6629),
+                    acceleration: (171.4340, -201.1508),
+                    time: 3.0800,
+                    pressure: 0.1730
+                },
+                ModelerResult {
+                    pos: (0.6141, 1.5986),
+                    velocity: (8.1404, 9.4261),
+                    acceleration: (-331.0815, -576.5752),
+                    time: 3.0943,
+                    pressure: 0.1312
+                },
+                ModelerResult {
+                    pos: (0.6624, 1.6557),
+                    velocity: (3.3822, 3.9953),
+                    acceleration: (-333.0701, -380.1579),
+                    time: 3.1086,
+                    pressure: 0.1136
+                },
+                ModelerResult {
+                    pos: (0.6836, 1.6807),
+                    velocity: (1.4851, 1.7488),
+                    acceleration: (-132.8005, -157.2520),
+                    time: 3.1229,
+                    pressure: 0.1059
+                },
+                ModelerResult {
+                    pos: (0.6929, 1.6916),
+                    velocity: (0.6466, 0.7618),
+                    acceleration: (-58.6943, -69.0946),
+                    time: 3.1371,
+                    pressure: 0.1026
+                },
+                ModelerResult {
+                    pos: (0.6969, 1.6963),
+                    velocity: (0.2819, 0.3321),
+                    acceleration: (-25.5298, -30.0794),
+                    time: 3.1514,
+                    pressure: 0.1011
+                },
+                ModelerResult {
+                    pos: (0.6986, 1.6984),
+                    velocity: (0.1229, 0.1447),
+                    acceleration: (-11.1311, -13.1133),
+                    time: 3.1657,
+                    pressure: 0.1005
+                },
+                ModelerResult {
+                    pos: (0.6994, 1.6993),
+                    velocity: (0.0535, 0.0631),
+                    acceleration: (-4.8514, -5.7153),
+                    time: 3.1800,
+                    pressure: 0.1002
+                },
+            ]
+        ));
+        assert!(engine.predict().is_err());
+    }
+
+    #[test]
+    fn generate_output_up_nodelta() {
+        let delta_time = 1. / 500.;
+        let mut engine = StrokeModeler::default();
+        let mut time = 0.0;
+
+        let res1 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kDown,
+            pos: (5.0, 5.0),
+            time: time,
+            pressure: 1.0,
+        });
+        assert!(res1.is_ok());
+        assert!(compare_results(
+            res1.unwrap(),
+            vec![ModelerResult {
+                pos: (5.0, 5.0),
+                time: 0.0,
+                ..ModelerResult::default()
+            }]
+        ));
+        time += delta_time;
+        let res2 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (5.0, 5.0),
+            pressure: 1.0,
+            time: time,
+        });
+        assert!(res2.is_ok());
+        assert!(compare_results(
+            res2.unwrap(),
+            vec![ModelerResult {
+                pos: (5.0, 5.0),
+                time: 0.002,
+                ..ModelerResult::default()
+            }]
+        ));
+        let res3 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::kUp,
+            pos: (5.0, 5.0),
+            time: time,
+            pressure: 1.0,
+        });
+        assert!(res3.is_ok());
+        assert!(compare_results(
+            res3.unwrap(),
+            vec![ModelerResult {
+                pos: (5.0, 5.0),
+                time: 0.0076,
+                pressure: 1.0,
+                ..ModelerResult::default()
+            }]
+        ));
+        // fails...
+    }
+
+    // needed ? we already catch this in the rust code
+    // #[test]
+    // fn far_apart_times_move() {
+    //     let mut engine = StrokeModeler::default();
+    //     let res1=engine.update(ModelerInput {
+    //         event_type: ModelerInputEventType::kDown,
+    //         pos: (0.0,0.0),
+    //         time:0.0,
+    //         pressure:0.2
+    //     });
+    //     assert!(res1.is_ok());
+    //     assert!(!res1.unwrap().is_empty());
+
+    //     let res2 = engine.update(ModelerInput {
+    //         event_type:ModelerInputEventType::kUp,
+    //         pos:(0.0,0.0),
+    //         pressure:0.2,
+    //         time: 2147483647.0,
+    //     });
+    //     assert!(res2.is_ok());
+
+    // }
 }

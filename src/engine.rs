@@ -116,6 +116,9 @@ impl StrokeModeler {
             }
             ModelerInputEventType::kMove => {
                 // get the latest element
+                if self.last_event.is_none() {
+                    return Err(1);
+                } 
                 let latest_el = self.last_event.unwrap();
                 let latest_time = latest_el.time();
                 let new_time = input.time();
@@ -161,6 +164,9 @@ impl StrokeModeler {
             }
             ModelerInputEventType::kUp => {
                 // get the latest element
+                if self.last_event.is_none() {
+                    return Err(1);
+                } 
                 let latest_el = self.last_event.unwrap();
                 let latest_time = latest_el.time();
                 let new_time = input.time();

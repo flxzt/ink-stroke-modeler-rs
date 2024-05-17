@@ -29,7 +29,7 @@ impl Default for ModelerInput {
             event_type: ModelerInputEventType::kDown,
             pos: (0.0, 0.0),
             time: 0.0,
-            pressure: 0.0,
+            pressure: 1.0,
         }
     }
 }
