@@ -736,10 +736,10 @@ mod ink_stroke_modeler {
         };
         let mut engine = StrokeModeler::default();
         assert!(engine.reset().is_ok());
-        assert!(engine.update(input).is_ok());
+        assert!(engine.update(input.clone()).is_ok());
 
         assert!(engine.reset_w_params(ModelerParams::suggested()).is_ok());
-        assert!(engine.update(input).is_ok());
+        assert!(engine.update(input.clone()).is_ok());
     }
 
     /// InputRateFasterThanMinOutputRate

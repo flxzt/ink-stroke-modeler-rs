@@ -8,7 +8,7 @@
      - some of these things are things done in the rnote code instead so that error wouldn't happen here
 - [x] use more `reserve`s on vec like the C++ code to speed up vec allocations
 - [ ] review the code one more time
-- [ ] performance and less `Copy` traits (copy less data around)
+- [x] performance and less `Copy` traits (copy less data around)
 - [ ] adapt the default settings (cm for distance and seconds for time != what's rnote reporting)
 - [ ] docstrings updates
 - [ ] API changes (f32 vs f64, and using rust durations) ?

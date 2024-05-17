@@ -60,7 +60,7 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 struct Element {
     pos: (f32, f32),
     velocity: Option<(f32, f32)>,

@@ -45,7 +45,7 @@ impl PositionModeler {
         );
         self.state.time = time;
 
-        self.state
+        self.state.clone()
     }
 
     /// update the model `n_steps` time between events
@@ -88,12 +88,12 @@ impl PositionModeler {
         max_iterations: usize,
         stop_distance: f32,
     ) -> Vec<ModelerPartial> {
-        let initial_state = self.state;
+        let initial_state = self.state.clone();
         let mut delta_time = delta_time;
 
         let mut out_events = Vec::<ModelerPartial>::with_capacity(max_iterations);
         for _ in 0..max_iterations {
-            let previous_state = self.state;
+            let previous_state = self.state.clone();
             let candidate = self.update(anchor_pos, previous_state.time + delta_time);
             //println!("candidate {:?}",candidate);
 
@@ -116,7 +116,7 @@ impl PositionModeler {
                 self.state = previous_state;
                 continue;
             } else {
-                out_events.push(candidate);
+                out_events.push(candidate.clone());
             }
 
             if dist(candidate.pos, anchor_pos) < stop_distance {

@@ -106,12 +106,12 @@ impl StrokeModeler {
                 self.wobble_update(&input); // first event is "as is"
 
                 // create the position modeler
-                self.position_modeler = Some(PositionModeler::new(self.params, input));
+                self.position_modeler = Some(PositionModeler::new(self.params, input.clone()));
 
-                self.last_event = Some(input);
+                self.last_event = Some(input.clone());
                 self.state_modeler
                     .reset(self.params.stylus_state_modeler_max_input_samples);
-                self.state_modeler.update(input);
+                self.state_modeler.update(input.clone());
                 Ok(vec![ModelerResult {
                     pos: input.pos,
                     velocity: (0.0, 0.0),
@@ -125,10 +125,10 @@ impl StrokeModeler {
                 if self.last_event.is_none() {
                     return Err(1);
                 }
-                let latest_el = self.last_event.unwrap();
+                let latest_el = self.last_event.as_ref().unwrap();
                 let latest_time = latest_el.time();
                 let new_time = input.time();
-                self.state_modeler.update(input);
+                self.state_modeler.update(input.clone());
 
                 // calculate the number of element to predict
                 let n_tsteps = (((new_time - latest_time) * self.params.sampling_min_output_rate)
@@ -164,7 +164,7 @@ impl StrokeModeler {
                     .collect();
 
                 // push the latest element (should we push everything we also interpolated as well ?)
-                self.last_event = Some(input);
+                self.last_event = Some(input.clone());
 
                 Ok(vec_out)
             }
@@ -173,10 +173,10 @@ impl StrokeModeler {
                 if self.last_event.is_none() {
                     return Err(1);
                 }
-                let latest_el = self.last_event.unwrap();
+                let latest_el = self.last_event.as_ref().unwrap();
                 let latest_time = latest_el.time();
                 let new_time = input.time();
-                self.state_modeler.update(input);
+                self.state_modeler.update(input.clone());
 
                 // calculate the number of element to predict
                 let n_tsteps = (((new_time - latest_time) * self.params.sampling_min_output_rate)
@@ -228,7 +228,7 @@ impl StrokeModeler {
                 );
 
                 if vec_out.is_empty() {
-                    let state_pos = self.position_modeler.as_mut().unwrap().state;
+                    let state_pos = self.position_modeler.as_ref().unwrap().state.clone();
                     vec_out.push(ModelerResult {
                         pos: state_pos.pos,
                         velocity: state_pos.velocity,
@@ -262,7 +262,7 @@ impl StrokeModeler {
                 .as_mut()
                 .unwrap()
                 .model_end_of_stroke(
-                    self.last_event.unwrap().pos,
+                    self.last_event.as_ref().unwrap().pos,
                     1. / self.params.sampling_min_output_rate,
                     self.params.sampling_end_of_stroke_max_iterations,
                     self.params.sampling_end_of_stroke_stopping_distance,

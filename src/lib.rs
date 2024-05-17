@@ -13,7 +13,7 @@ use position_modeler::PositionModeler;
 use engine::WobbleSample;
 use state_modeler::StateModeler;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ModelerInput {
     event_type: ModelerInputEventType,
     pos: (f32, f32),
@@ -35,7 +35,7 @@ impl Default for ModelerInput {
 }
 
 // modeler Input event Type
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy,PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[allow(non_camel_case_types)]
 pub enum ModelerInputEventType {
     kDown,
@@ -43,7 +43,7 @@ pub enum ModelerInputEventType {
     kUp,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Copy)]
 pub struct ModelerParams {
     /// these parameters are used to apply smoothing to the input to reduce
     /// wobble in the prediction
@@ -130,7 +130,7 @@ pub struct ModelerResult {
 
 /// same as before but no pressure
 ///
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct ModelerPartial {
     pos: (f32, f32),
     velocity: (f32, f32),
