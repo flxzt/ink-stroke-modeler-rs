@@ -82,7 +82,7 @@ impl PositionModeler {
             .collect()
     }
 
-    /// models the end of the stroke (catch-up) without modifying the predictor
+    /// models the end of the stroke (catch-up) WITHOUT modifying the predictor
     /// (the state is saved then restored after calculations are done)
     ///
     /// This creates candidates solution using the latest event as an anchor

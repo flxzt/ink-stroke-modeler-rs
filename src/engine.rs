@@ -84,7 +84,7 @@ impl StrokeModeler {
     /// but this is tested in the ink-stroke-modeler code as well and would fail it
     ///
     /// Normally, there is a match on the kdown, kMove or KUp part done to process the event
-    pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerInput>, i32> {
+    pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerResult>, i32> {
         // print to stdout the value (for raw values)
         // println!(
         //     "{:?};{:?};{:?};{:?}",
@@ -106,7 +106,13 @@ impl StrokeModeler {
                 self.state_modeler
                     .reset(self.params.stylus_state_modeler_max_input_samples);
                 self.state_modeler.update(input);
-                Ok(vec![input])
+                Ok(vec![ModelerResult {
+                    pos: input.pos,
+                    velocity: (0.0, 0.0),
+                    acceleration: (0.0, 0.0),
+                    time: input.time,
+                    pressure: input.pressure,
+                }])
             }
             ModelerInputEventType::kMove => {
                 // get the latest element
@@ -135,16 +141,17 @@ impl StrokeModeler {
                 // seems like speeds are way higher than normal speed encountered so no smoothing occurs here
 
                 // there was an error with the last el not being taken with .. but is part of it with ..=
-                let vec_out: Vec<ModelerInput> = self
+                let vec_out: Vec<ModelerResult> = self
                     .position_modeler
                     .as_mut()
                     .unwrap()
                     .update_along_linear_path(p_start, latest_time, p_end, new_time, n_tsteps)
                     .into_iter()
-                    .map(|i| ModelerInput {
-                        event_type: latest_el.event_type,
+                    .map(|i| ModelerResult {
                         pressure: self.state_modeler.query(i.pos),
                         pos: i.pos,
+                        velocity: i.velocity,
+                        acceleration: i.acceleration,
                         time: i.time,
                     })
                     .collect();
@@ -169,29 +176,30 @@ impl StrokeModeler {
                 let p_start = latest_el.pos();
                 let p_end = self.wobble_update(&input);
 
-                let mut vec_out = Vec::<ModelerInput>::new();
+                let mut vec_out = Vec::<ModelerResult>::new();
                 vec_out.reserve(
                     (n_tsteps as usize) + self.params.sampling_end_of_stroke_max_iterations,
                 );
 
-                let mut start_part: Vec<ModelerInput> = self
+                let mut start_part: Vec<ModelerResult> = self
                     .position_modeler
                     .as_mut()
                     .unwrap()
                     .update_along_linear_path(p_start, latest_time, p_end, new_time, n_tsteps)
                     .into_iter()
-                    .map(|i| ModelerInput {
-                        event_type: latest_el.event_type,
+                    .map(|i| ModelerResult {
                         pressure: self.state_modeler.query(i.pos),
                         pos: i.pos,
+                        velocity: i.velocity,
                         time: i.time,
+                        acceleration: i.acceleration,
                     })
                     .collect();
 
                 vec_out.append(&mut start_part);
 
                 // model the end of stroke
-                let mut second_part: Vec<ModelerInput> = self
+                let mut second_part: Vec<ModelerResult> = self
                     .position_modeler
                     .as_mut()
                     .unwrap()
@@ -202,10 +210,11 @@ impl StrokeModeler {
                         self.params.sampling_end_of_stroke_stopping_distance,
                     )
                     .into_iter()
-                    .map(|i| ModelerInput {
-                        event_type: latest_el.event_type,
+                    .map(|i| ModelerResult {
                         pressure: self.state_modeler.query(i.pos),
                         pos: i.pos,
+                        velocity: i.velocity,
+                        acceleration: i.acceleration,
                         time: i.time,
                     })
                     .collect();
@@ -214,9 +223,10 @@ impl StrokeModeler {
 
                 if vec_out.len() == 0 {
                     let state_pos = self.position_modeler.as_mut().unwrap().state;
-                    vec_out.push(ModelerInput {
-                        event_type: ModelerInputEventType::kUp,
+                    vec_out.push(ModelerResult {
                         pos: state_pos.pos,
+                        velocity: state_pos.velocity,
+                        acceleration: state_pos.acceleration,
                         time: state_pos.time,
                         pressure: self.state_modeler.query(state_pos.pos),
                     });
@@ -230,15 +240,13 @@ impl StrokeModeler {
     ///
     /// Returns an error if the model has not yet been initialized,
     /// if there is no stroke in progress
-    pub fn predict(&mut self) -> Result<Vec<ModelerInput>, String> {
+    pub fn predict(&mut self) -> Result<Vec<ModelerResult>, String> {
         // for now return the latest element if it exists from the input
         if self.last_event.is_none() {
             // no data to predict from
             Err(String::from("empty input events"))
         } else {
-            // construct the prediction
-            let previous_state = self.position_modeler.as_mut().unwrap().state;
-
+            // construct the prediction (model_end_of_stroke does not modify the position modeler)
             let predict = self
                 .position_modeler
                 .as_mut()
@@ -250,17 +258,14 @@ impl StrokeModeler {
                     self.params.sampling_end_of_stroke_stopping_distance,
                 )
                 .into_iter()
-                .map(|i| ModelerInput {
-                    event_type: ModelerInputEventType::kMove,
+                .map(|i| ModelerResult {
                     pos: i.pos,
+                    velocity: i.velocity,
+                    acceleration: i.acceleration,
                     time: i.time,
                     pressure: self.state_modeler.query(i.pos),
                 })
                 .collect();
-
-            // reset the state
-            self.position_modeler.as_mut().unwrap().state = previous_state;
-
             Ok(predict)
         }
     }
