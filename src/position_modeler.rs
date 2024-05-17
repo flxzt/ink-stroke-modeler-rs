@@ -28,7 +28,7 @@ impl PositionModeler {
     // returns the new state of the pen tip
     pub fn update(&mut self, anchor_pos: (f32, f32), time: f64) -> ModelerPartial {
         let delta_time = (time - self.state.time) as f32;
-
+        //
         self.state.acceleration = (
             (anchor_pos.0 - self.state.pos.0) / (self.position_modeler_spring_mass_constant)
                 - self.position_modeler_drag_constant * self.state.velocity.0,
@@ -48,7 +48,6 @@ impl PositionModeler {
         self.state
     }
 
-    // maybe not needed after all ? was a missed element ?
     /// update the model `n_steps` time between events
     /// this upsample between inputs linearly and applies
     /// these upstreamed events to the model

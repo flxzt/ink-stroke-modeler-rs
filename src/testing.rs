@@ -1707,7 +1707,7 @@ mod ink_stroke_modeler {
             vec![
                 ModelerResult {
                     pos: (-6.0141, -2.0030),
-                    velocity: (-0.4489, -0.2563),
+                    velocity: (-0.4489, -0.2563), //also wrong values
                     acceleration: (6.3733, -11.0507), //this is where the difference occurs, fail test
                     time: 4.0376,
                     pressure: 1.0
@@ -1744,7 +1744,7 @@ mod ink_stroke_modeler {
             pressure: 1.0,
         });
         assert!(res5.is_ok());
-        assert!(compare_results(
+        assert!((compare_results(
             res5.unwrap(),
             vec![
                 ModelerResult {
@@ -1776,7 +1776,7 @@ mod ink_stroke_modeler {
                     pressure: 1.0
                 },
             ]
-        ))
+        )));
     }
 
     #[test]
@@ -2249,7 +2249,14 @@ mod ink_stroke_modeler {
             res3.unwrap(),
             vec![ModelerResult {
                 pos: (5.0, 5.0),
-                time: 0.0076,
+                time: 0.002, 
+                // this was 0.0076, in the original file but in that case we have
+                // - 0 iteraitons of the stroke modeler
+                // - 0 iterations of the model_end_of_stroke part because 
+                // the candidate will be at the same position as the last position
+                // of the stroke modeler so this will return nothing 
+                // and we will only add back the previous element with the same time
+                // probably this one should have a time that's later ?
                 pressure: 1.0,
                 ..ModelerResult::default()
             }]

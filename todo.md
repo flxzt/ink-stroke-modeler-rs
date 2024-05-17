@@ -1,4 +1,5 @@
-- [ ] tests for the stroke modeler
+- [x] tests for the stroke modeler (see notes)
+    - [ ] error with `wobble_smoothed` ? 
     - We don't append to a vec passed in arguments (`UpdateAppendsToResults`)
     - `RejectInputIfNegativeTimeDelta` and `RejectDuplicateInput` are not implemented here and are cases that are caught in the rnote code ...
     - `FarApartTimesDoNotCrashForUp` and `FarApartTimesDoNotCrashForMove` : the rnote code already prevents this happening
