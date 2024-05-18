@@ -8,15 +8,14 @@ use crate::ModelerPartial;
 #[allow(unused)]
 use crate::ModelerResult;
 
-
 use std::collections::VecDeque;
 
 /// Get the pressure for a position by querying
 /// information from the raw input strokes
-/// 
+///
 /// All raw input strokes are to be provided to this state modeler by calling `update`
-/// Then [ModelerPartial] structs can be converted to [ModelerResult] by querying the 
-/// pressure data by calling this struct with the `query` function 
+/// Then [ModelerPartial] structs can be converted to [ModelerResult] by querying the
+/// pressure data by calling this struct with the `query` function
 #[doc = include_str!("../docs/notations.html")]
 #[doc = include_str!("../docs/stylus_state_modeler.html")]
 pub struct StateModeler {
@@ -40,7 +39,7 @@ impl StateModeler {
     pub fn new(param: usize) -> Self {
         Self {
             stylus_state_modeler_max_input_samples: param,
-            last_strokes: VecDeque::with_capacity(param+1),
+            last_strokes: VecDeque::with_capacity(param + 1),
         }
     }
 

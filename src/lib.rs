@@ -37,7 +37,7 @@ impl Default for ModelerInput {
 }
 
 /// modeler Input event Type
-#[derive(Debug, Clone, Copy,PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[allow(non_camel_case_types)]
 pub enum ModelerInputEventType {
     /// For the first pen down event (pen touches the screen)

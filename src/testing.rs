@@ -12,7 +12,19 @@ mod ink_stroke_modeler {
     use super::super::*;
     #[test]
     fn validation_modeler_params() {
-        let s = ModelerParams::new(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 0, 0, 0);
+        let s = (ModelerParams {
+            wobble_smoother_timeout: -1.0,
+            wobble_smoother_speed_floor: -1.0,
+            wobble_smoother_speed_ceiling: -1.0,
+            position_modeler_spring_mass_constant: -1.0,
+            position_modeler_drag_constant: -1.0,
+            sampling_min_output_rate: -1.0,
+            sampling_end_of_stroke_stopping_distance: -1.0,
+            sampling_end_of_stroke_max_iterations: 0,
+            sampling_max_outputs_per_call: 0,
+            stylus_state_modeler_max_input_samples: 0,
+        })
+        .validate();
         println!("{:?}", s); // use --nocapture to show the result here
                              // verify that we actually have an error
         match s {
@@ -1708,7 +1720,7 @@ mod ink_stroke_modeler {
             vec![
                 ModelerResult {
                     pos: (-6.0141, -2.0030),
-                    velocity: (-0.4489, -0.2563), //also wrong values
+                    velocity: (-0.4489, -0.2563),     //also wrong values
                     acceleration: (6.3733, -11.0507), //this is where the difference occurs, fail test
                     time: 4.0376,
                     pressure: 1.0
@@ -1745,39 +1757,41 @@ mod ink_stroke_modeler {
             pressure: 1.0,
         });
         assert!(res5.is_ok());
-        assert!((compare_results(
-            res5.unwrap(),
-            vec![
-                ModelerResult {
-                    pos: (-6.0209, -2.0082),
-                    velocity: (-0.3910, -0.3372),
-                    acceleration: (2.0142, -7.0427),
-                    time: 4.0543,
-                    pressure: 1.0
-                },
-                ModelerResult {
-                    pos: (-6.0225, -2.0098),
-                    velocity: (-0.3856, -0.3814),
-                    acceleration: (1.3090, -10.5977),
-                    time: 4.0585,
-                    pressure: 1.0
-                },
-                ModelerResult {
-                    pos: (-6.0241, -2.0116),
-                    velocity: (-0.3825, -0.4338),
-                    acceleration: (0.7470, -12.5399),
-                    time: 4.0626,
-                    pressure: 1.0
-                },
-                ModelerResult {
-                    pos: (-6.0257, -2.0136),
-                    velocity: (-0.3811, -0.4891),
-                    acceleration: (0.3174, -13.2543),
-                    time: 4.0668,
-                    pressure: 1.0
-                },
-            ]
-        )));
+        assert!(
+            (compare_results(
+                res5.unwrap(),
+                vec![
+                    ModelerResult {
+                        pos: (-6.0209, -2.0082),
+                        velocity: (-0.3910, -0.3372),
+                        acceleration: (2.0142, -7.0427),
+                        time: 4.0543,
+                        pressure: 1.0
+                    },
+                    ModelerResult {
+                        pos: (-6.0225, -2.0098),
+                        velocity: (-0.3856, -0.3814),
+                        acceleration: (1.3090, -10.5977),
+                        time: 4.0585,
+                        pressure: 1.0
+                    },
+                    ModelerResult {
+                        pos: (-6.0241, -2.0116),
+                        velocity: (-0.3825, -0.4338),
+                        acceleration: (0.7470, -12.5399),
+                        time: 4.0626,
+                        pressure: 1.0
+                    },
+                    ModelerResult {
+                        pos: (-6.0257, -2.0136),
+                        velocity: (-0.3811, -0.4891),
+                        acceleration: (0.3174, -13.2543),
+                        time: 4.0668,
+                        pressure: 1.0
+                    },
+                ]
+            ))
+        );
     }
 
     #[test]
@@ -2250,12 +2264,12 @@ mod ink_stroke_modeler {
             res3.unwrap(),
             vec![ModelerResult {
                 pos: (5.0, 5.0),
-                time: 0.002, 
+                time: 0.002,
                 // this was 0.0076, in the original file but in that case we have
                 // - 0 iteraitons of the stroke modeler
-                // - 0 iterations of the model_end_of_stroke part because 
+                // - 0 iterations of the model_end_of_stroke part because
                 // the candidate will be at the same position as the last position
-                // of the stroke modeler so this will return nothing 
+                // of the stroke modeler so this will return nothing
                 // and we will only add back the previous element with the same time
                 // probably this one should have a time that's later ?
                 pressure: 1.0,

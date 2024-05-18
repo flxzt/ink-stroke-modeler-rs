@@ -68,30 +68,19 @@ impl ModelerParams {
         }
     }
 
-    pub fn new(
-        wobble_smoother_timeout: f64,
-        wobble_smoother_speed_floor: f32,
-        wobble_smoother_speed_ceiling: f32,
-        position_modeler_spring_mass_constant: f32,
-        position_modeler_drag_constant: f32,
-        sampling_min_output_rate: f64,
-        sampling_end_of_stroke_stopping_distance: f32,
-        sampling_end_of_stroke_max_iterations: usize,
-        sampling_max_outputs_per_call: usize,
-        stylus_state_modeler_max_input_samples: usize,
-    ) -> Result<Self, String> {
+    pub fn validate(self) -> Result<Self, String> {
         let parameter_tests = [
-            position_modeler_spring_mass_constant > 0.0,
-            position_modeler_drag_constant > 0.0,
-            sampling_min_output_rate > 0.0,
-            sampling_end_of_stroke_stopping_distance > 0.0,
-            sampling_end_of_stroke_max_iterations > 0,
-            sampling_end_of_stroke_max_iterations < 1000,
-            sampling_max_outputs_per_call > 0,
-            wobble_smoother_timeout > 0.0,
-            wobble_smoother_speed_floor > 0.0,
-            wobble_smoother_speed_ceiling > 0.0,
-            wobble_smoother_speed_floor < wobble_smoother_speed_ceiling,
+            self.position_modeler_spring_mass_constant > 0.0,
+            self.position_modeler_drag_constant > 0.0,
+            self.sampling_min_output_rate > 0.0,
+            self.sampling_end_of_stroke_stopping_distance > 0.0,
+            self.sampling_end_of_stroke_max_iterations > 0,
+            self.sampling_end_of_stroke_max_iterations < 1000,
+            self.sampling_max_outputs_per_call > 0,
+            self.wobble_smoother_timeout > 0.0,
+            self.wobble_smoother_speed_floor > 0.0,
+            self.wobble_smoother_speed_ceiling > 0.0,
+            self.wobble_smoother_speed_floor < self.wobble_smoother_speed_ceiling,
         ];
 
         let errors = vec![
@@ -111,18 +100,7 @@ impl ModelerParams {
         let tests_passed = parameter_tests.iter().fold(true, |acc, x| acc & x);
 
         if tests_passed {
-            Ok(Self {
-                wobble_smoother_timeout,
-                wobble_smoother_speed_floor,
-                wobble_smoother_speed_ceiling,
-                position_modeler_spring_mass_constant,
-                position_modeler_drag_constant,
-                sampling_min_output_rate,
-                sampling_end_of_stroke_stopping_distance,
-                sampling_end_of_stroke_max_iterations,
-                sampling_max_outputs_per_call,
-                stylus_state_modeler_max_input_samples,
-            })
+            Ok(self)
         } else {
             //Collect errors
             let error_acc = parameter_tests
@@ -189,32 +167,30 @@ impl Default for ModelerResult {
 pub fn compare_results(left: Vec<ModelerResult>, right: Vec<ModelerResult>) -> bool {
     if left.len() != right.len() {
         // debug prints
-        println!("\n\nleft : {:?} right {:?}",left.len(),right.len());
+        println!("\n\nleft : {:?} right {:?}", left.len(), right.len());
         //iterate
         println!("left");
         for el in left {
-        println!("{:?}",el);
+            println!("{:?}", el);
         }
         println!("right");
         for el in right {
-        println!("{:?}",el);
+            println!("{:?}", el);
         }
         false
     } else {
-        println!("\n\n\nleft : {:?} right {:?}",&left.len(),&right.len());
+        println!("\n\n\nleft : {:?} right {:?}", &left.len(), &right.len());
         //iterate
         println!("left");
         for el in &left {
-        println!("{:?}",el);
+            println!("{:?}", el);
         }
         println!("right");
         for el in &right {
-        println!("{:?}",el);
+            println!("{:?}", el);
         }
 
-        left.into_iter().zip(right).all(|x| {
-            x.0.near(x.1)
-        })
+        left.into_iter().zip(right).all(|x| x.0.near(x.1))
     }
 }
 

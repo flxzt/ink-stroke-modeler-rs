@@ -21,7 +21,7 @@ pub fn normalize01_32(start: f32, end: f32, value: f32) -> f32 {
 }
 
 /// interpolate the value
-/// 
+///
 /// normal interpolation clamped to \[0,1\] for the `interp_amount`
 pub fn interp<T>(start: T, end: T, interp_amount: f32) -> T
 where

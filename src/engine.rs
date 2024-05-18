@@ -53,7 +53,8 @@ impl StrokeModeler {
     pub fn reset(&mut self) -> Result<(), i32> {
         self.last_event = None;
         self.wobble_decque = VecDeque::with_capacity(
-            (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout) as usize,
+            (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout)
+                as usize,
         );
         self.wobble_duration_sum = 0.0;
         self.wobble_weighted_pos_sum = (0.0, 0.0);
@@ -68,10 +69,14 @@ impl StrokeModeler {
     /// to have been built with [ModelerParams::new] that validates the
     /// parameters
     pub fn reset_w_params(&mut self, params: ModelerParams) -> Result<(), i32> {
-        self.params = params;
+        match params.validate() {
+            Ok(params) => self.params = params,
+            Err(_) => return Err(0),
+        };
         self.last_event = None;
         self.wobble_decque = VecDeque::with_capacity(
-            (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout) as usize,
+            (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout)
+                as usize,
         );
         self.wobble_duration_sum = 0.0;
         self.wobble_weighted_pos_sum = (0.0, 0.0);
@@ -207,24 +212,23 @@ impl StrokeModeler {
 
                 // model the end of stroke
                 vec_out.extend(
-                    self
-                    .position_modeler
-                    .as_mut()
-                    .unwrap()
-                    .model_end_of_stroke(
-                        input.pos,
-                        1. / self.params.sampling_min_output_rate,
-                        self.params.sampling_end_of_stroke_max_iterations,
-                        self.params.sampling_end_of_stroke_stopping_distance,
-                    )
-                    .into_iter()
-                    .map(|i| ModelerResult {
-                        pressure: self.state_modeler.query(i.pos),
-                        pos: i.pos,
-                        velocity: i.velocity,
-                        acceleration: i.acceleration,
-                        time: i.time,
-                    })
+                    self.position_modeler
+                        .as_mut()
+                        .unwrap()
+                        .model_end_of_stroke(
+                            input.pos,
+                            1. / self.params.sampling_min_output_rate,
+                            self.params.sampling_end_of_stroke_max_iterations,
+                            self.params.sampling_end_of_stroke_stopping_distance,
+                        )
+                        .into_iter()
+                        .map(|i| ModelerResult {
+                            pressure: self.state_modeler.query(i.pos),
+                            pos: i.pos,
+                            velocity: i.velocity,
+                            acceleration: i.acceleration,
+                            time: i.time,
+                        }),
                 );
 
                 if vec_out.is_empty() {
