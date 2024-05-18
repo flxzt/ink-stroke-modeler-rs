@@ -208,6 +208,7 @@ impl Default for StrokeModeler {
             wobble_distance_sum: 0.0,
 
             last_event: None,
+            last_corrected_event: None,
             position_modeler: None,
             state_modeler: StateModeler::default(),
         }

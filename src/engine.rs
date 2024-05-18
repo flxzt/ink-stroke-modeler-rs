@@ -36,6 +36,7 @@ impl StrokeModeler {
         Self {
             params,
             last_event: None,
+            last_corrected_event: None,
             wobble_decque: VecDeque::with_capacity(
                 (2.0 * params.sampling_min_output_rate * params.wobble_smoother_timeout) as usize,
             ),
@@ -114,6 +115,7 @@ impl StrokeModeler {
                 self.position_modeler = Some(PositionModeler::new(self.params, input.clone()));
 
                 self.last_event = Some(input.clone());
+                self.last_corrected_event = Some(input.pos);
                 self.state_modeler
                     .reset(self.params.stylus_state_modeler_max_input_samples);
                 self.state_modeler.update(input.clone());
@@ -130,8 +132,7 @@ impl StrokeModeler {
                 if self.last_event.is_none() {
                     return Err(1);
                 }
-                let latest_el = self.last_event.as_ref().unwrap();
-                let latest_time = latest_el.time();
+                let latest_time = self.last_event.as_ref().unwrap().time();
                 let new_time = input.time();
                 self.state_modeler.update(input.clone());
 
@@ -148,11 +149,10 @@ impl StrokeModeler {
                 // this was deactivated as the value was not set in the original `ink-stroke-modeler-rs`
                 // but ofc this would also make the model output a larger number of elements ...
 
-                let p_start = latest_el.pos();
+                let p_start = self.last_corrected_event.unwrap();
                 let p_end = self.wobble_update(&input);
                 // seems like speeds are way higher than normal speed encountered so no smoothing occurs here
 
-                // there was an error with the last el not being taken with .. but is part of it with ..=
                 let vec_out: Vec<ModelerResult> = self
                     .position_modeler
                     .as_mut()
@@ -170,6 +170,7 @@ impl StrokeModeler {
 
                 // push the latest element (should we push everything we also interpolated as well ?)
                 self.last_event = Some(input.clone());
+                self.last_corrected_event = Some(p_end);
 
                 Ok(vec_out)
             }
@@ -178,8 +179,7 @@ impl StrokeModeler {
                 if self.last_event.is_none() {
                     return Err(1);
                 }
-                let latest_el = self.last_event.as_ref().unwrap();
-                let latest_time = latest_el.time();
+                let latest_time = self.last_event.as_ref().unwrap().time;
                 let new_time = input.time();
                 self.state_modeler.update(input.clone());
 
@@ -188,7 +188,11 @@ impl StrokeModeler {
                     .ceil() as i32)
                     .min(i32::MAX);
 
-                let p_start = latest_el.pos();
+                let p_start = self.last_corrected_event.unwrap();
+                // the p_end is purposefully different from the original implementation
+                // to match the kMove part
+                // the original takes the raw input here which means a different 
+                // behavior between the predict on a kMove and a kUp
                 let p_end = self.wobble_update(&input);
 
                 let mut vec_out = Vec::<ModelerResult>::with_capacity(
