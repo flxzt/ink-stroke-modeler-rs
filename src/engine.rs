@@ -209,7 +209,7 @@ impl StrokeModeler {
                             pressure: self.state_modeler.query(i.pos),
                             pos: i.pos,
                             velocity: i.velocity,
-                            time: i.time,
+                            time: i.time, 
                             acceleration: i.acceleration,
                         }),
                 );
@@ -241,7 +241,14 @@ impl StrokeModeler {
                         pos: state_pos.pos,
                         velocity: state_pos.velocity,
                         acceleration: state_pos.acceleration,
-                        time: state_pos.time,
+                        // this is so that the extra stroke added has a time that's larger than the previous one
+                        // when the kUp happens at the same time as the kMove
+                        // In the original implementation, this was always true because
+                        // the ModelEndOfStroke function did not restore the state of the modeler
+                        // so that even if a single candidate was tried and iterations stopped there
+                        // the status of the modeler changed, including the time by at least
+                        // `1. / self.params.sampling_min_output_rate`
+                        time: state_pos.time + 1. / self.params.sampling_min_output_rate,
                         pressure: self.state_modeler.query(state_pos.pos),
                     });
                 }

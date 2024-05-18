@@ -2263,7 +2263,7 @@ mod ink_stroke_modeler {
             res3.unwrap(),
             vec![ModelerResult {
                 pos: (5.0, 5.0),
-                time: 0.0076, //what's going on here ?
+                time: 0.0076, 
                 pressure: 1.0,
                 ..ModelerResult::default()
             }]
