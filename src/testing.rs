@@ -1719,8 +1719,8 @@ mod ink_stroke_modeler {
             vec![
                 ModelerResult {
                     pos: (-6.0141, -2.0030),
-                    velocity: (-0.4489, -0.2563),     
-                    acceleration: (6.3733, -11.0507), 
+                    velocity: (-0.4489, -0.2563),
+                    acceleration: (6.3733, -11.0507),
                     time: 4.0376,
                     pressure: 1.0
                 },
@@ -2263,7 +2263,7 @@ mod ink_stroke_modeler {
             res3.unwrap(),
             vec![ModelerResult {
                 pos: (5.0, 5.0),
-                time: 0.0076, 
+                time: 0.0076,
                 pressure: 1.0,
                 ..ModelerResult::default()
             }]

@@ -172,6 +172,6 @@ pub struct StrokeModeler {
     // only created on the first stroke
     position_modeler: Option<PositionModeler>,
     last_event: Option<ModelerInput>,
-    last_corrected_event: Option<(f32,f32)>,
+    last_corrected_event: Option<(f32, f32)>,
     state_modeler: StateModeler,
 }

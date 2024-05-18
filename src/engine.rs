@@ -191,7 +191,7 @@ impl StrokeModeler {
                 let p_start = self.last_corrected_event.unwrap();
                 // the p_end is purposefully different from the original implementation
                 // to match the kMove part
-                // the original takes the raw input here which means a different 
+                // the original takes the raw input here which means a different
                 // behavior between the predict on a kMove and a kUp
                 let p_end = self.wobble_update(&input);
 
@@ -209,7 +209,7 @@ impl StrokeModeler {
                             pressure: self.state_modeler.query(i.pos),
                             pos: i.pos,
                             velocity: i.velocity,
-                            time: i.time, 
+                            time: i.time,
                             acceleration: i.acceleration,
                         }),
                 );
