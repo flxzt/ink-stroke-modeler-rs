@@ -13,7 +13,7 @@ use crate::utils::normalize01_32;
 /// wrapper time to include all needed information
 /// in the Deque
 #[derive(Debug)]
-pub struct WobbleSample {
+pub(crate) struct WobbleSample {
     /// raw position
     pub position: (f32, f32),
     /// position weighted by the duration

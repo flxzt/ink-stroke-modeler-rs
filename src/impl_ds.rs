@@ -166,7 +166,10 @@ impl Default for ModelerResult {
 }
 /// Utility to compare [ModelerResult] up to `tol =1e-4` (not settable for now)
 /// with printed output for debug purposes
-pub fn compare_results(left: Vec<ModelerResult>, right: Vec<ModelerResult>) -> bool {
+///
+/// Only used for testing purposes
+#[allow(unused)]
+pub(crate) fn compare_results(left: Vec<ModelerResult>, right: Vec<ModelerResult>) -> bool {
     if left.len() != right.len() {
         tracing::debug!("\n\nleft : {:?} right {:?}", left.len(), right.len());
         //iterate

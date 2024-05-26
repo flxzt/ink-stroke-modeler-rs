@@ -1,4 +1,4 @@
-use crate::utils::{interp, interp2, nearest_point_on_segment, dist};
+use crate::utils::{dist, interp, interp2, nearest_point_on_segment};
 use crate::ModelerInput;
 
 // only imported for docstrings

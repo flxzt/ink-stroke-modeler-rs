@@ -1,5 +1,5 @@
+use crate::utils::{dist, nearest_point_on_segment};
 use crate::{ModelerInput, ModelerParams, ModelerPartial};
-use crate::utils::{nearest_point_on_segment,dist};
 
 /// This struct models the movement of the pen tip based on the laws of motion.
 /// The pen tip is represented as a mass, connected by a spring to a moving
@@ -129,7 +129,6 @@ impl PositionModeler {
         out_events
     }
 }
-
 
 impl ModelerPartial {
     #[allow(dead_code)]

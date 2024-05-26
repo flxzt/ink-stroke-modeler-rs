@@ -44,7 +44,11 @@ pub(crate) fn interp2(start: (f32, f32), end: (f32, f32), interp_amount: f32) ->
 /// returns the point on the line segment from `segment_start` to `segment_end`
 /// that is closest to `point`, represented as the ratio of the length
 /// along the segment
-pub(crate) fn nearest_point_on_segment(start: (f32, f32), end: (f32, f32), point: (f32, f32)) -> f32 {
+pub(crate) fn nearest_point_on_segment(
+    start: (f32, f32),
+    end: (f32, f32),
+    point: (f32, f32),
+) -> f32 {
     if start == end {
         0.0_f32
     } else {

@@ -1,10 +1,10 @@
 use std::collections::VecDeque;
 
 // modules
-pub mod engine;
-pub mod impl_ds;
-pub mod position_modeler;
-pub mod state_modeler;
+mod engine;
+mod impl_ds;
+mod position_modeler;
+mod state_modeler;
 mod testing;
 mod utils;
 
