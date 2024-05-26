@@ -25,22 +25,10 @@ mod ink_stroke_modeler {
             stylus_state_modeler_max_input_samples: 0,
         })
         .validate();
-        println!("{:?}", s); // use --nocapture to show the result here
         match s {
             Ok(_) => assert!(false),
             Err(_) => assert!(true),
         }
-    }
-
-    #[test]
-    fn test_clamping() {
-        // testing that the clamp does the action we expect in rust
-        assert_eq!((-2.0 as f64).clamp(0.0, 1.0), 0.0);
-        assert_eq!((0 as f64).clamp(0.0, 1.0), 0.0);
-        assert_eq!((0.3 as f64).clamp(0.0, 1.0), 0.3);
-        assert_eq!((0.7 as f64).clamp(0.0, 1.0), 0.7);
-        assert_eq!((1.0 as f64).clamp(0.0, 1.0), 1.0);
-        assert_eq!((1.1 as f64).clamp(0.0, 1.0), 1.0);
     }
 
     #[test]

@@ -68,6 +68,8 @@ impl ModelerParams {
         }
     }
 
+    /// validate the parameters as being correct, returns a error string with
+    /// the reasons otherwise
     pub fn validate(self) -> Result<Self, String> {
         let parameter_tests = [
             self.position_modeler_spring_mass_constant > 0.0,
@@ -166,28 +168,27 @@ impl Default for ModelerResult {
 /// with printed output for debug purposes
 pub fn compare_results(left: Vec<ModelerResult>, right: Vec<ModelerResult>) -> bool {
     if left.len() != right.len() {
-        // debug prints
-        println!("\n\nleft : {:?} right {:?}", left.len(), right.len());
+        tracing::debug!("\n\nleft : {:?} right {:?}", left.len(), right.len());
         //iterate
-        println!("left");
+        tracing::debug!("left");
         for el in left {
-            println!("{:?}", el);
+            tracing::debug!("{:?}", el);
         }
-        println!("right");
+        tracing::debug!("right");
         for el in right {
-            println!("{:?}", el);
+            tracing::debug!("{:?}", el);
         }
         false
     } else {
-        println!("\n\n\nleft : {:?} right {:?}", &left.len(), &right.len());
+        tracing::debug!("\n\n\nleft : {:?} right {:?}", &left.len(), &right.len());
         //iterate
-        println!("left");
+        tracing::debug!("left");
         for el in &left {
-            println!("{:?}", el);
+            tracing::debug!("{:?}", el);
         }
-        println!("right");
+        tracing::debug!("right");
         for el in &right {
-            println!("{:?}", el);
+            tracing::debug!("{:?}", el);
         }
 
         left.into_iter().zip(right).all(|x| x.0.near(x.1))
@@ -200,7 +201,7 @@ impl Default for StrokeModeler {
 
         Self {
             params,
-            wobble_decque: VecDeque::with_capacity(
+            wobble_deque: VecDeque::with_capacity(
                 (2.0 * params.sampling_min_output_rate * params.wobble_smoother_timeout) as usize,
             ),
             wobble_weighted_pos_sum: (0.0, 0.0),

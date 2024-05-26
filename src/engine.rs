@@ -37,7 +37,7 @@ impl StrokeModeler {
             params,
             last_event: None,
             last_corrected_event: None,
-            wobble_decque: VecDeque::with_capacity(
+            wobble_deque: VecDeque::with_capacity(
                 (2.0 * params.sampling_min_output_rate * params.wobble_smoother_timeout) as usize,
             ),
             wobble_duration_sum: 0.0,
@@ -53,7 +53,7 @@ impl StrokeModeler {
     /// as is and can't be uninitialized
     pub fn reset(&mut self) -> Result<(), i32> {
         self.last_event = None;
-        self.wobble_decque = VecDeque::with_capacity(
+        self.wobble_deque = VecDeque::with_capacity(
             (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout)
                 as usize,
         );
@@ -67,7 +67,7 @@ impl StrokeModeler {
     /// the given parameters
     ///
     /// Here the error is also obsolete as the `ModelerParams` is expected
-    /// to have been built with [ModelerParams::new] that validates the
+    /// to have been built with [ModelerParams::validate] that validates the
     /// parameters
     pub fn reset_w_params(&mut self, params: ModelerParams) -> Result<(), i32> {
         match params.validate() {
@@ -75,7 +75,7 @@ impl StrokeModeler {
             Err(_) => return Err(0),
         };
         self.last_event = None;
-        self.wobble_decque = VecDeque::with_capacity(
+        self.wobble_deque = VecDeque::with_capacity(
             (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout)
                 as usize,
         );
@@ -97,15 +97,6 @@ impl StrokeModeler {
     /// for now rnote's wrapper codes verify that the input is not duplicated and time increases between strokes
     /// This is not tested here, as we suppose that these things are verified beforehand
     pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerResult>, i32> {
-        // print to stdout the value (for raw values)
-        // println!(
-        //     "{:?};{:?};{:?};{:?}",
-        //     &input.pos().0,
-        //     &input.pos().1,
-        //     &input.time,
-        //     &input.pressure
-        // );
-
         match input.event_type {
             ModelerInputEventType::kDown => {
                 // assumed this is the first ever event
@@ -301,9 +292,9 @@ impl StrokeModeler {
     ///high speeds movements won't be smoothed but low speed will.
     #[doc = include_str!("../docs/wobble.html")]
     pub fn wobble_update(&mut self, event: &ModelerInput) -> (f32, f32) {
-        match self.wobble_decque.len() {
+        match self.wobble_deque.len() {
             0 => {
-                self.wobble_decque.push_back(WobbleSample {
+                self.wobble_deque.push_back(WobbleSample {
                     position: event.pos,
                     weighted_position: (0.0, 0.0),
                     distance: 0.0,
@@ -313,14 +304,14 @@ impl StrokeModeler {
                 event.pos
             }
             _ => {
-                let last_el = self.wobble_decque.back().unwrap();
+                let last_el = self.wobble_deque.back().unwrap();
                 let duration = event.time - last_el.time;
                 let weighted_pos = (event.pos.0 * duration as f32, event.pos.1 * duration as f32);
                 let distance = ((event.pos.0 - last_el.position.0).powi(2)
                     + (event.pos.1 - last_el.position.1).powi(2))
                 .sqrt();
 
-                self.wobble_decque.push_back(WobbleSample {
+                self.wobble_deque.push_back(WobbleSample {
                     position: event.pos,
                     weighted_position: weighted_pos,
                     distance,
@@ -333,10 +324,10 @@ impl StrokeModeler {
                 self.wobble_distance_sum += distance;
                 self.wobble_duration_sum += duration;
 
-                while self.wobble_decque.front().unwrap().time
+                while self.wobble_deque.front().unwrap().time
                     < event.time - self.params.wobble_smoother_timeout
                 {
-                    let front_el = self.wobble_decque.pop_front().unwrap();
+                    let front_el = self.wobble_deque.pop_front().unwrap();
 
                     let last_pos = self.wobble_weighted_pos_sum;
                     self.wobble_weighted_pos_sum = (

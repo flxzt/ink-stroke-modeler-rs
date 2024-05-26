@@ -161,7 +161,7 @@ pub struct StrokeModeler {
     /// wobble smoother structures
     /// deque to hold events that are recent
     /// to calculate a moving average
-    wobble_decque: VecDeque<WobbleSample>,
+    wobble_deque: VecDeque<WobbleSample>,
     /// running weighted sum
     wobble_weighted_pos_sum: (f32, f32),
     /// running duration sum

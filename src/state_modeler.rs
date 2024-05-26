@@ -60,7 +60,7 @@ impl StateModeler {
 
     /// query the pressure by interpolating it from raw input events
     pub fn query(&mut self, pos: (f32, f32)) -> f32 {
-        // iterate over the decque
+        // iterate over the deque
         match self.last_strokes.len() {
             0 => 1.0,
             1 => return self.last_strokes.front().unwrap().pressure,
