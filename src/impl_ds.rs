@@ -1,47 +1,6 @@
 // import
 use super::*;
 
-// implementation for all structures
-
-/// To create a new input
-///
-/// This is kinda superfluous because initializattion as a struct can also be done
-impl ModelerInput {
-    pub fn new(
-        event_type: ModelerInputEventType,
-        pos: (f32, f32),
-        time: f64,
-        pressure: f32,
-    ) -> Self {
-        ModelerInput {
-            event_type,
-            pos,
-            time,
-            pressure,
-        }
-    }
-
-    // helper methods : superfluous if we make the params of the struct public
-    // we don't have to do a ffi unwrap
-
-    pub fn event_type(&self) -> ModelerInputEventType {
-        self.event_type
-    }
-
-    pub fn pos(&self) -> (f32, f32) {
-        self.pos
-    }
-
-    pub fn time(&self) -> f64 {
-        self.time
-    }
-
-    pub fn pressure(&self) -> f32 {
-        self.pressure
-    }
-}
-
-//
 impl ModelerParams {
     /// [ModelerParams::wobble_smoother_timeout] : 0.04,\
     /// [ModelerParams::wobble_smoother_speed_floor] : 1.31,\
@@ -119,27 +78,6 @@ impl ModelerParams {
 }
 
 impl ModelerResult {
-    // not too needed, self.pos vs self.pos() ...
-    pub fn pos(&self) -> (f32, f32) {
-        self.pos
-    }
-
-    pub fn velocity(&self) -> (f32, f32) {
-        self.velocity
-    }
-
-    pub fn acceleration(&self) -> (f32, f32) {
-        self.acceleration
-    }
-
-    pub fn time(&self) -> f64 {
-        self.time
-    }
-
-    pub fn pressure(&self) -> f32 {
-        self.pressure
-    }
-
     pub fn near(self, other: ModelerResult) -> bool {
         let tol = 1e-4;
         ((self.pos.0 - other.pos.0).abs() < tol
@@ -214,7 +152,7 @@ impl Default for StrokeModeler {
             last_event: None,
             last_corrected_event: None,
             position_modeler: None,
-            state_modeler: StateModeler::default(),
+            state_modeler: StateModeler::new(params.stylus_state_modeler_max_input_samples),
         }
     }
 }

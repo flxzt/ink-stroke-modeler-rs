@@ -12,18 +12,72 @@ fn main() -> anyhow::Result<()> {
     };
 
     let input_stroke = vec![
-        ModelerInput::new(ModelerInputEventType::kDown, (90.0, 30.0), 0.0, 0.25),
-        ModelerInput::new(ModelerInputEventType::kMove, (30.0, 45.0), 0.02, 0.3),
-        ModelerInput::new(ModelerInputEventType::kMove, (60.0, 240.0), 0.04, 0.7),
-        ModelerInput::new(ModelerInputEventType::kMove, (105.0, 270.0), 0.06, 1.0),
-        ModelerInput::new(ModelerInputEventType::kMove, (120.0, 150.0), 0.10, 0.6),
-        ModelerInput::new(ModelerInputEventType::kMove, (180.0, 30.0), 0.12, 0.3),
-        ModelerInput::new(ModelerInputEventType::kMove, (240.0, 120.0), 0.16, 0.3),
-        ModelerInput::new(ModelerInputEventType::kMove, (210.0, 150.0), 0.18, 0.9),
-        ModelerInput::new(ModelerInputEventType::kMove, (150.0, 210.0), 0.20, 0.8),
-        ModelerInput::new(ModelerInputEventType::kMove, (210.0, 240.0), 0.22, 0.8),
-        ModelerInput::new(ModelerInputEventType::kMove, (255.0, 240.0), 0.24, 0.7),
-        ModelerInput::new(ModelerInputEventType::kUp, (270.0, 270.0), 0.26, 0.5),
+        ModelerInput {
+            event_type: ModelerInputEventType::kDown,
+            pos: (90.0, 30.0),
+            time: 0.0,
+            pressure: 0.25,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (30.0, 45.0),
+            time: 0.02,
+            pressure: 0.3,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (60.0, 240.0),
+            time: 0.04,
+            pressure: 0.7,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (105.0, 270.0),
+            time: 0.06,
+            pressure: 1.0,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (180.0, 30.0),
+            time: 0.12,
+            pressure: 0.3,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (120.0, 150.0),
+            time: 0.10,
+            pressure: 0.6,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (240.0, 120.0),
+            time: 0.16,
+            pressure: 0.3,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (150.0, 210.0),
+            time: 0.20,
+            pressure: 0.8,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (210.0, 240.0),
+            time: 0.22,
+            pressure: 0.8,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (255.0, 240.0),
+            pressure: 0.24,
+            time: 0.7,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kUp,
+            pos: (270.0, 270.0),
+            pressure: 0.26,
+            time: 0.5,
+        },
     ];
     let input_elements = input_stroke
         .iter()
@@ -71,19 +125,19 @@ struct Element {
 impl Element {
     fn from_modeler_input(i: &ModelerInput) -> Self {
         Self {
-            pos: i.pos(),
+            pos: i.pos,
             velocity: None,
-            time: i.time(),
-            pressure: i.pressure(),
+            time: i.time,
+            pressure: i.pressure,
         }
     }
 
     fn from_modeler_result(r: &ModelerResult) -> Self {
         Self {
-            pos: r.pos(),
-            velocity: Some(r.velocity()),
-            time: r.time(),
-            pressure: r.pressure(),
+            pos: r.pos,
+            velocity: Some(r.velocity),
+            time: r.time,
+            pressure: r.pressure,
         }
     }
 }

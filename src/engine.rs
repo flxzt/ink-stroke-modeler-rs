@@ -123,8 +123,8 @@ impl StrokeModeler {
                 if self.last_event.is_none() {
                     return Err(1);
                 }
-                let latest_time = self.last_event.as_ref().unwrap().time();
-                let new_time = input.time();
+                let latest_time = self.last_event.as_ref().unwrap().time;
+                let new_time = input.time;
                 self.state_modeler.update(input.clone());
 
                 // calculate the number of element to predict
@@ -171,7 +171,7 @@ impl StrokeModeler {
                     return Err(1);
                 }
                 let latest_time = self.last_event.as_ref().unwrap().time;
-                let new_time = input.time();
+                let new_time = input.time;
                 self.state_modeler.update(input.clone());
 
                 // calculate the number of element to predict
