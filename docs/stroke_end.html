@@ -1,0 +1,85 @@
+<h2>Stroke end</h2>
+<p>The position modeling algorithm will lag behind the raw input by some
+distance. This algorithm iterates the previous dynamical system a few
+additional time using the raw input position as the anchor to allow a
+<code>catch up</code> of the stroke (though this prediction is only
+given by <code>predict</code>, so is not part of the
+<code>results</code> and becomes obsolete on the next input).</p>
+<p><strong>Algorithm</strong> :Stroke end<br />
+<strong>Input</strong>:</p>
+<ul>
+<li><p>Final anchor position
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo><mi>y</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p\left\lbrack \text{end} \right\rbrack = \left( x\left\lbrack \text{end} \right\rbrack,y\left\lbrack \text{end} \right\rbrack \right)</annotation></semantics></math>
+(From the original input stream)</p></li>
+<li><p>final tip state
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>q</mi><mi>f</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>p</mi><mi>f</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>f</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo><msub><mi>y</mi><mi>f</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>v</mi><mi>f</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo><msub><mi>a</mi><mi>f</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">q_{f}\left\lbrack \text{end} \right\rbrack = \left( p_{f}\left\lbrack \text{end} \right\rbrack = \left( x_{f}\left\lbrack \text{end} \right\rbrack,y_{f}\left\lbrack \text{end} \right\rbrack \right),v_{f}\left\lbrack \text{end} \right\rbrack,a_{f}\left\lbrack \text{end} \right\rbrack \right)</annotation></semantics></math>
+(returned from the physical modeling from the last section,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mo>⋅</mo><mi>f</mi></msub><annotation encoding="application/x-tex">\cdot_{f}</annotation></semantics></math>
+signifies that we are looking at the filtered output)</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>K</mi><mtext mathvariant="normal">max</mtext></msub><annotation encoding="application/x-tex">K_{\text{max}}</annotation></semantics></math>
+max number of iterations
+(<code>sampling_end_of_stroke_max_iterations</code>)</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Δ</mi><mtext mathvariant="normal">target</mtext></msub><annotation encoding="application/x-tex">\Delta_{\text{target}}</annotation></semantics></math>
+the target time delay between stroke
+(1/<code>sampling_min_output_rate</code>)</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mtext mathvariant="normal">stop</mtext></msub><annotation encoding="application/x-tex">d_{\text{stop}}</annotation></semantics></math>
+stopping distance
+(<code>sampling_end_of_stroke_stopping_distance</code>)</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>k</mi><mtext mathvariant="normal">spring</mtext></msub><annotation encoding="application/x-tex">k_{\text{spring}}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>k</mi><mtext mathvariant="normal">drag</mtext></msub><annotation encoding="application/x-tex">k_{\text{drag}}</annotation></semantics></math>
+the modeling coefficients</p></li>
+</ul>
+<p><strong>initialize</strong> the vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mi>o</mi></msub><annotation encoding="application/x-tex">q_{o}</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>q</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mrow><mo stretchy="true" form="prefix">(</mo><munder><munder><mrow><msub><mi>p</mi><mi>f</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mrow><msub><mi>p</mi><mi>o</mi></msub><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo></mrow></munder><mo>,</mo><munder><munder><mrow><msub><mi>v</mi><mi>f</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mrow><msub><mi>v</mi><mi>o</mi></msub><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo></mrow></munder><mo>,</mo><munder><munder><mrow><msub><mi>a</mi><mi>f</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mrow><msub><mi>a</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo></mrow></munder><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">q_{0}\lbrack 0\rbrack = \left. \left( \underset{p_{o}\lbrack 0\rbrack}{\underbrace{p_{f}\left\lbrack \text{end} \right\rbrack}},\underset{v_{o}\lbrack 0\rbrack}{\underbrace{v_{f}\left\lbrack \text{end} \right\rbrack}},\underset{a_{0}\lbrack 0\rbrack}{\underbrace{a_{f}\left\lbrack \text{end} \right\rbrack}} \right) \right.</annotation></semantics></math><br />
+<strong>initialize</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><mi>t</mi><mo>=</mo><msub><mi>Δ</mi><mtext mathvariant="normal">target</mtext></msub></mrow><annotation encoding="application/x-tex">\Delta t = \Delta_{\text{target}}</annotation></semantics></math><br />
+<strong>for</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>≤</mo><mi>k</mi><mo>≤</mo><msub><mi>K</mi><mtext mathvariant="normal">max</mtext></msub></mrow><annotation encoding="application/x-tex">1 \leq k \leq K_{\text{max}}</annotation></semantics></math><br />
+- <strong>calculate</strong> the next candidate
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>a</mi><mi>c</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo>−</mo><msub><mi>p</mi><mi>o</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow></mrow><msub><mi>k</mi><mtext mathvariant="normal">spring</mtext></msub></mfrac><mo>−</mo><msub><mi>k</mi><mrow><mtext mathvariant="normal">drag </mtext><mspace width="0.333em"></mspace></mrow></msub><msub><mi>v</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>v</mi><mi>c</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>v</mi><mi>o</mi></msub><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mi>Δ</mi><mi>t</mi><msub><mi>a</mi><mi>c</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>p</mi><mi>c</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>p</mi><mi>o</mi></msub><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mi>Δ</mi><msub><mi>v</mi><mi>c</mi></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
+a_{c} &amp; = \frac{p\left\lbrack \text{end} \right\rbrack - p_{o}\left\lbrack \text{end} \right\rbrack}{k_{\text{spring}}} - k_{\text{drag }}v_{0}\left\lbrack \text{end} \right\rbrack \\
+v_{c} &amp; = v_{o}\lbrack 0\rbrack + \Delta ta_{c} \\
+p_{c} &amp; = p_{o}\lbrack 0\rbrack + \Delta v_{c}
+\end{aligned}</annotation></semantics></math></p>
+<p><br />
+- <strong>if</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">∥</mo><msub><mi>p</mi><mi>c</mi></msub><mo>−</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">∥</mo></mrow><mo>&lt;</mo><msub><mi>d</mi><mtext mathvariant="normal">stop</mtext></msub></mrow><annotation encoding="application/x-tex">\left\| {p_{c} - p\left\lbrack \text{end} \right\rbrack} \right\| &lt; d_{\text{stop}}</annotation></semantics></math>
+(further iterations won’t be able to catch up and won’t move closer to
+the anchor, we stop here), - <strong>return</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mn>0</mn></msub><annotation encoding="application/x-tex">q_{0}</annotation></semantics></math><br />
+- <strong>endif</strong><br />
+</p>
+<ul>
+<li><p><strong>if</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>p</mi><mi>c</mi></msub><mo>−</mo><msub><mi>p</mi><mi>o</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo>−</mo><msub><mi>p</mi><mi>o</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="false" form="postfix">⟩</mo><mo>&lt;</mo><mrow><mo stretchy="true" form="prefix">∥</mo><msub><mi>p</mi><mi>c</mi></msub><mo>−</mo><msub><mi>p</mi><mi>o</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">∥</mo></mrow></mrow><annotation encoding="application/x-tex">\langle p_{c} - p_{o}\left\lbrack \text{end} \right\rbrack,p\left\lbrack \text{end} \right\rbrack - p_{o}\left\lbrack \text{end} \right\rbrack\rangle &lt; \left\| {p_{c} - p_{o}\left\lbrack \text{end} \right\rbrack} \right\|</annotation></semantics></math>
+(we’ve overshot the anchor, we retry with a smaller step)</p>
+<p><br />
+</p>
+<ul>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><mi>t</mi><mo>←</mo><mfrac><mrow><mi>Δ</mi><mi>t</mi></mrow><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">\Delta t \leftarrow \frac{\Delta t}{2}</annotation></semantics></math>,</p></li>
+<li><p><strong>continue</strong> (this candidate will be discarded, try
+again with a smaller time step instead),</p></li>
+</ul></li>
+</ul>
+<p>- <strong>else</strong><br />
+-
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>q</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">[</mo><mi>e</mi><mi>n</mi><mi>d</mi><mspace width="0.222em"></mspace><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>p</mi><mi>c</mi></msub><mo>,</mo><msub><mi>v</mi><mi>c</mi></msub><mo>,</mo><msub><mi>q</mi><mi>c</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">q_{0}\lbrack end\ +1\rbrack = \left( p_{c},v_{c},q_{c} \right)</annotation></semantics></math>
+(We append the result to the end of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mn>0</mn></msub><annotation encoding="application/x-tex">q_{0}</annotation></semantics></math>
+vector)<br />
+- <strong>endif</strong><br />
+</p>
+<ul>
+<li><p><strong>if</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">∥</mo><msub><mi>p</mi><mi>c</mi></msub><mo>−</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">end</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">∥</mo></mrow><mo>&lt;</mo><msub><mi>d</mi><mtext mathvariant="normal">stop</mtext></msub></mrow><annotation encoding="application/x-tex">\left\| {p_{c} - p\left\lbrack \text{end} \right\rbrack} \right\| &lt; d_{\text{stop}}</annotation></semantics></math>,</p>
+<ul>
+<li><p><strong>return</strong> (We are within tolerance of the anchor,
+we stop iterating),</p></li>
+</ul></li>
+<li><p><strong>endif</strong>,</p></li>
+</ul>
+<p><strong>Output</strong> :
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">{</mo><msub><mi>q</mi><mi>o</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>s</mi><mi>o</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><msub><mi>v</mi><mi>o</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><msub><mi>a</mi><mi>o</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mn>0</mn><mo>≤</mo><mi>k</mi><mo>≤</mo><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>≤</mo><msub><mi>K</mi><mrow><mtext mathvariant="normal">max </mtext><mspace width="0.333em"></mspace></mrow></msub><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\left\{ q_{o}\lbrack k\rbrack = \left( s_{o}\lbrack k\rbrack,v_{o}\lbrack k\rbrack,a_{o}\lbrack k\rbrack \right),0 \leq k \leq n\left( \leq K_{\text{max }} - 1 \right) \right\}</annotation></semantics></math></p>

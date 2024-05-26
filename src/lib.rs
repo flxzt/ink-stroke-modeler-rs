@@ -12,7 +12,7 @@ use position_modeler::PositionModeler;
 // imports/ re exports
 use engine::WobbleSample;
 // re export
-pub use state_modeler::StateModeler;
+use state_modeler::StateModeler;
 
 /// struct holding all information for input event
 #[derive(Clone, Debug, PartialEq)]

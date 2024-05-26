@@ -1,5 +1,4 @@
-use crate::position_modeler::dist;
-use crate::utils::{interp, interp2, nearest_point_on_segment};
+use crate::utils::{interp, interp2, nearest_point_on_segment, dist};
 use crate::ModelerInput;
 
 // only imported for docstrings
@@ -18,7 +17,7 @@ use std::collections::VecDeque;
 /// pressure data by calling this struct with the `query` function
 #[doc = include_str!("../docs/notations.html")]
 #[doc = include_str!("../docs/stylus_state_modeler.html")]
-pub struct StateModeler {
+pub(crate) struct StateModeler {
     /// max number of elements
     stylus_state_modeler_max_input_samples: usize,
     /// deque holding the data from strokes
@@ -36,7 +35,7 @@ impl Default for StateModeler {
 
 impl StateModeler {
     /// initialize a new StateModeler
-    pub fn new(param: usize) -> Self {
+    pub(crate) fn new(param: usize) -> Self {
         Self {
             stylus_state_modeler_max_input_samples: param,
             last_strokes: VecDeque::with_capacity(param + 1),
@@ -44,7 +43,7 @@ impl StateModeler {
     }
 
     /// add the most recent raw input to the StateModeler
-    pub fn update(&mut self, input: ModelerInput) {
+    pub(crate) fn update(&mut self, input: ModelerInput) {
         // add the event to the strokes
         self.last_strokes.push_back(input);
         if self.last_strokes.len() > self.stylus_state_modeler_max_input_samples {
@@ -53,13 +52,13 @@ impl StateModeler {
     }
 
     /// reset the StateModeler
-    pub fn reset(&mut self, max_input: usize) {
+    pub(crate) fn reset(&mut self, max_input: usize) {
         self.last_strokes = VecDeque::new();
         self.stylus_state_modeler_max_input_samples = max_input;
     }
 
     /// query the pressure by interpolating it from raw input events
-    pub fn query(&mut self, pos: (f32, f32)) -> f32 {
+    pub(crate) fn query(&mut self, pos: (f32, f32)) -> f32 {
         // iterate over the deque
         match self.last_strokes.len() {
             0 => 1.0,

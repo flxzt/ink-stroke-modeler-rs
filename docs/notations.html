@@ -1,0 +1,47 @@
+<h2>Notations</h2>
+<div class="box">
+<p>We denote :</p>
+<ul>
+<li><p>Pressure :
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ν</mi><mo>∈</mo><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\nu \in \lbrack 0,1\rbrack</annotation></semantics></math></p></li>
+<li><p>time :
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">t \geq 0</annotation></semantics></math></p></li>
+<li><p>point : defined by position
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+(or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><msup><mi>ℝ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">p = (x,y) \in {\mathbb{R}}^{2}</annotation></semantics></math>)</p></li>
+<li><p>Raw inputs are denoted by a tuple
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>ν</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>x</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>y</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">i\lbrack k\rbrack = \left( \nu\lbrack k\rbrack,t\lbrack k\rbrack,x\lbrack k\rbrack,y\lbrack k\rbrack \right)</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>∈</mo><mi>ℕ</mi></mrow><annotation encoding="application/x-tex">k \in {\mathbb{N}}</annotation></semantics></math>.</p></li>
+</ul>
+</div>
+<div class="box">
+<p>An <em>input stream</em> is a sequence of raw inputs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>ν</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">i = (\nu,t,x,y)</annotation></semantics></math></p>
+<ul>
+<li><p>with time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">t\lbrack k\rbrack</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>↗</mo><mo>↗</mo></mrow><annotation encoding="application/x-tex">\nearrow \nearrow</annotation></semantics></math>
+strictly increasing</p></li>
+<li><p>starts with a <code>kDown</code> event</p></li>
+<li><p>contains <code>KMove</code> for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k \geq 1</annotation></semantics></math></p></li>
+<li><p>ends either with a <code>kMove</code> or a <code>kUp</code> . If
+it is a <code>kUp</code> we say the input stream is
+<em>complete</em></p></li>
+</ul>
+</div>
+<div class="box">
+<p>We addition define</p>
+<ul>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mi>x</mi></msub><mo>,</mo><msub><mi>v</mi><mi>y</mi></msub><mo>,</mo><msub><mi>a</mi><mi>x</mi></msub><mo>,</mo><msub><mi>a</mi><mi>y</mi></msub></mrow><annotation encoding="application/x-tex">v_{x},v_{y},a_{x},a_{y}</annotation></semantics></math>
+as the velocity and acceleration.</p></li>
+</ul>
+<p>With the vector shorthand
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>v</mi><mi>x</mi></msub><mo>,</mo><msub><mi>v</mi><mi>y</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><msup><mi>ℝ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">v = \left( v_{x},v_{y} \right) \in {\mathbb{R}}^{2}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>x</mi></msub><mo>,</mo><msub><mi>a</mi><mi>y</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><msup><mi>ℝ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">a = \left( a_{x},a_{y} \right) \in {\mathbb{R}}^{2}</annotation></semantics></math></p>
+</div>

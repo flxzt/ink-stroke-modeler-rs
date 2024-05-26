@@ -59,3 +59,8 @@ pub(crate) fn nearest_point_on_segment(start: (f32, f32), end: (f32, f32), point
 pub(crate) fn dot(x: (f32, f32), y: (f32, f32)) -> f32 {
     x.0 * y.0 + x.1 * y.1
 }
+
+/// distance calculation for `(f32,f32)` types
+pub fn dist(start: (f32, f32), end: (f32, f32)) -> f32 {
+    ((start.0 - end.0).powi(2) + (start.1 - end.1).powi(2)).sqrt()
+}

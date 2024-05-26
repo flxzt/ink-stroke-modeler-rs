@@ -1,18 +1,19 @@
-use crate::{utils::nearest_point_on_segment, ModelerInput, ModelerParams, ModelerPartial};
+use crate::{ModelerInput, ModelerParams, ModelerPartial};
+use crate::utils::{nearest_point_on_segment,dist};
 
 /// This struct models the movement of the pen tip based on the laws of motion.
 /// The pen tip is represented as a mass, connected by a spring to a moving
 /// anchor; as the anchor moves, it drags the pen tip along behind it.
-pub struct PositionModeler {
+pub(crate) struct PositionModeler {
     //parameters for the model
     position_modeler_spring_mass_constant: f32,
     position_modeler_drag_constant: f32,
     // last state
-    pub state: ModelerPartial,
+    pub(crate) state: ModelerPartial,
 }
 
 impl PositionModeler {
-    pub fn new(params: ModelerParams, first_input: ModelerInput) -> Self {
+    pub(crate) fn new(params: ModelerParams, first_input: ModelerInput) -> Self {
         Self {
             position_modeler_spring_mass_constant: params.position_modeler_spring_mass_constant,
             position_modeler_drag_constant: params.position_modeler_drag_constant,
@@ -26,7 +27,7 @@ impl PositionModeler {
     }
     // Given the position of the anchor and the time, updates the model and
     // returns the new state of the pen tip
-    pub fn update(&mut self, anchor_pos: (f32, f32), time: f64) -> ModelerPartial {
+    pub(crate) fn update(&mut self, anchor_pos: (f32, f32), time: f64) -> ModelerPartial {
         let delta_time = (time - self.state.time) as f32;
         //
         self.state.acceleration = (
@@ -51,7 +52,7 @@ impl PositionModeler {
     /// update the model `n_steps` time between events
     /// this upsample between inputs linearly and applies
     /// these upstreamed events to the model
-    pub fn update_along_linear_path(
+    pub(crate) fn update_along_linear_path(
         &mut self,
         start_pos: (f32, f32),
         start_time: f64,
@@ -81,7 +82,7 @@ impl PositionModeler {
     /// but stops after `max_iterations`, if the distance between states is less
     /// than `stop_distance` or the candidate is close to the anchor (less than
     /// `stop_distance`)
-    pub fn model_end_of_stroke(
+    pub(crate) fn model_end_of_stroke(
         &mut self,
         anchor_pos: (f32, f32),
         delta_time: f64,
@@ -129,10 +130,6 @@ impl PositionModeler {
     }
 }
 
-/// distance calculation for `(f32,f32)` types
-pub fn dist(start: (f32, f32), end: (f32, f32)) -> f32 {
-    ((start.0 - end.0).powi(2) + (start.1 - end.1).powi(2)).sqrt()
-}
 
 impl ModelerPartial {
     #[allow(dead_code)]

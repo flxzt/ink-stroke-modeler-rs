@@ -44,7 +44,7 @@ impl StrokeModeler {
             wobble_weighted_pos_sum: (0.0, 0.0),
             wobble_distance_sum: 0.0,
             position_modeler: None,
-            state_modeler: StateModeler::default(),
+            state_modeler: StateModeler::new(params.stylus_state_modeler_max_input_samples),
         }
     }
 
