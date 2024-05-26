@@ -8,9 +8,10 @@ mod state_modeler;
 mod testing;
 mod utils;
 
-use position_modeler::PositionModeler;
-// imports/ re exports
 use engine::WobbleSample;
+use position_modeler::PositionModeler;
+
+extern crate approx;
 // re export
 use state_modeler::StateModeler;
 
@@ -137,7 +138,7 @@ pub struct ModelerResult {
 
 /// A [ModelerResult] that does not have yet a pressure information
 #[derive(Clone, Debug)]
-pub struct ModelerPartial {
+pub(crate) struct ModelerPartial {
     pos: (f32, f32),
     velocity: (f32, f32),
     acceleration: (f32, f32),

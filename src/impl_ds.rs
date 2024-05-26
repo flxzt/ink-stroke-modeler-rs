@@ -80,14 +80,14 @@ impl ModelerParams {
 impl ModelerResult {
     pub fn near(self, other: ModelerResult) -> bool {
         let tol = 1e-4;
-        ((self.pos.0 - other.pos.0).abs() < tol
-            && (self.pos.1 - other.pos.1).abs() < tol
-            && (self.time - other.time).abs() < tol as f64)
-            && (self.acceleration.0 - other.acceleration.0).abs() < tol
-            && (self.acceleration.1 - other.acceleration.1).abs() < tol
-            && (self.velocity.0 - other.velocity.0).abs() < tol
-            && (self.velocity.1 - other.velocity.1).abs() < tol
-            && (self.pressure - other.pressure).abs() < tol
+        approx::abs_diff_eq!(self.pos.0, other.pos.0, epsilon = tol)
+            && approx::abs_diff_eq!(self.pos.1, other.pos.1, epsilon = tol)
+            && approx::abs_diff_eq!(self.time, other.time, epsilon = tol as f64)
+            && approx::abs_diff_eq!(self.acceleration.0, other.acceleration.0, epsilon = tol)
+            && approx::abs_diff_eq!(self.acceleration.1, other.acceleration.1, epsilon = tol)
+            && approx::abs_diff_eq!(self.velocity.0, other.velocity.0, epsilon = tol)
+            && approx::abs_diff_eq!(self.velocity.1, other.velocity.1, epsilon = tol)
+            && approx::abs_diff_eq!(self.pressure, other.pressure, epsilon = tol)
     }
 }
 
@@ -109,27 +109,27 @@ impl Default for ModelerResult {
 #[allow(unused)]
 pub(crate) fn compare_results(left: Vec<ModelerResult>, right: Vec<ModelerResult>) -> bool {
     if left.len() != right.len() {
-        tracing::debug!("\n\nleft : {:?} right {:?}", left.len(), right.len());
+        println!("\n\nleft : {:?} right {:?}", left.len(), right.len());
         //iterate
-        tracing::debug!("left");
+        println!("left");
         for el in left {
-            tracing::debug!("{:?}", el);
+            println!("{:?}", el);
         }
-        tracing::debug!("right");
+        println!("right");
         for el in right {
-            tracing::debug!("{:?}", el);
+            println!("{:?}", el);
         }
         false
     } else {
-        tracing::debug!("\n\n\nleft : {:?} right {:?}", &left.len(), &right.len());
+        println!("\n\n\nleft : {:?} right {:?}", &left.len(), &right.len());
         //iterate
-        tracing::debug!("left");
+        println!("left");
         for el in &left {
-            tracing::debug!("{:?}", el);
+            println!("{:?}", el);
         }
-        tracing::debug!("right");
+        println!("right");
         for el in &right {
-            tracing::debug!("{:?}", el);
+            println!("{:?}", el);
         }
 
         left.into_iter().zip(right).all(|x| x.0.near(x.1))

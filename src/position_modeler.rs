@@ -133,14 +133,14 @@ impl PositionModeler {
 impl ModelerPartial {
     #[allow(dead_code)]
     fn near(self, compare: ModelerPartial) -> bool {
-        let tol = 0.0005; //for now fixed here
-        (self.pos.0 - compare.pos.0).abs() < tol
-            && (self.pos.1 - compare.pos.1).abs() < tol
-            && (self.velocity.0 - compare.velocity.0).abs() < tol
-            && (self.velocity.1 - compare.velocity.1).abs() < tol
-            && (self.acceleration.0 - compare.acceleration.0).abs() < tol
-            && (self.acceleration.1 - compare.acceleration.1).abs() < tol
-            && (self.time - compare.time).abs() < tol as f64
+        let tol = 0.0005; //same tol as the ones used in the original repository
+        approx::abs_diff_eq!(self.pos.0, compare.pos.0, epsilon = tol)
+            && approx::abs_diff_eq!(self.pos.1, compare.pos.1, epsilon = tol)
+            && approx::abs_diff_eq!(self.velocity.0, compare.velocity.0, epsilon = tol)
+            && approx::abs_diff_eq!(self.velocity.1, compare.velocity.1, epsilon = tol)
+            && approx::abs_diff_eq!(self.acceleration.0, compare.acceleration.0, epsilon = tol)
+            && approx::abs_diff_eq!(self.acceleration.1, compare.acceleration.1, epsilon = tol)
+            && approx::abs_diff_eq!(self.time, compare.time, epsilon = tol as f64)
     }
 }
 

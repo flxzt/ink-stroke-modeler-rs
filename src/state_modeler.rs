@@ -94,8 +94,8 @@ impl StateModeler {
 #[test]
 fn state_modeler_straight() {
     let mut state_mod = StateModeler::new(10);
-    assert_eq!(state_mod.query((0.0, 0.0)), 1.0); // 1 is our "unknown" default value
-    assert_eq!(state_mod.query((-5.0, 3.0)), 1.0); // 1 is our "unknown" default value
+    approx::assert_relative_eq!(state_mod.query((0.0, 0.0)), 1.0); // 1 is our "unknown" default value
+    approx::assert_relative_eq!(state_mod.query((-5.0, 3.0)), 1.0); // 1 is our "unknown" default value
 }
 #[test]
 fn query_single_output() {
@@ -106,8 +106,8 @@ fn query_single_output() {
         ..ModelerInput::default()
     });
 
-    assert_eq!(state_mod.query((0.0, 0.0)), 0.75);
-    assert_eq!(state_mod.query((1.0, 1.0)), 0.75);
+    approx::assert_relative_eq!(state_mod.query((0.0, 0.0)), 0.75);
+    approx::assert_relative_eq!(state_mod.query((1.0, 1.0)), 0.75);
 }
 
 #[test]
@@ -135,14 +135,15 @@ fn query_multiple_output() {
     });
 
     let tol = 1e-5;
-    assert!((state_mod.query((0.0, 2.0)) - 0.3).abs() < tol);
-    assert!((state_mod.query((1.0, 2.0)) - 0.4).abs() < tol);
-    assert!((state_mod.query((2.0, 1.5)) - 0.6).abs() < tol);
-    assert!((state_mod.query((2.5, 1.875)) - 0.65).abs() < tol);
-    assert!((state_mod.query((2.5, 3.125)) - 0.75).abs() < tol);
-    assert!((state_mod.query((2.5, 4.0)) - 0.8).abs() < tol);
-    assert!((state_mod.query((3.0, 4.0)) - 0.5).abs() < tol);
-    assert!((state_mod.query((4.0, 4.0)) - 0.2).abs() < tol);
+    approx::assert_abs_diff_eq!(state_mod.query((0.0, 2.0)), 0.3, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((1.0, 2.0)), 0.4, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((2.0, 1.5)), 0.6, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((2.5, 1.875)), 0.65, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((2.5, 3.125)), 0.75, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((2.5, 4.0)), 0.8, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((2.5, 4.0)), 0.8, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((3.0, 4.0)), 0.5, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((4.0, 4.0)), 0.2, epsilon = tol);
 }
 
 #[test]
@@ -200,9 +201,9 @@ fn query_stale() {
     });
 
     let tol = 1e-5;
-    assert!((state_mod.query((2.0, 0.0)) - 0.6).abs() < tol);
-    assert!((state_mod.query((1.0, 3.5)) - 0.45).abs() < tol);
-    assert!((state_mod.query((-3.0, 17. / 6.)) - 0.5).abs() < tol);
+    approx::assert_abs_diff_eq!(state_mod.query((2.0, 0.0)), 0.6, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((1.0, 3.5)), 0.45, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((-3.0, 17. / 6.)), 0.5, epsilon = tol);
 
     //adds a 11-th point so that the first point is discarded
     state_mod.update(ModelerInput {
@@ -211,9 +212,9 @@ fn query_stale() {
         ..Default::default()
     });
 
-    assert!((state_mod.query((2.0, 0.0)) - 0.3).abs() < tol);
-    assert!((state_mod.query((1.0, 3.5)) - 0.3).abs() < tol);
-    assert!((state_mod.query((-3.0, 17. / 6.)) - 0.5).abs() < tol);
+    approx::assert_abs_diff_eq!(state_mod.query((2.0, 0.0)), 0.3, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((1.0, 3.5)), 0.3, epsilon = tol);
+    approx::assert_relative_eq!(state_mod.query((-3.0, 17. / 6.)), 0.5, epsilon = tol);
 
     state_mod.update(ModelerInput {
         pos: (-8.0, 0.0),
@@ -221,9 +222,9 @@ fn query_stale() {
         ..Default::default()
     });
 
-    assert!((state_mod.query((2.0, 0.0)) - 0.9).abs() < tol);
-    assert!((state_mod.query((1.0, 3.5)) - 0.9).abs() < tol);
-    assert!((state_mod.query((-3.0, 17. / 6.)) - 0.9).abs() < tol);
+    approx::assert_abs_diff_eq!(state_mod.query((2.0, 0.0)), 0.9, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((1.0, 3.5)), 0.9, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((-3.0, 17. / 6.)), 0.9, epsilon = tol);
 }
 
 #[test]
@@ -241,10 +242,10 @@ fn query_reset() {
     });
 
     let tol = 1e-5;
-    assert!((state_mod.query((10.0, 12.0)) - 0.1).abs() < tol);
+    approx::assert_abs_diff_eq!(state_mod.query((10.0, 12.0)), 0.1, epsilon = tol);
     state_mod.reset(10);
 
-    assert_eq!(state_mod.query((10.0, 12.0)), 1.0); //unknown
+    approx::assert_relative_eq!(state_mod.query((10.0, 12.0)), 1.0);
 
     state_mod.update(ModelerInput {
         pos: (-1.0, 4.0),
@@ -252,7 +253,7 @@ fn query_reset() {
         ..Default::default()
     });
 
-    assert!((state_mod.query((6.0, 7.0)) - 0.4).abs() < tol);
+    approx::assert_abs_diff_eq!(state_mod.query((6.0, 7.0)), 0.4, epsilon = tol);
 
     state_mod.update(ModelerInput {
         pos: (-3.0, 0.0),
@@ -260,9 +261,8 @@ fn query_reset() {
         ..Default::default()
     });
 
-    assert!((state_mod.query((-2.0, 2.0)) - 0.55).abs() < tol);
-    assert!((state_mod.query((0.0, 5.0)) - 0.4).abs() < tol);
+    approx::assert_abs_diff_eq!(state_mod.query((-2.0, 2.0)), 0.55, epsilon = tol);
+    approx::assert_abs_diff_eq!(state_mod.query((0.0, 5.0)), 0.4, epsilon = tol);
 }
-
 // remark : we suppose that pressure is always defined
 // and is set to 1 otherwise (both for input and outputs)

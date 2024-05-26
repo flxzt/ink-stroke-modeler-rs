@@ -244,7 +244,8 @@ mod ink_stroke_modeler {
 
     /// compare (f32,f32) floats up to `0.0001` precision
     fn util_compare_floats(a1: (f32, f32), a2: (f32, f32)) -> bool {
-        return (a1.0 - a2.0).abs() < 0.0001 && (a1.1 - a2.1).abs() < 0.0001;
+        return approx::abs_diff_eq!(a1.0, a2.0, epsilon = 0.0001)
+            && approx::abs_diff_eq!(a1.1, a2.1, epsilon = 0.0001);
     }
 
     #[test]

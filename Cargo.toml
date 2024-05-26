@@ -10,4 +10,5 @@ anyhow = "1.0"
 svg = "0.16.0"
 
 [dependencies]
+approx = "0.5.1"
 tracing = "0.1.40"
