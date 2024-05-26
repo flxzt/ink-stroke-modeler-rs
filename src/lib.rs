@@ -5,8 +5,8 @@ pub mod engine;
 pub mod impl_ds;
 pub mod position_modeler;
 pub mod state_modeler;
-pub mod testing;
-pub mod utils;
+mod testing;
+mod utils;
 
 use position_modeler::PositionModeler;
 // imports/ re exports
