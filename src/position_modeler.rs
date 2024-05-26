@@ -132,6 +132,7 @@ impl PositionModeler {
 
 impl ModelerPartial {
     #[allow(dead_code)]
+    #[cfg(test)]
     fn near(self, compare: ModelerPartial) -> bool {
         let tol = 0.0005; //same tol as the ones used in the original repository
         approx::abs_diff_eq!(self.pos.0, compare.pos.0, epsilon = tol)

@@ -19,6 +19,7 @@ pub(crate) struct ModelerPartial {
 }
 
 impl ModelerResult {
+    #[cfg(test)]
     pub fn near(self, other: ModelerResult) -> bool {
         let tol = 1e-4;
         approx::abs_diff_eq!(self.pos.0, other.pos.0, epsilon = tol)
@@ -49,6 +50,7 @@ impl Default for ModelerResult {
 ///
 /// Only used for testing purposes
 #[allow(unused)]
+#[cfg(test)]
 pub(crate) fn compare_results(left: Vec<ModelerResult>, right: Vec<ModelerResult>) -> bool {
     if left.len() != right.len() {
         println!("\n\nleft : {:?} right {:?}", left.len(), right.len());
