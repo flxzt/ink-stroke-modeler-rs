@@ -77,65 +77,6 @@ impl ModelerParams {
     }
 }
 
-impl ModelerResult {
-    pub fn near(self, other: ModelerResult) -> bool {
-        let tol = 1e-4;
-        approx::abs_diff_eq!(self.pos.0, other.pos.0, epsilon = tol)
-            && approx::abs_diff_eq!(self.pos.1, other.pos.1, epsilon = tol)
-            && approx::abs_diff_eq!(self.time, other.time, epsilon = tol as f64)
-            && approx::abs_diff_eq!(self.acceleration.0, other.acceleration.0, epsilon = tol)
-            && approx::abs_diff_eq!(self.acceleration.1, other.acceleration.1, epsilon = tol)
-            && approx::abs_diff_eq!(self.velocity.0, other.velocity.0, epsilon = tol)
-            && approx::abs_diff_eq!(self.velocity.1, other.velocity.1, epsilon = tol)
-            && approx::abs_diff_eq!(self.pressure, other.pressure, epsilon = tol)
-    }
-}
-
-impl Default for ModelerResult {
-    fn default() -> Self {
-        Self {
-            pos: (0.0, 0.0),
-            velocity: (0.0, 0.0),
-            acceleration: (0.0, 0.0),
-            pressure: 1.0,
-            time: 0.0,
-        }
-    }
-}
-/// Utility to compare [ModelerResult] up to `tol =1e-4` (not settable for now)
-/// with printed output for debug purposes
-///
-/// Only used for testing purposes
-#[allow(unused)]
-pub(crate) fn compare_results(left: Vec<ModelerResult>, right: Vec<ModelerResult>) -> bool {
-    if left.len() != right.len() {
-        println!("\n\nleft : {:?} right {:?}", left.len(), right.len());
-        //iterate
-        println!("left");
-        for el in left {
-            println!("{:?}", el);
-        }
-        println!("right");
-        for el in right {
-            println!("{:?}", el);
-        }
-        false
-    } else {
-        println!("\n\n\nleft : {:?} right {:?}", &left.len(), &right.len());
-        //iterate
-        println!("left");
-        for el in &left {
-            println!("{:?}", el);
-        }
-        println!("right");
-        for el in &right {
-            println!("{:?}", el);
-        }
-
-        left.into_iter().zip(right).all(|x| x.0.near(x.1))
-    }
-}
-
 impl Default for StrokeModeler {
     fn default() -> Self {
         let params = ModelerParams::suggested();

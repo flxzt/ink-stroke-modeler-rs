@@ -26,6 +26,40 @@ pub(crate) struct WobbleSample {
     pub time: f64,
 }
 
+/// This class models a stroke from a raw input stream. The modeling is performed in
+/// several stages
+/// - Wobble smoothing : dampens high-frequency noise from quantization error
+/// - Position modeling : models the pen tip as a mass, connected by a spring, to a moving
+/// anchor
+/// - Stylus state modeling : constructs stylus states for modeled positions by interpolating
+/// over the raw input
+///
+/// Additional, this class provides prediction of the modeled stroke
+///
+/// StrokeModeler is unit-agnostic
+pub struct StrokeModeler {
+    // all configuration parameters
+    pub(crate) params: ModelerParams,
+    /// wobble smoother structures
+    /// deque to hold events that are recent
+    /// to calculate a moving average
+    pub(crate) wobble_deque: VecDeque<WobbleSample>,
+    /// running weighted sum
+    pub(crate) wobble_weighted_pos_sum: (f32, f32),
+    /// running duration sum
+    pub(crate) wobble_duration_sum: f64,
+    /// running distance sum
+    pub(crate) wobble_distance_sum: f32,
+    // physical model for the stroke
+    // only created on the first stroke
+    pub(crate) position_modeler: Option<PositionModeler>,
+    pub(crate) last_event: Option<ModelerInput>,
+    pub(crate) last_corrected_event: Option<(f32, f32)>,
+    pub(crate) state_modeler: StateModeler,
+}
+
+
+
 #[doc = include_str!("../docs/notations.html")]
 #[doc = include_str!("../docs/resampling.html")]
 #[doc = include_str!("../docs/position_modeling.html")]

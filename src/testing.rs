@@ -4,7 +4,7 @@
 mod ink_stroke_modeler {
 
     use crate::{
-        impl_ds::compare_results,
+        results::compare_results,
         utils::{interp, interp2, nearest_point_on_segment, normalize01_32},
     };
 
