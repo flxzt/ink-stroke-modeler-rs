@@ -38,21 +38,27 @@ fn main() -> anyhow::Result<()> {
         },
         ModelerInput {
             event_type: ModelerInputEventType::kMove,
-            pos: (180.0, 30.0),
-            time: 0.12,
-            pressure: 0.3,
-        },
-        ModelerInput {
-            event_type: ModelerInputEventType::kMove,
             pos: (120.0, 150.0),
             time: 0.10,
             pressure: 0.6,
         },
         ModelerInput {
             event_type: ModelerInputEventType::kMove,
+            pos: (180.0, 30.0),
+            time: 0.12,
+            pressure: 0.3,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kMove,
             pos: (240.0, 120.0),
             time: 0.16,
             pressure: 0.3,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::kMove,
+            pos: (210.0, 150.0),
+            time: 0.18,
+            pressure: 0.9,
         },
         ModelerInput {
             event_type: ModelerInputEventType::kMove,
@@ -69,14 +75,14 @@ fn main() -> anyhow::Result<()> {
         ModelerInput {
             event_type: ModelerInputEventType::kMove,
             pos: (255.0, 240.0),
-            pressure: 0.24,
-            time: 0.7,
+            time: 0.24,
+            pressure: 0.7,
         },
         ModelerInput {
             event_type: ModelerInputEventType::kUp,
             pos: (270.0, 270.0),
-            pressure: 0.26,
-            time: 0.5,
+            time: 0.26,
+            pressure: 0.5,
         },
     ];
     let input_elements = input_stroke
