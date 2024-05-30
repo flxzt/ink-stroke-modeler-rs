@@ -4,11 +4,11 @@
 #[allow(unused)]
 pub enum ModelerInputEventType {
     /// For the first pen down event (pen touches the screen)
-    kDown,
+    Down,
     /// For events between the first (`kDown`) and last (`Up`) event (pen moving on the screen)
-    kMove,
+    Move,
     /// For the last event (pen going up)
-    kUp,
+    Up,
 }
 
 /// struct holding all information for input event
@@ -25,7 +25,7 @@ pub struct ModelerInput {
 impl Default for ModelerInput {
     fn default() -> Self {
         Self {
-            event_type: ModelerInputEventType::kDown,
+            event_type: ModelerInputEventType::Down,
             pos: (0.0, 0.0),
             time: 0.0,
             pressure: 1.0,

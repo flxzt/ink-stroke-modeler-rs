@@ -102,9 +102,7 @@ impl StrokeModeler {
     }
 
     /// Clears any in-progress stroke, keeping the same model parameters
-    /// Technically the error is not needed anymore as the params are kept
-    /// as is and can't be uninitialized
-    pub fn reset(&mut self) -> Result<(), i32> {
+    pub fn reset(&mut self) {
         self.last_event = None;
         self.wobble_deque = VecDeque::with_capacity(
             (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout)
@@ -113,12 +111,11 @@ impl StrokeModeler {
         self.wobble_duration_sum = 0.0;
         self.wobble_weighted_pos_sum = (0.0, 0.0);
         self.position_modeler = None;
-        Ok(()) // to match
     }
 
     /// Clears any in-progress stroke, and re initialize the model with
     /// the given parameters
-    ///
+
     /// Here the error is also obsolete as the `ModelerParams` is expected
     /// to have been built with [ModelerParams::validate] that validates the
     /// parameters
@@ -151,7 +148,7 @@ impl StrokeModeler {
     /// This is not tested here, as we suppose that these things are verified beforehand
     pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerResult>, i32> {
         match input.event_type {
-            ModelerInputEventType::kDown => {
+            ModelerInputEventType::Down => {
                 // assumed this is the first ever event
                 self.wobble_update(&input); // first event is "as is"
 
@@ -171,7 +168,7 @@ impl StrokeModeler {
                     pressure: input.pressure,
                 }])
             }
-            ModelerInputEventType::kMove => {
+            ModelerInputEventType::Move => {
                 // get the latest element
                 if self.last_event.is_none() {
                     return Err(1);
@@ -218,7 +215,7 @@ impl StrokeModeler {
 
                 Ok(vec_out)
             }
-            ModelerInputEventType::kUp => {
+            ModelerInputEventType::Up => {
                 // get the latest element
                 if self.last_event.is_none() {
                     return Err(1);
@@ -344,7 +341,7 @@ impl StrokeModeler {
     ///position and the raw position based on the speed.
     ///high speeds movements won't be smoothed but low speed will.
     #[doc = include_str!("../docs/wobble.html")]
-    pub fn wobble_update(&mut self, event: &ModelerInput) -> (f32, f32) {
+    fn wobble_update(&mut self, event: &ModelerInput) -> (f32, f32) {
         match self.wobble_deque.len() {
             0 => {
                 self.wobble_deque.push_back(WobbleSample {
@@ -419,7 +416,7 @@ impl StrokeModeler {
 }
 
 #[cfg(test)]
-mod ink_stroke_modeler {
+mod tests {
 
     use super::super::*;
     use crate::results::compare_results;
@@ -439,14 +436,14 @@ mod ink_stroke_modeler {
         // need to create a StrokeModeler
         let mut new_modeler = StrokeModeler::default();
         new_modeler.wobble_update(&ModelerInput {
-            event_type: ModelerInputEventType::kDown,
+            event_type: ModelerInputEventType::Down,
             pos: (3., 4.),
             time: 1.0,
             pressure: 0.0,
         });
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (3.016, 4.),
                 time: 1.016,
                 pressure: 0.0,
@@ -455,7 +452,7 @@ mod ink_stroke_modeler {
         ));
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (3.032, 4.),
                 time: 1.032,
                 pressure: 0.0,
@@ -464,7 +461,7 @@ mod ink_stroke_modeler {
         ));
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (3.048, 4.),
                 time: 1.048,
                 pressure: 0.0,
@@ -473,7 +470,7 @@ mod ink_stroke_modeler {
         ));
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (3.064, 4.),
                 time: 1.064,
                 pressure: 0.0,
@@ -487,14 +484,14 @@ mod ink_stroke_modeler {
         // need to create a StrokeModeler
         let mut new_modeler = StrokeModeler::default();
         new_modeler.wobble_update(&ModelerInput {
-            event_type: ModelerInputEventType::kDown,
+            event_type: ModelerInputEventType::Down,
             pos: (1., 2.),
             time: 5.0,
             pressure: 0.0,
         });
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (1.016, 2.),
                 time: 5.016,
                 pressure: 0.0,
@@ -503,7 +500,7 @@ mod ink_stroke_modeler {
         ));
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (1.016, 2.016),
                 time: 5.032,
                 pressure: 0.0,
@@ -512,7 +509,7 @@ mod ink_stroke_modeler {
         ));
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (1.032, 2.016),
                 time: 5.048,
                 pressure: 0.0,
@@ -521,7 +518,7 @@ mod ink_stroke_modeler {
         ));
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (1.032, 2.032),
                 time: 5.064,
                 pressure: 0.0,
@@ -530,7 +527,7 @@ mod ink_stroke_modeler {
         ));
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (1.048, 2.032),
                 time: 5.080,
                 pressure: 0.0,
@@ -539,7 +536,7 @@ mod ink_stroke_modeler {
         ));
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (1.048, 2.048),
                 time: 5.096,
                 pressure: 0.0,
@@ -553,7 +550,7 @@ mod ink_stroke_modeler {
         let mut new_modeler = StrokeModeler::default();
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (7., 3.024),
                 time: 8.016,
                 pressure: 0.0,
@@ -562,7 +559,7 @@ mod ink_stroke_modeler {
         ));
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (7.024, 3.024),
                 time: 8.032,
                 pressure: 0.0,
@@ -571,7 +568,7 @@ mod ink_stroke_modeler {
         ));
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (7.024, 3.048),
                 time: 8.048,
                 pressure: 0.0,
@@ -580,7 +577,7 @@ mod ink_stroke_modeler {
         ));
         assert!(util_compare_floats(
             new_modeler.wobble_update(&ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (7.048, 3.048),
                 time: 8.064,
                 pressure: 0.0,
@@ -595,49 +592,49 @@ mod ink_stroke_modeler {
 
         let inputs = vec![
             ModelerInput {
-                event_type: ModelerInputEventType::kDown,
+                event_type: ModelerInputEventType::Down,
                 pos: (0.0, 0.0),
                 time: 0.0,
                 pressure: 0.1,
             },
             ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (1.0, 0.0),
                 time: 0.02,
                 pressure: 0.3,
             },
             ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (2.0, 0.0),
                 time: 0.04,
                 pressure: 0.5,
             },
             ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (2.5, 1.0),
                 time: 0.06,
                 pressure: 0.8,
             },
             ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (3.0, 1.5),
                 time: 0.12,
                 pressure: 0.9,
             },
             ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (4.0, 2.0),
                 time: 0.13,
                 pressure: 0.8,
             },
             ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 pos: (3.8, 2.1),
                 time: 0.14,
                 pressure: 0.7,
             },
             ModelerInput {
-                event_type: ModelerInputEventType::kUp,
+                event_type: ModelerInputEventType::Up,
                 pos: (3.5, 2.0),
                 time: 0.14,
                 pressure: 0.2,
@@ -662,7 +659,7 @@ mod ink_stroke_modeler {
         engine
             .update(ModelerInput {
                 pos: (4.0, 5.0),
-                event_type: ModelerInputEventType::kDown,
+                event_type: ModelerInputEventType::Down,
                 time: 2.0,
                 pressure: 1.0,
             })
@@ -682,7 +679,7 @@ mod ink_stroke_modeler {
         });
 
         let first_iter = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kDown,
+            event_type: ModelerInputEventType::Down,
             pos: (3., 4.),
             time: time,
             pressure: 1.0,
@@ -703,7 +700,7 @@ mod ink_stroke_modeler {
         assert!(compare_results(
             engine
                 .update(ModelerInput {
-                    event_type: ModelerInputEventType::kMove,
+                    event_type: ModelerInputEventType::Move,
                     pos: (3.2, 4.2),
                     time: time,
                     pressure: 1.0
@@ -827,7 +824,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let second_results = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (3.5, 4.2),
             time: time,
             pressure: 1.0,
@@ -954,7 +951,7 @@ mod ink_stroke_modeler {
         // we get more strokes as the model catches up to the anchor postion
         time += delta_time;
         let update = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kUp,
+            event_type: ModelerInputEventType::Up,
             pos: (3.7, 4.4),
             time: time,
             pressure: 1.0,
@@ -1071,13 +1068,12 @@ mod ink_stroke_modeler {
     #[test]
     fn reset_keep_params() {
         let input = ModelerInput {
-            event_type: ModelerInputEventType::kDown,
+            event_type: ModelerInputEventType::Down,
             pos: (3.0, 4.0),
             time: 0.0,
             pressure: 1.0,
         };
         let mut engine = StrokeModeler::default();
-        assert!(engine.reset().is_ok());
         assert!(engine.update(input.clone()).is_ok());
 
         assert!(engine.reset_w_params(ModelerParams::suggested()).is_ok());
@@ -1093,7 +1089,7 @@ mod ink_stroke_modeler {
         let mut time = 2.0;
 
         let res1 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kDown,
+            event_type: ModelerInputEventType::Down,
             pos: (5.0, -3.0),
             time: time,
             pressure: 1.0,
@@ -1116,7 +1112,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let res2 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (5.0, -3.1),
             time: time,
             pressure: 1.0,
@@ -1206,7 +1202,7 @@ mod ink_stroke_modeler {
         time += delta_time;
 
         let res3 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (4.975, -3.175),
             time: time,
             pressure: 1.0,
@@ -1295,7 +1291,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let res4 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (4.9, -3.2),
             time: time,
             pressure: 1.0,
@@ -1384,7 +1380,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let res5 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (4.825, -3.2),
             time: time,
             pressure: 1.0,
@@ -1481,7 +1477,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let res6 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (4.75, -3.225),
             time: time,
             pressure: 1.0,
@@ -1570,7 +1566,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let res7 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (4.7, -3.3),
             time: time,
             pressure: 1.0,
@@ -1665,7 +1661,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let res8 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (4.675, -3.4),
             time: time,
             pressure: 1.0,
@@ -1754,7 +1750,7 @@ mod ink_stroke_modeler {
         time += delta_time;
 
         let res9 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (4.675, -3.525),
             time: time,
             pressure: 1.0,
@@ -1844,7 +1840,7 @@ mod ink_stroke_modeler {
         time += delta_time;
         // we get more results at the end of the stroke (stroke end catch up)
         let res10 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kUp,
+            event_type: ModelerInputEventType::Up,
             pos: (4.7, -3.6),
             time: time,
             pressure: 1.0,
@@ -1937,7 +1933,7 @@ mod ink_stroke_modeler {
 
         let mut time = 4.0;
         let res1 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kDown,
+            event_type: ModelerInputEventType::Down,
             pos: (-6.0, -2.0),
             time: time,
             pressure: 1.0,
@@ -1955,7 +1951,7 @@ mod ink_stroke_modeler {
         time += delta_time;
 
         let res2 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (-6.02, -2.0),
             time: time,
             ..ModelerInput::default()
@@ -1997,7 +1993,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let res3 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (-6.02, -2.02),
             time: time,
             pressure: 1.0,
@@ -2038,7 +2034,7 @@ mod ink_stroke_modeler {
         ));
         time += delta_time;
         let res4 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (-6.04, -2.02),
             time: time,
             pressure: 1.0,
@@ -2080,7 +2076,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let res5 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (-6.04, -2.04),
             time: time,
             pressure: 1.0,
@@ -2128,9 +2124,8 @@ mod ink_stroke_modeler {
         let mut engine = StrokeModeler::default();
         let delta_time = 1. / 50.;
         let mut time = 0.0;
-        assert!(engine.reset().is_ok());
         let res = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kDown,
+            event_type: ModelerInputEventType::Down,
             pos: (-8.0, -10.0),
             time: time,
             pressure: 1.0,
@@ -2142,7 +2137,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let res2 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             time: time,
             ..ModelerInput::default()
         });
@@ -2153,7 +2148,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let res3 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             time: time,
             pos: (-11.0, -5.0),
             ..ModelerInput::default()
@@ -2163,7 +2158,7 @@ mod ink_stroke_modeler {
         assert!(engine.predict().is_ok());
         assert!(!engine.predict().unwrap().is_empty());
 
-        assert!(engine.reset().is_ok());
+        engine.reset();
         assert!(engine.predict().is_err());
     }
 
@@ -2173,13 +2168,13 @@ mod ink_stroke_modeler {
 
         assert!(engine
             .update(ModelerInput {
-                event_type: ModelerInputEventType::kMove,
+                event_type: ModelerInputEventType::Move,
                 ..ModelerInput::default()
             })
             .is_err());
         assert!(engine
             .update(ModelerInput {
-                event_type: ModelerInputEventType::kUp,
+                event_type: ModelerInputEventType::Up,
                 ..ModelerInput::default()
             })
             .is_err());
@@ -2197,7 +2192,7 @@ mod ink_stroke_modeler {
         let mut time = 3.0;
 
         let res1 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kDown,
+            event_type: ModelerInputEventType::Down,
             pos: (0.0, 0.0),
             time: time,
             pressure: 0.5,
@@ -2218,7 +2213,7 @@ mod ink_stroke_modeler {
         time += delta_time;
 
         let res2 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (0.0, 0.5),
             time: time,
             pressure: 0.4,
@@ -2305,7 +2300,7 @@ mod ink_stroke_modeler {
             pos: (0.2, 1.0),
             time: time,
             pressure: 0.3,
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
         });
         assert!(res3.is_ok());
         assert!(compare_results(
@@ -2386,7 +2381,7 @@ mod ink_stroke_modeler {
 
         time += delta_time;
         let res4 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (0.4, 1.4),
             time: time,
             pressure: 0.2,
@@ -2468,7 +2463,7 @@ mod ink_stroke_modeler {
         ));
         time += delta_time;
         let res5 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kUp,
+            event_type: ModelerInputEventType::Up,
             pos: (0.7, 1.7),
             pressure: 0.1,
             time: time,
@@ -2552,7 +2547,7 @@ mod ink_stroke_modeler {
         let mut time = 0.0;
 
         let res1 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kDown,
+            event_type: ModelerInputEventType::Down,
             pos: (5.0, 5.0),
             time: time,
             pressure: 1.0,
@@ -2568,7 +2563,7 @@ mod ink_stroke_modeler {
         ));
         time += delta_time;
         let res2 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kMove,
+            event_type: ModelerInputEventType::Move,
             pos: (5.0, 5.0),
             pressure: 1.0,
             time: time,
@@ -2583,7 +2578,7 @@ mod ink_stroke_modeler {
             }]
         ));
         let res3 = engine.update(ModelerInput {
-            event_type: ModelerInputEventType::kUp,
+            event_type: ModelerInputEventType::Up,
             pos: (5.0, 5.0),
             time: time,
             pressure: 1.0,

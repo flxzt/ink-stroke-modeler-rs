@@ -131,7 +131,6 @@ impl PositionModeler {
 }
 
 impl ModelerPartial {
-    #[allow(dead_code)]
     #[cfg(test)]
     fn near(self, compare: ModelerPartial) -> bool {
         let tol = 0.0005; //same tol as the ones used in the original repository
