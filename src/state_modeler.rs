@@ -36,6 +36,14 @@ impl Default for StateModeler {
 impl StateModeler {
     /// initialize a new StateModeler
     pub(crate) fn new(param: usize) -> Self {
+        // zero is not a valid parameter, we put 1 in that case 
+        // to prevent errors 
+        if param == 0 {
+            return Self {
+                stylus_state_modeler_max_input_samples: 1,
+                last_strokes: VecDeque::with_capacity(2),
+            }
+        }
         Self {
             stylus_state_modeler_max_input_samples: param,
             last_strokes: VecDeque::with_capacity(param + 1),
@@ -53,7 +61,7 @@ impl StateModeler {
 
     /// reset the StateModeler
     pub(crate) fn reset(&mut self, max_input: usize) {
-        self.last_strokes = VecDeque::new();
+        self.last_strokes.clear();
         self.stylus_state_modeler_max_input_samples = max_input;
     }
 

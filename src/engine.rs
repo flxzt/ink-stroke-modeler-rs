@@ -85,8 +85,9 @@ impl Default for StrokeModeler {
 #[doc = include_str!("../docs/stylus_state_modeler.html")]
 #[doc = include_str!("../docs/stroke_end.html")]
 impl StrokeModeler {
-    pub fn new(params: ModelerParams) -> Self {
-        Self {
+    pub fn new(params: ModelerParams) -> Result<Self, String> {
+        params.validate()?;
+        Ok(Self {
             params,
             last_event: None,
             last_corrected_event: None,
@@ -98,7 +99,7 @@ impl StrokeModeler {
             wobble_distance_sum: 0.0,
             position_modeler: None,
             state_modeler: StateModeler::new(params.stylus_state_modeler_max_input_samples),
-        }
+        })
     }
 
     /// Clears any in-progress stroke, keeping the same model parameters
@@ -111,19 +112,14 @@ impl StrokeModeler {
         self.wobble_duration_sum = 0.0;
         self.wobble_weighted_pos_sum = (0.0, 0.0);
         self.position_modeler = None;
+        self.state_modeler
+            .reset(self.params.stylus_state_modeler_max_input_samples);
     }
 
     /// Clears any in-progress stroke, and re initialize the model with
     /// the given parameters
-
-    /// Here the error is also obsolete as the `ModelerParams` is expected
-    /// to have been built with [ModelerParams::validate] that validates the
-    /// parameters
-    pub fn reset_w_params(&mut self, params: ModelerParams) -> Result<(), i32> {
-        match params.validate() {
-            Ok(params) => self.params = params,
-            Err(_) => return Err(0),
-        };
+    pub fn reset_w_params(&mut self, params: ModelerParams) -> Result<(), String> {
+        params.validate()?;
         self.last_event = None;
         self.wobble_deque = VecDeque::with_capacity(
             (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout)
@@ -146,13 +142,14 @@ impl StrokeModeler {
     ///
     /// for now rnote's wrapper codes verify that the input is not duplicated and time increases between strokes
     /// This is not tested here, as we suppose that these things are verified beforehand
-    pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerResult>, i32> {
+    pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerResult>, String> {
         match input.event_type {
             ModelerInputEventType::Down => {
-                // assumed this is the first ever event
+                if !self.last_event.is_none() {
+                    return Err(String::from("down event is not the first event"));
+                }
                 self.wobble_update(&input); // first event is "as is"
 
-                // create the position modeler
                 self.position_modeler = Some(PositionModeler::new(self.params, input.clone()));
 
                 self.last_event = Some(input.clone());
@@ -171,7 +168,7 @@ impl StrokeModeler {
             ModelerInputEventType::Move => {
                 // get the latest element
                 if self.last_event.is_none() {
-                    return Err(1);
+                    return Err(String::from("no Down event occurred before a Move event"));
                 }
                 let latest_time = self.last_event.as_ref().unwrap().time;
                 let new_time = input.time;
@@ -218,7 +215,7 @@ impl StrokeModeler {
             ModelerInputEventType::Up => {
                 // get the latest element
                 if self.last_event.is_none() {
-                    return Err(1);
+                    return Err(String::from("No event occured before an up event"));
                 }
                 let latest_time = self.last_event.as_ref().unwrap().time;
                 let new_time = input.time;
@@ -588,7 +585,7 @@ mod tests {
 
     #[test]
     fn input_test() {
-        let mut modeler = StrokeModeler::new(ModelerParams::suggested());
+        let mut modeler = StrokeModeler::new(ModelerParams::suggested()).unwrap();
 
         let inputs = vec![
             ModelerInput {
@@ -649,7 +646,7 @@ mod tests {
     //tests for the end of stroke prediction
     #[test]
     fn test_empty_prediction() {
-        let mut engine = StrokeModeler::new(ModelerParams::suggested());
+        let mut engine = StrokeModeler::new(ModelerParams::suggested()).unwrap();
         assert!(engine.predict().is_err());
     }
 
@@ -676,7 +673,7 @@ mod tests {
         let mut engine = StrokeModeler::new(ModelerParams {
             stylus_state_modeler_max_input_samples: 20,
             ..ModelerParams::suggested()
-        });
+        }).unwrap();
 
         let first_iter = engine.update(ModelerInput {
             event_type: ModelerInputEventType::Down,
@@ -2187,7 +2184,7 @@ mod tests {
             sampling_min_output_rate: 70.0,
             stylus_state_modeler_max_input_samples: 20,
             ..ModelerParams::suggested()
-        });
+        }).unwrap();
 
         let mut time = 3.0;
 
