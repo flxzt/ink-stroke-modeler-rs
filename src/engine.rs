@@ -2733,20 +2733,20 @@ mod tests {
         });
         assert!(res2.is_err());
 
-        let res3 = engine.update( ModelerInput {
+        let res3 = engine.update(ModelerInput {
             event_type: ModelerInputEventType::Move,
-            pos:(1.0,2.0),
+            pos: (1.0, 2.0),
             time: 0.1,
-            pressure:0.1
+            pressure: 0.1,
         });
         assert!(res3.is_ok());
         assert!(!res3.unwrap().is_empty());
 
-        let res4 = engine.update( ModelerInput {
+        let res4 = engine.update(ModelerInput {
             event_type: ModelerInputEventType::Move,
-            pos:(1.0,2.0),
+            pos: (1.0, 2.0),
             time: 0.1,
-            pressure:0.1
+            pressure: 0.1,
         });
         assert!(res4.is_err());
     }

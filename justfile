@@ -7,6 +7,8 @@ doc:
     pandoc docs/stylus_state_modeler.typ -o docs/stylus_state_modeler.html --mathml
     pandoc docs/wobble.typ -o docs/wobble.html --mathml
     cargo doc --open
+    cp docs/position_model.svg target/doc/ink_stroke_modeler_rs/position_model.svg
+
 
 remove_html:
     rm docs/notations.html
