@@ -104,14 +104,12 @@ impl StrokeModeler {
 
     /// Clears any in-progress stroke, keeping the same model parameters
     pub fn reset(&mut self) {
-        self.last_event = None;
-        self.wobble_deque = VecDeque::with_capacity(
-            (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout)
-                as usize,
-        );
-        self.wobble_duration_sum = 0.0;
+        self.wobble_deque.clear();
         self.wobble_weighted_pos_sum = (0.0, 0.0);
+        self.wobble_duration_sum = 0.0;
         self.position_modeler = None;
+        self.last_event = None;
+        self.last_corrected_event = None;
         self.state_modeler
             .reset(self.params.stylus_state_modeler_max_input_samples);
     }
@@ -120,14 +118,16 @@ impl StrokeModeler {
     /// the given parameters
     pub fn reset_w_params(&mut self, params: ModelerParams) -> Result<(), String> {
         params.validate()?;
-        self.last_event = None;
+        self.params = params;
         self.wobble_deque = VecDeque::with_capacity(
             (2.0 * params.sampling_min_output_rate * params.wobble_smoother_timeout) as usize,
         );
-        self.wobble_duration_sum = 0.0;
         self.wobble_weighted_pos_sum = (0.0, 0.0);
+        self.wobble_duration_sum = 0.0;
         self.wobble_distance_sum = 0.0;
         self.position_modeler = None;
+        self.last_event = None;
+        self.last_corrected_event = None;
         self.state_modeler
             .reset(params.stylus_state_modeler_max_input_samples);
         Ok(())
