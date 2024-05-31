@@ -122,13 +122,14 @@ impl StrokeModeler {
         params.validate()?;
         self.last_event = None;
         self.wobble_deque = VecDeque::with_capacity(
-            (2.0 * self.params.sampling_min_output_rate * self.params.wobble_smoother_timeout)
+            (2.0 * params.sampling_min_output_rate * params.wobble_smoother_timeout)
                 as usize,
         );
         self.wobble_duration_sum = 0.0;
         self.wobble_weighted_pos_sum = (0.0, 0.0);
         self.wobble_distance_sum = 0.0;
         self.position_modeler = None;
+        self.state_modeler.reset(params.stylus_state_modeler_max_input_samples);
         Ok(())
     }
 
@@ -146,7 +147,7 @@ impl StrokeModeler {
         match input.event_type {
             ModelerInputEventType::Down => {
                 if !self.last_event.is_none() {
-                    return Err(String::from("down event is not the first event"));
+                    return Err(String::from("down event is not the first event or a down event occured after another one"));
                 }
                 self.wobble_update(&input); // first event is "as is"
 
