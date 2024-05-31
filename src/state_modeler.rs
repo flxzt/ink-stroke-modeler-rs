@@ -36,13 +36,13 @@ impl Default for StateModeler {
 impl StateModeler {
     /// initialize a new StateModeler
     pub(crate) fn new(param: usize) -> Self {
-        // zero is not a valid parameter, we put 1 in that case 
-        // to prevent errors 
+        // zero is not a valid parameter, we put 1 in that case
+        // to prevent errors
         if param == 0 {
             return Self {
                 stylus_state_modeler_max_input_samples: 1,
                 last_strokes: VecDeque::with_capacity(2),
-            }
+            };
         }
         Self {
             stylus_state_modeler_max_input_samples: param,

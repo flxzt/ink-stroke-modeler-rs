@@ -122,14 +122,14 @@ impl StrokeModeler {
         params.validate()?;
         self.last_event = None;
         self.wobble_deque = VecDeque::with_capacity(
-            (2.0 * params.sampling_min_output_rate * params.wobble_smoother_timeout)
-                as usize,
+            (2.0 * params.sampling_min_output_rate * params.wobble_smoother_timeout) as usize,
         );
         self.wobble_duration_sum = 0.0;
         self.wobble_weighted_pos_sum = (0.0, 0.0);
         self.wobble_distance_sum = 0.0;
         self.position_modeler = None;
-        self.state_modeler.reset(params.stylus_state_modeler_max_input_samples);
+        self.state_modeler
+            .reset(params.stylus_state_modeler_max_input_samples);
         Ok(())
     }
 
@@ -146,7 +146,7 @@ impl StrokeModeler {
     pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerResult>, String> {
         match input.event_type {
             ModelerInputEventType::Down => {
-                if !self.last_event.is_none() {
+                if self.last_event.is_some() {
                     return Err(String::from("down event is not the first event or a down event occured after another one"));
                 }
                 self.wobble_update(&input); // first event is "as is"
@@ -674,7 +674,8 @@ mod tests {
         let mut engine = StrokeModeler::new(ModelerParams {
             stylus_state_modeler_max_input_samples: 20,
             ..ModelerParams::suggested()
-        }).unwrap();
+        })
+        .unwrap();
 
         let first_iter = engine.update(ModelerInput {
             event_type: ModelerInputEventType::Down,
@@ -2179,13 +2180,32 @@ mod tests {
     }
 
     #[test]
+    fn tdown_in_progress_error() {
+        let mut engine = StrokeModeler::default();
+
+        assert!(engine
+            .update(ModelerInput {
+                event_type: ModelerInputEventType::Down,
+                ..ModelerInput::default()
+            })
+            .is_ok());
+        assert!(engine
+            .update(ModelerInput {
+                event_type: ModelerInputEventType::Down,
+                ..ModelerInput::default()
+            })
+            .is_err());
+    }
+
+    #[test]
     fn alternate_params() {
         let delta_time = 1. / 50.;
         let mut engine = StrokeModeler::new(ModelerParams {
             sampling_min_output_rate: 70.0,
             stylus_state_modeler_max_input_samples: 20,
             ..ModelerParams::suggested()
-        }).unwrap();
+        })
+        .unwrap();
 
         let mut time = 3.0;
 

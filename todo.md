@@ -1,7 +1,10 @@
+- `IgnoreTDownWhileStrokeIsInProgress` : error instead now 
+
 - `RejectInputIfNegativeTimeDelta` and `RejectDuplicateInput` are not implemented here and are cases that are caught in the rnote code ...
 - `FarApartTimesDoNotCrashForUp` and `FarApartTimesDoNotCrashForMove` : the rnote code already prevents this happening
-- Same for `IgnoreTDownWhileStrokeIsInProgress`
+
 - [ ] check if `n_steps` robustness should be changed to pass all the tests in `position_modeler_test.cc`
      - some of these things are things done in the rnote code instead so that error wouldn't happen here
+
 - [ ] adapt the default settings (cm for distance and seconds for time != what's rnote reporting)
 - [ ] API changes (f32 vs f64, and using rust durations) ?
