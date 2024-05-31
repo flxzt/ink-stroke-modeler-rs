@@ -5,7 +5,7 @@
 pub enum ModelerInputEventType {
     /// For the first pen down event (pen touches the screen)
     Down,
-    /// For events between the first (`kDown`) and last (`Up`) event (pen moving on the screen)
+    /// For events between the first (`Down`) and last (`Up`) event (pen moving on the screen)
     Move,
     /// For the last event (pen going up)
     Up,

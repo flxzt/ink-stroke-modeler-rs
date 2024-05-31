@@ -183,10 +183,6 @@ impl StrokeModeler {
                 // this does not check for very large inputs
                 // this does not error if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]
-                // normally there is some additional upsampling (see UpsampleDueToSharpTurn)
-                // if the predicted velocity makes the stylus do a left or right turn
-                // this was deactivated as the value was not set in the original `ink-stroke-modeler-rs`
-                // but ofc this would also make the model output a larger number of elements ...
 
                 let p_start = self.last_corrected_event.unwrap();
                 let p_end = self.wobble_update(&input);
@@ -229,9 +225,9 @@ impl StrokeModeler {
 
                 let p_start = self.last_corrected_event.unwrap();
                 // the p_end is purposefully different from the original implementation
-                // to match the kMove part
+                // to match the Move part
                 // the original takes the raw input here which means a different
-                // behavior between the predict on a kMove and a kUp
+                // behavior between the predict on a Move and a Up
                 let p_end = self.wobble_update(&input);
 
                 let mut vec_out = Vec::<ModelerResult>::with_capacity(
@@ -281,7 +277,7 @@ impl StrokeModeler {
                         velocity: state_pos.velocity,
                         acceleration: state_pos.acceleration,
                         // this is so that the extra stroke added has a time that's larger than the previous one
-                        // when the kUp happens at the same time as the kMove
+                        // when the Up happens at the same time as the Move
                         // In the original implementation, this was always true because
                         // the ModelEndOfStroke function did not restore the state of the modeler
                         // so that even if a single candidate was tried and iterations stopped there
@@ -2627,7 +2623,7 @@ mod tests {
     //     assert!(!res1.unwrap().is_empty());
 
     //     let res2 = engine.update(ModelerInput {
-    //         event_type:ModelerInputEventType::kUp,
+    //         event_type:ModelerInputEventType::Up,
     //         pos:(0.0,0.0),
     //         pressure:0.2,
     //         time: 2147483647.0,

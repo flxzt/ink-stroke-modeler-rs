@@ -19,9 +19,9 @@
 #definition[
   An _input stream_ is a sequence of raw inputs $i = (pr, t,x,y)$
   - with time $t[k]$ $arrow.tr arrow.tr$ strictly increasing
-  - starts with a #raw("kDown") event
-  - contains #raw("KMove") for $k >=1$
-  - ends either with a #raw("kMove") or a #raw("kUp") . If it is a #raw("kUp") we say the input stream is _complete_
+  - starts with a #raw("Down") event
+  - contains #raw("Move") for $k >=1$
+  - ends either with a #raw("Move") or a #raw("Up") . If it is a #raw("Up") we say the input stream is _complete_
 ]
 
 #definition[
