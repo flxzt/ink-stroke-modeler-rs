@@ -140,9 +140,6 @@ impl StrokeModeler {
     ///
     /// If this does not return an error, results will contain at least one Result, and potentially
     /// more if the inputs are slower than the minimum output rate
-    ///
-    /// for now rnote's wrapper codes verify that the input is not duplicated and time increases between strokes
-    /// This is not tested here, as we suppose that these things are verified beforehand
     pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerResult>, String> {
         match input.event_type {
             ModelerInputEventType::Down => {
@@ -173,6 +170,16 @@ impl StrokeModeler {
                 }
                 let latest_time = self.last_event.as_ref().unwrap().time;
                 let new_time = input.time;
+
+                // validate before doing anything
+                // if the input is incorrect, return an error and leave the engine unmodified
+                if new_time - latest_time < 0.0 {
+                    return Err(String::from("negative time delta between inputs"));
+                }
+                if input == *self.last_event.as_ref().unwrap() {
+                    return Err(String::from("duplicate input"));
+                }
+
                 self.state_modeler.update(input.clone());
 
                 // calculate the number of element to predict
@@ -180,9 +187,11 @@ impl StrokeModeler {
                     .ceil() as i32)
                     .min(i32::MAX);
 
-                // this does not check for very large inputs
-                // this does not error if the number of steps is larger than
+                // this errors if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]
+                if n_tsteps as usize > self.params.sampling_max_outputs_per_call {
+                    return Err(String::from("inputs are too far apart"));
+                }
 
                 let p_start = self.last_corrected_event.unwrap();
                 let p_end = self.wobble_update(&input);
@@ -216,12 +225,27 @@ impl StrokeModeler {
                 }
                 let latest_time = self.last_event.as_ref().unwrap().time;
                 let new_time = input.time;
+
+                // validate before doing any changes to the modeler
+                if new_time - latest_time < 0.0 {
+                    return Err(String::from("negative time delta between inputs"));
+                }
+                if input == *self.last_event.as_ref().unwrap() {
+                    return Err(String::from("duplicate input"));
+                }
+
                 self.state_modeler.update(input.clone());
 
                 // calculate the number of element to predict
                 let n_tsteps = (((new_time - latest_time) * self.params.sampling_min_output_rate)
                     .ceil() as i32)
                     .min(i32::MAX);
+
+                // this errors if the number of steps is larger than
+                // [ModelParams::sampling_max_outputs_per_call]
+                if n_tsteps as usize > self.params.sampling_max_outputs_per_call {
+                    return Err(String::from("inputs are too far apart"));
+                }
 
                 let p_start = self.last_corrected_event.unwrap();
                 // the p_end is purposefully different from the original implementation
@@ -2609,26 +2633,121 @@ mod tests {
         ));
     }
 
-    // needed ? we already catch this in the rust code
-    // #[test]
-    // fn far_apart_times_move() {
-    //     let mut engine = StrokeModeler::default();
-    //     let res1=engine.update(ModelerInput {
-    //         event_type: ModelerInputEventType::kDown,
-    //         pos: (0.0,0.0),
-    //         time:0.0,
-    //         pressure:0.2
-    //     });
-    //     assert!(res1.is_ok());
-    //     assert!(!res1.unwrap().is_empty());
+    #[test]
+    fn far_apart_times_move() {
+        let mut engine = StrokeModeler::default();
+        let res1 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::Down,
+            pos: (0.0, 0.0),
+            time: 0.0,
+            pressure: 0.2,
+        });
+        assert!(res1.is_ok());
+        assert!(!res1.unwrap().is_empty());
 
-    //     let res2 = engine.update(ModelerInput {
-    //         event_type:ModelerInputEventType::Up,
-    //         pos:(0.0,0.0),
-    //         pressure:0.2,
-    //         time: 2147483647.0,
-    //     });
-    //     assert!(res2.is_ok());
+        let res2 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (0.0, 0.0),
+            pressure: 0.2,
+            time: 2147483647.0,
+        });
+        assert!(res2.is_err());
+    }
 
-    // }
+    #[test]
+    fn far_apart_times_up() {
+        let mut engine = StrokeModeler::default();
+        let res1 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::Down,
+            pos: (0.0, 0.0),
+            time: 0.0,
+            pressure: 0.2,
+        });
+        assert!(res1.is_ok());
+        assert!(!res1.unwrap().is_empty());
+
+        let res2 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::Up,
+            pos: (0.0, 0.0),
+            pressure: 0.2,
+            time: 2147483647.0,
+        });
+        assert!(res2.is_err());
+    }
+
+    #[test]
+    fn reject_negative_timedelta() {
+        let mut engine = StrokeModeler::default();
+        let res1 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::Down,
+            pos: (0.0, 0.0),
+            time: 0.0,
+            pressure: 0.0,
+        });
+        assert!(res1.is_ok());
+        assert!(!res1.unwrap().is_empty());
+
+        let res2 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (1.0, 1.0),
+            time: -0.1,
+            pressure: 0.0,
+        });
+        assert!(res2.is_err());
+
+        let res3 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (1.0, 1.0),
+            time: 0.1,
+            pressure: 1.0,
+        });
+        assert!(res3.is_ok());
+        assert!(!res3.unwrap().is_empty());
+
+        let res4 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::Up,
+            pos: (1.0, 1.0),
+            time: 0.09,
+            pressure: 1.0,
+        });
+        assert!(res4.is_err());
+    }
+
+    #[test]
+    fn reject_duplicate_input() {
+        let mut engine = StrokeModeler::default();
+        let res1 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::Down,
+            pos: (0.0, 0.0),
+            time: 0.0,
+            pressure: 0.2,
+        });
+        assert!(res1.is_ok());
+        assert!(!res1.unwrap().is_empty());
+
+        let res2 = engine.update(ModelerInput {
+            event_type: ModelerInputEventType::Down,
+            pos: (0.0, 0.0),
+            time: 0.0,
+            pressure: 0.2,
+        });
+        assert!(res2.is_err());
+
+        let res3 = engine.update( ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos:(1.0,2.0),
+            time: 0.1,
+            pressure:0.1
+        });
+        assert!(res3.is_ok());
+        assert!(!res3.unwrap().is_empty());
+
+        let res4 = engine.update( ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos:(1.0,2.0),
+            time: 0.1,
+            pressure:0.1
+        });
+        assert!(res4.is_err());
+    }
 }
