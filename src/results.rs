@@ -2,19 +2,19 @@
 /// contains the position, time, presusre as well as the velocity and acceleration data
 #[derive(Debug, PartialEq)]
 pub struct ModelerResult {
-    pub pos: (f32, f32),
-    pub velocity: (f32, f32),
-    pub acceleration: (f32, f32),
+    pub pos: (f64, f64),
+    pub velocity: (f64, f64),
+    pub acceleration: (f64, f64),
     pub time: f64,
-    pub pressure: f32,
+    pub pressure: f64,
 }
 
 /// A [ModelerResult] that does not have yet a pressure information
 #[derive(Clone, Debug)]
 pub(crate) struct ModelerPartial {
-    pub pos: (f32, f32),
-    pub velocity: (f32, f32),
-    pub acceleration: (f32, f32),
+    pub pos: (f64, f64),
+    pub velocity: (f64, f64),
+    pub acceleration: (f64, f64),
     pub time: f64,
 }
 

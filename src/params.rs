@@ -29,16 +29,16 @@ pub struct ModelerParams {
     ///
     /// Good starting points are 2 - 3 % of the expected speed of the inputs
     /// Should be positive and the speed floor smaller than the ceiling
-    pub wobble_smoother_speed_floor: f32,
-    pub wobble_smoother_speed_ceiling: f32,
+    pub wobble_smoother_speed_floor: f64,
+    pub wobble_smoother_speed_ceiling: f64,
     /// The mass of the "weight" being pulled along the path, multiplied by the spring constant.
     ///
     /// Should be positive
-    pub position_modeler_spring_mass_constant: f32,
+    pub position_modeler_spring_mass_constant: f64,
     /// The ratio of the pen's velocity that is subtracted from the pen's acceleration per unit time, to simulate drag.
     ///
     /// Should be positive
-    pub position_modeler_drag_constant: f32,
+    pub position_modeler_drag_constant: f64,
     /// The minimum number of modeled inputs to output per unit time. If inputs are received at a lower rate,
     /// they will be upsampled to produce output of atleast [ModelerParams::sampling_min_output_rate].
     /// If inputs are received at a higher rate, the output rate will match the input rate.
@@ -55,7 +55,7 @@ pub struct ModelerParams {
     /// between input points
     ///
     /// Should be positive
-    pub sampling_end_of_stroke_stopping_distance: f32,
+    pub sampling_end_of_stroke_stopping_distance: f64,
     /// The maximum number of iterations to perform at the end of the stroke,
     /// if it does not stop due to the constraint of the `sampling_end_of_stroke_stopping_distance`
     ///

@@ -3,7 +3,7 @@ use std::vec;
 use super::*;
 
 use crate::utils::interp;
-use crate::utils::normalize01_32;
+use crate::utils::normalize01_64;
 
 /// smooth out the input position from high frequency noise
 /// uses a moving average of position and interpolating between this
@@ -15,11 +15,11 @@ use crate::utils::normalize01_32;
 #[derive(Debug)]
 pub(crate) struct WobbleSample {
     /// raw position
-    pub position: (f32, f32),
+    pub position: (f64, f64),
     /// position weighted by the duration
-    pub weighted_position: (f32, f32),
+    pub weighted_position: (f64, f64),
     /// distance to the previous element
-    pub distance: f32,
+    pub distance: f64,
     /// time distance to the previous element
     pub duration: f64,
     /// time of the event
@@ -45,16 +45,16 @@ pub struct StrokeModeler {
     /// to calculate a moving average
     pub(crate) wobble_deque: VecDeque<WobbleSample>,
     /// running weighted sum
-    pub(crate) wobble_weighted_pos_sum: (f32, f32),
+    pub(crate) wobble_weighted_pos_sum: (f64, f64),
     /// running duration sum
     pub(crate) wobble_duration_sum: f64,
     /// running distance sum
-    pub(crate) wobble_distance_sum: f32,
+    pub(crate) wobble_distance_sum: f64,
     // physical model for the stroke
     // only created on the first stroke
     pub(crate) position_modeler: Option<PositionModeler>,
     pub(crate) last_event: Option<ModelerInput>,
-    pub(crate) last_corrected_event: Option<(f32, f32)>,
+    pub(crate) last_corrected_event: Option<(f64, f64)>,
     pub(crate) state_modeler: StateModeler,
 }
 
@@ -376,7 +376,7 @@ impl StrokeModeler {
     ///position and the raw position based on the speed.
     ///high speeds movements won't be smoothed but low speed will.
     #[doc = include_str!("../docs/wobble.html")]
-    fn wobble_update(&mut self, event: &ModelerInput) -> (f32, f32) {
+    fn wobble_update(&mut self, event: &ModelerInput) -> (f64, f64) {
         match self.wobble_deque.len() {
             0 => {
                 self.wobble_deque.push_back(WobbleSample {
@@ -391,7 +391,7 @@ impl StrokeModeler {
             _ => {
                 let last_el = self.wobble_deque.back().unwrap();
                 let duration = event.time - last_el.time;
-                let weighted_pos = (event.pos.0 * duration as f32, event.pos.1 * duration as f32);
+                let weighted_pos = (event.pos.0 * duration, event.pos.1 * duration);
                 let distance = ((event.pos.0 - last_el.position.0).powi(2)
                     + (event.pos.1 - last_el.position.1).powi(2))
                 .sqrt();
@@ -428,14 +428,13 @@ impl StrokeModeler {
                 } else {
                     // calulate the average position
 
-                    // weird f32 and f64 mix
                     let avg_position = (
-                        self.wobble_weighted_pos_sum.0 / self.wobble_duration_sum as f32,
-                        self.wobble_weighted_pos_sum.1 / self.wobble_duration_sum as f32,
+                        self.wobble_weighted_pos_sum.0 / self.wobble_duration_sum,
+                        self.wobble_weighted_pos_sum.1 / self.wobble_duration_sum,
                     );
 
-                    let avg_speed = self.wobble_distance_sum / self.wobble_duration_sum as f32;
-                    let norm_value = normalize01_32(
+                    let avg_speed = self.wobble_distance_sum / self.wobble_duration_sum;
+                    let norm_value = normalize01_64(
                         self.params.wobble_smoother_speed_floor,
                         self.params.wobble_smoother_speed_ceiling,
                         avg_speed,
@@ -456,10 +455,10 @@ mod tests {
     use super::super::*;
     use crate::results::compare_results;
 
-    /// compare (f32,f32) floats up to `0.0001` precision
+    /// compare (f64,f64) floats up to `0.0001` precision
     /// utility for testing only
     #[cfg(test)]
-    fn util_compare_floats(a1: (f32, f32), a2: (f32, f32)) -> bool {
+    fn util_compare_floats(a1: (f64, f64), a2: (f64, f64)) -> bool {
         return approx::abs_diff_eq!(a1.0, a2.0, epsilon = 0.0001)
             && approx::abs_diff_eq!(a1.1, a2.1, epsilon = 0.0001);
     }
