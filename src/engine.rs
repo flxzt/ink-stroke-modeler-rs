@@ -58,6 +58,23 @@ pub struct StrokeModeler {
     pub(crate) state_modeler: StateModeler,
 }
 
+/// errors
+#[derive(Debug)]
+pub enum Errors {
+    /// when a duplicate element is sent
+    DuplicateElement,
+    /// when a new event has a time that's less than the previous one
+    NegativeTimeDelta,
+    /// When order of element is not correct.
+    /// Either when
+    /// - down event is not the first event or a down event occured after another one
+    /// - no Down event occurred before a Move event
+    /// - No event occured before an up event
+    ElementOrderError,
+    /// When the time delta is too large between the input provided and the previous one
+    TooFarApart,
+}
+
 impl Default for StrokeModeler {
     fn default() -> Self {
         let params = ModelerParams::suggested();
@@ -140,11 +157,11 @@ impl StrokeModeler {
     ///
     /// If this does not return an error, results will contain at least one Result, and potentially
     /// more if the inputs are slower than the minimum output rate
-    pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerResult>, String> {
+    pub fn update(&mut self, input: ModelerInput) -> Result<Vec<ModelerResult>, Errors> {
         match input.event_type {
             ModelerInputEventType::Down => {
                 if self.last_event.is_some() {
-                    return Err(String::from("down event is not the first event or a down event occured after another one"));
+                    return Err(Errors::ElementOrderError);
                 }
                 self.wobble_update(&input); // first event is "as is"
 
@@ -166,7 +183,7 @@ impl StrokeModeler {
             ModelerInputEventType::Move => {
                 // get the latest element
                 if self.last_event.is_none() {
-                    return Err(String::from("no Down event occurred before a Move event"));
+                    return Err(Errors::ElementOrderError);
                 }
                 let latest_time = self.last_event.as_ref().unwrap().time;
                 let new_time = input.time;
@@ -174,10 +191,10 @@ impl StrokeModeler {
                 // validate before doing anything
                 // if the input is incorrect, return an error and leave the engine unmodified
                 if new_time - latest_time < 0.0 {
-                    return Err(String::from("negative time delta between inputs"));
+                    return Err(Errors::NegativeTimeDelta);
                 }
                 if input == *self.last_event.as_ref().unwrap() {
-                    return Err(String::from("duplicate input"));
+                    return Err(Errors::DuplicateElement);
                 }
 
                 self.state_modeler.update(input.clone());
@@ -190,7 +207,7 @@ impl StrokeModeler {
                 // this errors if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]
                 if n_tsteps as usize > self.params.sampling_max_outputs_per_call {
-                    return Err(String::from("inputs are too far apart"));
+                    return Err(Errors::TooFarApart);
                 }
 
                 let p_start = self.last_corrected_event.unwrap();
@@ -221,17 +238,17 @@ impl StrokeModeler {
             ModelerInputEventType::Up => {
                 // get the latest element
                 if self.last_event.is_none() {
-                    return Err(String::from("No event occured before an up event"));
+                    return Err(Errors::ElementOrderError);
                 }
                 let latest_time = self.last_event.as_ref().unwrap().time;
                 let new_time = input.time;
 
                 // validate before doing any changes to the modeler
                 if new_time - latest_time < 0.0 {
-                    return Err(String::from("negative time delta between inputs"));
+                    return Err(Errors::NegativeTimeDelta);
                 }
                 if input == *self.last_event.as_ref().unwrap() {
-                    return Err(String::from("duplicate input"));
+                    return Err(Errors::DuplicateElement);
                 }
 
                 self.state_modeler.update(input.clone());
@@ -244,7 +261,7 @@ impl StrokeModeler {
                 // this errors if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]
                 if n_tsteps as usize > self.params.sampling_max_outputs_per_call {
-                    return Err(String::from("inputs are too far apart"));
+                    return Err(Errors::TooFarApart);
                 }
 
                 let p_start = self.last_corrected_event.unwrap();
