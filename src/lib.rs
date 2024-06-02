@@ -13,6 +13,7 @@ pub mod results;
 mod state_modeler;
 mod utils;
 
+pub use engine::Errors;
 pub use engine::StrokeModeler;
 pub use input::ModelerInput;
 pub use input::ModelerInputEventType;
