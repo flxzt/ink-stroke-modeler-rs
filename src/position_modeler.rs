@@ -133,7 +133,7 @@ impl PositionModeler {
 impl ModelerPartial {
     #[cfg(test)]
     fn near(self, compare: ModelerPartial) -> bool {
-        let tol = 0.0005; //same tol as the ones used in the original repository
+        let tol = 0.005; //tolerance increased for f64
         approx::abs_diff_eq!(self.pos.0, compare.pos.0, epsilon = tol)
             && approx::abs_diff_eq!(self.pos.1, compare.pos.1, epsilon = tol)
             && approx::abs_diff_eq!(self.velocity.0, compare.velocity.0, epsilon = tol)

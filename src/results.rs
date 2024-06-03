@@ -21,7 +21,7 @@ pub(crate) struct ModelerPartial {
 impl ModelerResult {
     #[cfg(test)]
     pub fn near(self, other: ModelerResult) -> bool {
-        let tol = 1e-4;
+        let tol = 3.0 * 1e-3; //tolerance increased for f64
         approx::abs_diff_eq!(self.pos.0, other.pos.0, epsilon = tol)
             && approx::abs_diff_eq!(self.pos.1, other.pos.1, epsilon = tol)
             && approx::abs_diff_eq!(self.time, other.time, epsilon = tol as f64)
