@@ -1,3 +1,1 @@
 - [ ] adapt the default settings (cm for distance and seconds for time != what's rnote reporting) (to be done on the rnote's code side : adapt the modeler parameters there)
-- [ ] API changes (f32 vs f64, and using rust durations instead) ?
-- [ ] Strongly typed errors
