@@ -9,11 +9,6 @@ Partial rust rewrite of [https://github.com/google/ink-stroke-modeler](https://g
 
 Run `cargo doc --open` to view the documentation or check `examples/stroke.rs` for a full example
 
-It is possible to choose between building the absl-cpp dependency in the crate and statically link it,
-or use the system dependency. Then the `absl-cpp-dev` (or equivalent) package must be installed.
-
-Toggled via the cargo feature `build_absl`.
-
 ### License
 
 <sup>
