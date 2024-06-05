@@ -66,17 +66,17 @@ impl StateModeler {
     }
 
     /// query the pressure by interpolating it from raw input events
-    pub(crate) fn query(&mut self, pos: (f32, f32)) -> f32 {
+    pub(crate) fn query(&mut self, pos: (f64, f64)) -> f64 {
         // iterate over the deque
         match self.last_strokes.len() {
             0 => 1.0,
             1 => return self.last_strokes.front().unwrap().pressure,
             _ => {
-                let mut distance = f32::INFINITY;
-                let mut r: f32 = 0.0;
+                let mut distance = f64::INFINITY;
+                let mut r: f64 = 0.0;
 
-                let mut start_pressure: f32 = 1.0;
-                let mut end_pressure: f32 = 1.0;
+                let mut start_pressure: f64 = 1.0;
+                let mut end_pressure: f64 = 1.0;
 
                 for index_it in 0..self.last_strokes.len() - 1 {
                     let start_pos = self.last_strokes.get(index_it).unwrap().pos;

@@ -15,9 +15,9 @@ pub enum ModelerInputEventType {
 #[derive(Clone, Debug, PartialEq)]
 pub struct ModelerInput {
     pub event_type: ModelerInputEventType,
-    pub pos: (f32, f32),
+    pub pos: (f64, f64),
     pub time: f64,
-    pub pressure: f32,
+    pub pressure: f64,
     // tilt and orientation are optional parameters, so we remove them here to
     // make our lives easier
 }

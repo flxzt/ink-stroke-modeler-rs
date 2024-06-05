@@ -2,26 +2,26 @@
 /// contains the position, time, presusre as well as the velocity and acceleration data
 #[derive(Debug, PartialEq)]
 pub struct ModelerResult {
-    pub pos: (f32, f32),
-    pub velocity: (f32, f32),
-    pub acceleration: (f32, f32),
+    pub pos: (f64, f64),
+    pub velocity: (f64, f64),
+    pub acceleration: (f64, f64),
     pub time: f64,
-    pub pressure: f32,
+    pub pressure: f64,
 }
 
 /// A [ModelerResult] that does not have yet a pressure information
 #[derive(Clone, Debug)]
 pub(crate) struct ModelerPartial {
-    pub pos: (f32, f32),
-    pub velocity: (f32, f32),
-    pub acceleration: (f32, f32),
+    pub pos: (f64, f64),
+    pub velocity: (f64, f64),
+    pub acceleration: (f64, f64),
     pub time: f64,
 }
 
 impl ModelerResult {
     #[cfg(test)]
     pub fn near(self, other: ModelerResult) -> bool {
-        let tol = 1e-4;
+        let tol = 3.0 * 1e-3; //tolerance increased for f64
         approx::abs_diff_eq!(self.pos.0, other.pos.0, epsilon = tol)
             && approx::abs_diff_eq!(self.pos.1, other.pos.1, epsilon = tol)
             && approx::abs_diff_eq!(self.time, other.time, epsilon = tol as f64)

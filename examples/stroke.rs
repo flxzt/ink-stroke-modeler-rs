@@ -122,10 +122,10 @@ fn main() -> anyhow::Result<()> {
 
 #[derive(Debug, Clone)]
 struct Element {
-    pos: (f32, f32),
-    velocity: Option<(f32, f32)>,
+    pos: (f64, f64),
+    velocity: Option<(f64, f64)>,
     time: f64,
-    pressure: f32,
+    pressure: f64,
 }
 
 impl Element {

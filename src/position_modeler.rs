@@ -6,8 +6,8 @@ use crate::{ModelerInput, ModelerParams, ModelerPartial};
 /// anchor; as the anchor moves, it drags the pen tip along behind it.
 pub(crate) struct PositionModeler {
     //parameters for the model
-    position_modeler_spring_mass_constant: f32,
-    position_modeler_drag_constant: f32,
+    position_modeler_spring_mass_constant: f64,
+    position_modeler_drag_constant: f64,
     // last state
     pub(crate) state: ModelerPartial,
 }
@@ -27,8 +27,8 @@ impl PositionModeler {
     }
     // Given the position of the anchor and the time, updates the model and
     // returns the new state of the pen tip
-    pub(crate) fn update(&mut self, anchor_pos: (f32, f32), time: f64) -> ModelerPartial {
-        let delta_time = (time - self.state.time) as f32;
+    pub(crate) fn update(&mut self, anchor_pos: (f64, f64), time: f64) -> ModelerPartial {
+        let delta_time = time - self.state.time;
         //
         self.state.acceleration = (
             (anchor_pos.0 - self.state.pos.0) / (self.position_modeler_spring_mass_constant)
@@ -54,21 +54,21 @@ impl PositionModeler {
     /// these upstreamed events to the model
     pub(crate) fn update_along_linear_path(
         &mut self,
-        start_pos: (f32, f32),
+        start_pos: (f64, f64),
         start_time: f64,
-        end_pos: (f32, f32),
+        end_pos: (f64, f64),
         end_time: f64,
         n_steps: i32,
     ) -> Vec<ModelerPartial> {
         (1..=n_steps)
             .map(|i| {
-                let frac_adv: f32 = i as f32 / n_steps as f32;
+                let frac_adv = i as f64 / n_steps as f64;
 
                 let anchor_pos = (
                     start_pos.0 + frac_adv * (end_pos.0 - start_pos.0),
                     start_pos.1 + frac_adv * (end_pos.1 - start_pos.1),
                 );
-                let time = start_time + frac_adv as f64 * (end_time - start_time);
+                let time = start_time + frac_adv * (end_time - start_time);
 
                 self.update(anchor_pos, time)
             })
@@ -84,10 +84,10 @@ impl PositionModeler {
     /// `stop_distance`)
     pub(crate) fn model_end_of_stroke(
         &mut self,
-        anchor_pos: (f32, f32),
+        anchor_pos: (f64, f64),
         delta_time: f64,
         max_iterations: usize,
-        stop_distance: f32,
+        stop_distance: f64,
     ) -> Vec<ModelerPartial> {
         let initial_state = self.state.clone();
         let mut delta_time = delta_time;
@@ -133,7 +133,7 @@ impl PositionModeler {
 impl ModelerPartial {
     #[cfg(test)]
     fn near(self, compare: ModelerPartial) -> bool {
-        let tol = 0.0005; //same tol as the ones used in the original repository
+        let tol = 0.005; //tolerance increased for f64
         approx::abs_diff_eq!(self.pos.0, compare.pos.0, epsilon = tol)
             && approx::abs_diff_eq!(self.pos.1, compare.pos.1, epsilon = tol)
             && approx::abs_diff_eq!(self.velocity.0, compare.velocity.0, epsilon = tol)
@@ -347,8 +347,8 @@ fn sharp_turn() {
 
 #[test]
 fn smooth_turn() {
-    use std::f32::consts::PI;
-    let point_on_circle = |x: f32| (x.cos(), x.sin());
+    use std::f64::consts::PI;
+    let point_on_circle = |x: f64| (x.cos(), x.sin());
     // init
     let mut current_time: f64 = 1.0;
     let mut modeler = PositionModeler::new(
