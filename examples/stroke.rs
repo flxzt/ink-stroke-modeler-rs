@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use ink_stroke_modeler_rs::{
-    ModelerError, ModelerInput, ModelerInputEventType, ModelerResult, StrokeModeler,
+    ModelerInput, ModelerInputEventType, ModelerParams, ModelerResult, StrokeModeler,
 };
 use svg::Node;
 
@@ -12,102 +12,78 @@ fn main() -> anyhow::Result<()> {
     };
 
     let input_stroke = vec![
-        ModelerInput::new(
-            ModelerInputEventType::kDown,
-            (90.0, 30.0),
-            0.0,
-            0.25,
-            0.0,
-            0.0,
-        ),
-        ModelerInput::new(
-            ModelerInputEventType::kMove,
-            (30.0, 45.0),
-            0.02,
-            0.3,
-            0.0,
-            0.0,
-        ),
-        ModelerInput::new(
-            ModelerInputEventType::kMove,
-            (60.0, 240.0),
-            0.04,
-            0.7,
-            0.0,
-            0.0,
-        ),
-        ModelerInput::new(
-            ModelerInputEventType::kMove,
-            (105.0, 270.0),
-            0.06,
-            1.0,
-            0.0,
-            0.0,
-        ),
-        ModelerInput::new(
-            ModelerInputEventType::kMove,
-            (120.0, 150.0),
-            0.10,
-            0.6,
-            0.0,
-            0.0,
-        ),
-        ModelerInput::new(
-            ModelerInputEventType::kMove,
-            (180.0, 30.0),
-            0.12,
-            0.3,
-            0.0,
-            0.0,
-        ),
-        ModelerInput::new(
-            ModelerInputEventType::kMove,
-            (240.0, 120.0),
-            0.16,
-            0.3,
-            0.0,
-            0.0,
-        ),
-        ModelerInput::new(
-            ModelerInputEventType::kMove,
-            (210.0, 150.0),
-            0.18,
-            0.9,
-            0.0,
-            0.0,
-        ),
-        ModelerInput::new(
-            ModelerInputEventType::kMove,
-            (150.0, 210.0),
-            0.20,
-            0.8,
-            0.0,
-            0.0,
-        ),
-        ModelerInput::new(
-            ModelerInputEventType::kMove,
-            (210.0, 240.0),
-            0.22,
-            0.8,
-            0.0,
-            0.0,
-        ),
-        ModelerInput::new(
-            ModelerInputEventType::kMove,
-            (255.0, 240.0),
-            0.24,
-            0.7,
-            0.0,
-            0.0,
-        ),
-        ModelerInput::new(
-            ModelerInputEventType::kUp,
-            (270.0, 270.0),
-            0.26,
-            0.5,
-            0.0,
-            0.0,
-        ),
+        ModelerInput {
+            event_type: ModelerInputEventType::Down,
+            pos: (90.0, 30.0),
+            time: 0.0,
+            pressure: 0.25,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (30.0, 45.0),
+            time: 0.02,
+            pressure: 0.3,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (60.0, 240.0),
+            time: 0.04,
+            pressure: 0.7,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (105.0, 270.0),
+            time: 0.06,
+            pressure: 1.0,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (120.0, 150.0),
+            time: 0.10,
+            pressure: 0.6,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (180.0, 30.0),
+            time: 0.12,
+            pressure: 0.3,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (240.0, 120.0),
+            time: 0.16,
+            pressure: 0.3,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (210.0, 150.0),
+            time: 0.18,
+            pressure: 0.9,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (150.0, 210.0),
+            time: 0.20,
+            pressure: 0.8,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (210.0, 240.0),
+            time: 0.22,
+            pressure: 0.8,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::Move,
+            pos: (255.0, 240.0),
+            time: 0.24,
+            pressure: 0.7,
+        },
+        ModelerInput {
+            event_type: ModelerInputEventType::Up,
+            pos: (270.0, 270.0),
+            time: 0.26,
+            pressure: 0.5,
+        },
     ];
     let input_elements = input_stroke
         .iter()
@@ -131,7 +107,6 @@ fn main() -> anyhow::Result<()> {
         })
         .flatten()
         .collect::<Vec<ModelerResult>>();
-
     let result_elements = result_stroke
         .iter()
         .map(Element::from_modeler_result)
@@ -145,36 +120,30 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 struct Element {
-    pos: (f32, f32),
-    velocity: Option<(f32, f32)>,
+    pos: (f64, f64),
+    velocity: Option<(f64, f64)>,
     time: f64,
-    pressure: f32,
-    tilt: f32,
-    orientation: f32,
+    pressure: f64,
 }
 
 impl Element {
     fn from_modeler_input(i: &ModelerInput) -> Self {
         Self {
-            pos: i.pos(),
+            pos: i.pos,
             velocity: None,
-            time: i.time(),
-            pressure: i.pressure(),
-            tilt: i.tilt(),
-            orientation: i.orientation(),
+            time: i.time,
+            pressure: i.pressure,
         }
     }
 
     fn from_modeler_result(r: &ModelerResult) -> Self {
         Self {
-            pos: r.pos(),
-            velocity: Some(r.velocity()),
-            time: r.time(),
-            pressure: r.pressure(),
-            tilt: r.tilt(),
-            orientation: r.orientation(),
+            pos: r.pos,
+            velocity: Some(r.velocity),
+            time: r.time,
+            pressure: r.pressure,
         }
     }
 }
