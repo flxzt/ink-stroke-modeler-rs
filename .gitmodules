@@ -1,6 +1,0 @@
-[submodule "ink-stroke-modeler"]
-	path = ink-stroke-modeler
-	url = https://github.com/flxzt/ink-stroke-modeler
-[submodule "abseil-cpp"]
-	path = abseil-cpp
-	url = https://github.com/abseil/abseil-cpp.git
