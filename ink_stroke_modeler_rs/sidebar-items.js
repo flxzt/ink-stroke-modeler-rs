@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ModelerError","ModelerInputEventType","PredictionParams"],"struct":["KalmanPredictorParams","ModelerInput","ModelerParams","ModelerResult","StrokeModeler"]};
+window.SIDEBAR_ITEMS = {"enum":["Errors","ModelerInputEventType"],"struct":["ModelerInput","ModelerParams","ModelerResult","StrokeModeler"]};
