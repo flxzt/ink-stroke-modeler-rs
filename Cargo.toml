@@ -1,28 +1,14 @@
 [package]
-build = "build.rs"
-edition = "2021"
-license = "MIT OR Apache-2.0"
 name = "ink-stroke-modeler-rs"
-rust-version = "1.65"
+license = "MIT OR Apache-2.0"
 version = "0.1.0"
-
-[dependencies]
-autocxx = "0.26.0"
-cxx = "1.0"
-thiserror = "1.0"
-
-[build-dependencies]
-anyhow = "1.0"
-autocxx-build = "0.26.0"
-autocxx-engine = "0.26.0"
-cmake = "0.1.50"
-path-slash = "0.2.1"
-pkg-config = "0.3.30"
+edition = "2021"
+rust-version = "1.65"
 
 [dev-dependencies]
+approx = "0.5.1"
 anyhow = "1.0"
-svg = "0.17.0"
+svg = "0.16.0"
+tracing = "0.1.40"
 
-[features]
-default = ["build_absl"]
-build_absl = []
+[dependencies]

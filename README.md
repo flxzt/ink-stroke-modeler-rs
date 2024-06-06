@@ -3,20 +3,11 @@
 [![main docs](https://img.shields.io/badge/docs-main-informational)](https://flxzt.github.io/ink-stroke-modeler-rs/ink_stroke_modeler_rs/)
 [![CI](https://github.com/flxzt/ink-stroke-modeler-rs/actions/workflows/ci.yaml/badge.svg)](https://github.com/flxzt/ink-stroke-modeler-rs/actions/workflows/ci.yaml)
 
-WIP Rust bindings for [https://github.com/google/ink-stroke-modeler](https://github.com/google/ink-stroke-modeler), using `autocxx`
-
-# External Dependencies
-- `cmake`
-- `libclang`
+Partial rust rewrite of [https://github.com/google/ink-stroke-modeler](https://github.com/google/ink-stroke-modeler). Beware that not all functionalities are implemented (no kalman-based prediction) and the API is not identical either. 
 
 # Usage
 
-Run `cargo doc --open` to view the documentation.
-
-It is possible to choose between building the absl-cpp dependency in the crate and statically link it,
-or use the system dependency. Then the `absl-cpp-dev` (or equivalent) package must be installed.
-
-Toggled via the cargo feature `build_absl`.
+Run `cargo doc --open` to view the documentation or check `examples/stroke.rs` for a full example
 
 ### License
 
