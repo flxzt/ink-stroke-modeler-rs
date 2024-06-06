@@ -6,10 +6,10 @@ extern crate approx;
 
 // modules
 mod engine;
-pub mod input;
-pub mod params;
+mod input;
+mod params;
 mod position_modeler;
-pub mod results;
+mod results;
 mod state_modeler;
 mod utils;
 
