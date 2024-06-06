@@ -22,8 +22,8 @@ jobs:
       - name: Cache
         uses: Swatinem/rust-cache@v2
 
-      - name: Clean docs dir
-        run: rm -rf docs
+      - name: Clean docs-gh dir
+        run: rm -rf docs-gh
         shell: bash
 
       - name: Clean Rust docs dir
@@ -33,14 +33,14 @@ jobs:
         run: cargo doc --manifest-path ./Cargo.toml --all-features --no-deps
 
       - name: Move Rust docs
-        run: mkdir -p docs && mv target/doc/* docs/.
+        run: mkdir -p docs-gh && mv target/doc/* docs-gh/.
         shell: bash
 
       - name: Configure root page
-        run: echo '<meta http-equiv="refresh" content="0; url=wave">' > docs/index.html
+        run: echo '<meta http-equiv="refresh" content="0; url=wave">' > docs-gh/index.html
 
-      - name: Deploy docs
+      - name: Deploy docs-gh
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
+          publish_dir: ./docs-gh
