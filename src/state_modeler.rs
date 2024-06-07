@@ -1,13 +1,12 @@
 use crate::utils::{dist, interp, interp2, nearest_point_on_segment};
 use crate::ModelerInput;
+use std::collections::VecDeque;
 
 // only imported for docstrings
 #[allow(unused)]
-use crate::ModelerPartial;
+use crate::results::ModelerPartial;
 #[allow(unused)]
 use crate::ModelerResult;
-
-use std::collections::VecDeque;
 
 /// Get the pressure for a position by querying
 /// information from the raw input strokes

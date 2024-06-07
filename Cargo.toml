@@ -12,3 +12,4 @@ svg = "0.16.0"
 tracing = "0.1.40"
 
 [dependencies]
+thiserror = "1.0.61"
