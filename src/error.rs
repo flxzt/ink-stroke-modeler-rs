@@ -1,4 +1,3 @@
-/// Modeler Element Error
 #[derive(Debug, Clone, thiserror::Error)]
 #[non_exhaustive]
 pub enum ElementError {

@@ -1,6 +1,6 @@
 // Modules
 mod engine;
-mod error;
+pub mod error;
 mod input;
 mod params;
 mod position_modeler;
