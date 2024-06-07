@@ -1,17 +1,13 @@
 #set page(width: 16cm, margin: 0.5em, height: auto)
 #let definition(content) = box(fill: luma(92%), width: 100%, inset: 0.5em, stroke: black)[#content]
 
-#import "@preview/lovelace:0.2.0": *
-#show: setup-lovelace.with(body-inset: 0pt)
-
 #let pr = $nu$
 #let time = $t$
-
 
 == Position modeling
 
 #definition[The raw input is processed as follow
-   
+
   raw input $->$ wobble smoother $->$ upsampled $->$ position modeling]
 
 #definition[
@@ -44,7 +40,7 @@ the output
   - Output : smoothed stream ${(p_f [k],v_f [k],a_f [k]), 0 <= k <=n}$
   We define $Phi[k] = p[k]$. An euler scheme integration scheme is used with the initial conditions being $v[0] = 0$ and $p_f [0] = p[0]$ (same
   initial conditions)
-   
+
   Update rule is simply
   $
     a_f [j] = (p[j]- p_f [j-1]) / k_"spring" - k_"drag" v_f [j-1]\
