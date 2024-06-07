@@ -1,9 +1,6 @@
 #set page(width: 16cm, margin: 0.5em, height: auto)
 #let definition(content) = box(fill: luma(92%), width: 100%, inset: 0.5em, stroke: black)[#content]
 
-#import "@preview/lovelace:0.2.0": *
-#show: setup-lovelace.with(body-inset: 0pt)
-
 #let pr = $nu$
 #let time = $t$
 
