@@ -37,7 +37,7 @@ jobs:
         shell: bash
 
       - name: Configure root page
-        run: echo '<meta http-equiv="refresh" content="0; url=wave">' > docs-gh/index.html
+        run: echo '<meta http-equiv="refresh" content="0; url=ink_stroke_modeler_rs/index.html">' > docs-gh/index.html
 
       - name: Deploy docs-gh
         uses: peaceiris/actions-gh-pages@v3
