@@ -275,17 +275,15 @@
 <a href="#273" id="273">273</a>
 <a href="#274" id="274">274</a>
 <a href="#275" id="275">275</a>
-<a href="#276" id="276">276</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::utils::{dist, interp, interp2, nearest_point_on_segment};
 <span class="kw">use </span><span class="kw">crate</span>::ModelerInput;
+<span class="kw">use </span>std::collections::VecDeque;
 
 <span class="comment">// only imported for docstrings
 </span><span class="attr">#[allow(unused)]
-</span><span class="kw">use </span><span class="kw">crate</span>::ModelerPartial;
+</span><span class="kw">use </span><span class="kw">crate</span>::results::ModelerPartial;
 <span class="attr">#[allow(unused)]
 </span><span class="kw">use </span><span class="kw">crate</span>::ModelerResult;
-
-<span class="kw">use </span>std::collections::VecDeque;
 
 <span class="doccomment">/// Get the pressure for a position by querying
 /// information from the raw input strokes

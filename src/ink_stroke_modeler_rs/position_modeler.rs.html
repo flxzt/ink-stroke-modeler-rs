@@ -748,8 +748,10 @@
 <a href="#746" id="746">746</a>
 <a href="#747" id="747">747</a>
 <a href="#748" id="748">748</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::utils::{dist, nearest_point_on_segment};
-<span class="kw">use crate</span>::{ModelerInput, ModelerParams, ModelerPartial};
+<a href="#749" id="749">749</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::results::ModelerPartial;
+<span class="kw">use </span><span class="kw">crate</span>::utils::{dist, nearest_point_on_segment};
+<span class="kw">use crate</span>::{ModelerInput, ModelerParams};
 
 <span class="doccomment">/// This struct models the movement of the pen tip based on the laws of motion.
 /// The pen tip is represented as a mass, connected by a spring to a moving
@@ -1264,7 +1266,7 @@
 }
 
 <span class="attr">#[test]
-</span><span class="kw">fn </span>model_end_of_stroke_stationnary() {
+</span><span class="kw">fn </span>model_end_of_stroke_stationary() {
     <span class="kw">let </span><span class="kw-2">mut </span>model = PositionModeler::new(
         ModelerParams::suggested(),
         ModelerInput {

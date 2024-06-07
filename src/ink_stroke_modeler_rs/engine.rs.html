@@ -2769,12 +2769,23 @@
 <a href="#2767" id="2767">2767</a>
 <a href="#2768" id="2768">2768</a>
 <a href="#2769" id="2769">2769</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::vec;
-
-<span class="kw">use super</span>::<span class="kw-2">*</span>;
-
+<a href="#2770" id="2770">2770</a>
+<a href="#2771" id="2771">2771</a>
+<a href="#2772" id="2772">2772</a>
+<a href="#2773" id="2773">2773</a>
+<a href="#2774" id="2774">2774</a>
+<a href="#2775" id="2775">2775</a>
+<a href="#2776" id="2776">2776</a>
+<a href="#2777" id="2777">2777</a>
+<a href="#2778" id="2778">2778</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::{ElementError, ElementOrderError};
+<span class="kw">use </span><span class="kw">crate</span>::position_modeler::PositionModeler;
+<span class="kw">use </span><span class="kw">crate</span>::state_modeler::StateModeler;
 <span class="kw">use </span><span class="kw">crate</span>::utils::interp;
 <span class="kw">use </span><span class="kw">crate</span>::utils::normalize01_64;
+<span class="kw">use crate</span>::{ModelerError, ModelerInput, ModelerInputEventType, ModelerParams, ModelerResult};
+<span class="kw">use </span>std::collections::VecDeque;
+<span class="kw">use </span>std::vec;
 
 <span class="doccomment">/// smooth out the input position from high frequency noise
 /// uses a moving average of position and interpolating between this
@@ -2827,23 +2838,6 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) last_event: <span class="prelude-ty">Option</span>&lt;ModelerInput&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) last_corrected_event: <span class="prelude-ty">Option</span>&lt;(f64, f64)&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) state_modeler: StateModeler,
-}
-
-<span class="doccomment">/// errors
-</span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub enum </span>Errors {
-    <span class="doccomment">/// when a duplicate element is sent
-    </span>DuplicateElement,
-    <span class="doccomment">/// when a new event has a time that's less than the previous one
-    </span>NegativeTimeDelta,
-    <span class="doccomment">/// When order of element is not correct.
-    /// Either when
-    /// - down event is not the first event or a down event occured after another one
-    /// - no Down event occurred before a Move event
-    /// - No event occured before an up event
-    </span>ElementOrderError,
-    <span class="doccomment">/// When the time delta is too large between the input provided and the previous one
-    </span>TooFarApart,
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>StrokeModeler {
@@ -2928,11 +2922,15 @@
     ///
     /// If this does not return an error, results will contain at least one Result, and potentially
     /// more if the inputs are slower than the minimum output rate
-    </span><span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ModelerInput) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ModelerResult&gt;, Errors&gt; {
+    </span><span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ModelerInput) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ModelerResult&gt;, ModelerError&gt; {
         <span class="kw">match </span>input.event_type {
             ModelerInputEventType::Down =&gt; {
                 <span class="kw">if </span><span class="self">self</span>.last_event.is_some() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Errors::ElementOrderError);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ModelerError::Element {
+                        src: ElementError::Order {
+                            src: ElementOrderError::UnexpectedDown,
+                        },
+                    });
                 }
                 <span class="self">self</span>.wobble_update(<span class="kw-2">&amp;</span>input); <span class="comment">// first event is "as is"
 
@@ -2954,7 +2952,11 @@
             ModelerInputEventType::Move =&gt; {
                 <span class="comment">// get the latest element
                 </span><span class="kw">if </span><span class="self">self</span>.last_event.is_none() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Errors::ElementOrderError);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ModelerError::Element {
+                        src: ElementError::Order {
+                            src: ElementOrderError::UnexpectedMove,
+                        },
+                    });
                 }
                 <span class="kw">let </span>latest_time = <span class="self">self</span>.last_event.as_ref().unwrap().time;
                 <span class="kw">let </span>new_time = input.time;
@@ -2962,10 +2964,14 @@
                 <span class="comment">// validate before doing anything
                 // if the input is incorrect, return an error and leave the engine unmodified
                 </span><span class="kw">if </span>new_time - latest_time &lt; <span class="number">0.0 </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Errors::NegativeTimeDelta);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ModelerError::Element {
+                        src: ElementError::NegativeTimeDelta,
+                    });
                 }
                 <span class="kw">if </span>input == <span class="kw-2">*</span><span class="self">self</span>.last_event.as_ref().unwrap() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Errors::DuplicateElement);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ModelerError::Element {
+                        src: ElementError::Duplicate,
+                    });
                 }
 
                 <span class="self">self</span>.state_modeler.update(input.clone());
@@ -2978,7 +2984,9 @@
                 <span class="comment">// this errors if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]
                 </span><span class="kw">if </span>n_tsteps <span class="kw">as </span>usize &gt; <span class="self">self</span>.params.sampling_max_outputs_per_call {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Errors::TooFarApart);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ModelerError::Element {
+                        src: ElementError::TooFarApart,
+                    });
                 }
 
                 <span class="kw">let </span>p_start = <span class="self">self</span>.last_corrected_event.unwrap();
@@ -3009,17 +3017,25 @@
             ModelerInputEventType::Up =&gt; {
                 <span class="comment">// get the latest element
                 </span><span class="kw">if </span><span class="self">self</span>.last_event.is_none() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Errors::ElementOrderError);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ModelerError::Element {
+                        src: ElementError::Order {
+                            src: ElementOrderError::UnexpectedUp,
+                        },
+                    });
                 }
                 <span class="kw">let </span>latest_time = <span class="self">self</span>.last_event.as_ref().unwrap().time;
                 <span class="kw">let </span>new_time = input.time;
 
                 <span class="comment">// validate before doing any changes to the modeler
                 </span><span class="kw">if </span>new_time - latest_time &lt; <span class="number">0.0 </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Errors::NegativeTimeDelta);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ModelerError::Element {
+                        src: ElementError::NegativeTimeDelta,
+                    });
                 }
                 <span class="kw">if </span>input == <span class="kw-2">*</span><span class="self">self</span>.last_event.as_ref().unwrap() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Errors::DuplicateElement);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ModelerError::Element {
+                        src: ElementError::Duplicate,
+                    });
                 }
 
                 <span class="self">self</span>.state_modeler.update(input.clone());
@@ -3032,7 +3048,9 @@
                 <span class="comment">// this errors if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]
                 </span><span class="kw">if </span>n_tsteps <span class="kw">as </span>usize &gt; <span class="self">self</span>.params.sampling_max_outputs_per_call {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Errors::TooFarApart);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ModelerError::Element {
+                        src: ElementError::TooFarApart,
+                    });
                 }
 
                 <span class="kw">let </span>p_start = <span class="self">self</span>.last_corrected_event.unwrap();
@@ -3197,7 +3215,7 @@
                 <span class="kw">if </span><span class="self">self</span>.wobble_duration_sum &lt; <span class="number">1e-12 </span>{
                     event.pos
                 } <span class="kw">else </span>{
-                    <span class="comment">// calulate the average position
+                    <span class="comment">// calculate the average position
 
                     </span><span class="kw">let </span>avg_position = (
                         <span class="self">self</span>.wobble_weighted_pos_sum.<span class="number">0 </span>/ <span class="self">self</span>.wobble_duration_sum,
@@ -3754,7 +3772,7 @@
             ]
         ));
 
-        <span class="comment">// we get more strokes as the model catches up to the anchor postion
+        <span class="comment">// we get more strokes as the model catches up to the anchor position
         </span>time += delta_time;
         <span class="kw">let </span>update = engine.update(ModelerInput {
             event_type: ModelerInputEventType::Up,
@@ -3867,7 +3885,7 @@
             ]
         ));
 
-        <span class="comment">// the stroke is finised, we get an error if we predict it
+        <span class="comment">// the stroke is finished, we get an error if we predict it
         </span><span class="macro">assert!</span>(engine.predict().is_err());
     }
 
