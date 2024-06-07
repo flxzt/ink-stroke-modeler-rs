@@ -1,5 +1,9 @@
-# build docs
-doc:
+# justfile for ink-stroke-modeler-rs crate
+
+default:
+    just --list
+
+docs-build:
     pandoc docs/notations.typ -o docs/notations.html --mathml
     pandoc docs/position_modeling.typ -o docs/position_modeling.html --mathml
     pandoc docs/resampling.typ -o docs/resampling.html --mathml
@@ -9,8 +13,7 @@ doc:
     cargo doc --open
     cp docs/position_model.svg target/doc/ink_stroke_modeler_rs/position_model.svg
 
-
-remove_html:
+docs-remove-html:
     rm docs/notations.html
     rm docs/position_modeling.html
     rm docs/resampling.html

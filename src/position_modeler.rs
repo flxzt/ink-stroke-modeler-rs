@@ -515,7 +515,7 @@ fn test_update_linear_path() {
 }
 
 #[test]
-fn model_end_of_stroke_stationnary() {
+fn model_end_of_stroke_stationary() {
     let mut model = PositionModeler::new(
         ModelerParams::suggested(),
         ModelerInput {

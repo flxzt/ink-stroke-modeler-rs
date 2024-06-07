@@ -137,13 +137,10 @@ impl ModelerParams {
             Ok(self)
         } else {
             //Collect errors
-            let error_acc = parameter_tests
-                .iter()
-                .zip(errors)
-                .filter(|x| !*(x.0))
-                .fold(String::from("the following errors occured : "), |acc, x| {
-                    acc + x.1
-                });
+            let error_acc = parameter_tests.iter().zip(errors).filter(|x| !*(x.0)).fold(
+                String::from("the following errors occurred : "),
+                |acc, x| acc + x.1,
+            );
 
             Err(error_acc)
         }

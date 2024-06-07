@@ -435,7 +435,7 @@ impl StrokeModeler {
                 if self.wobble_duration_sum < 1e-12 {
                     event.pos
                 } else {
-                    // calulate the average position
+                    // calculate the average position
 
                     let avg_position = (
                         self.wobble_weighted_pos_sum.0 / self.wobble_duration_sum,
@@ -992,7 +992,7 @@ mod tests {
             ]
         ));
 
-        // we get more strokes as the model catches up to the anchor postion
+        // we get more strokes as the model catches up to the anchor position
         time += delta_time;
         let update = engine.update(ModelerInput {
             event_type: ModelerInputEventType::Up,
@@ -1105,7 +1105,7 @@ mod tests {
             ]
         ));
 
-        // the stroke is finised, we get an error if we predict it
+        // the stroke is finished, we get an error if we predict it
         assert!(engine.predict().is_err());
     }
 

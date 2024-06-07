@@ -10,7 +10,7 @@ pub enum ElementError {
         #[from]
         src: ElementOrderError,
     },
-    #[error("Sent element's time is too far apart from the previous one.")]
+    #[error("Sent element's time is too far apart from the previous one")]
     TooFarApart,
 }
 
@@ -18,11 +18,11 @@ pub enum ElementError {
 #[non_exhaustive]
 #[allow(clippy::enum_variant_names)]
 pub enum ElementOrderError {
-    #[error("Down Event is not the first or occured after a different event")]
+    #[error("Down Event is not the first or occurred after a different event")]
     UnexpectedDown,
-    #[error("Move event occured before a initial down event")]
+    #[error("Move event occurred before a initial down event")]
     UnexpectedMove,
-    #[error("No other event occured before an up event")]
+    #[error("No other event occurred before an up event")]
     UnexpectedUp,
 }
 

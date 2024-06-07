@@ -17,7 +17,7 @@
 #definition[
 The position of the pen is modeled as a weight connected by a spring to an anchor.
 
-The anchor moves along the _resampled dewobbled inputs_, pulling the weight along with it accross a surface, with some
+The anchor moves along the _resampled dewobbled inputs_, pulling the weight along with it across a surface, with some
 amount of friction. Euler integration is used to solve for the position of the pen.
 
 #figure(image("position_model.svg"))
