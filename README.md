@@ -2,7 +2,6 @@
 
 [![main docs](https://img.shields.io/badge/docs-main-informational)](https://flxzt.github.io/ink-stroke-modeler-rs/ink_stroke_modeler_rs/)
 [![CI](https://github.com/flxzt/ink-stroke-modeler-rs/actions/workflows/ci.yaml/badge.svg)](https://github.com/flxzt/ink-stroke-modeler-rs/actions/workflows/ci.yaml)
-[![docs main](https://img.shields.io/badge/docs-main-informational)](https://flxzt.github.io/ink-stroke-modeler-rs/)
 
 Partial rust rewrite of [https://github.com/google/ink-stroke-modeler](https://github.com/google/ink-stroke-modeler).
 Beware that not all functionalities are implemented (no kalman-based prediction) and the API is not identical either.
