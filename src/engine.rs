@@ -32,9 +32,9 @@ pub(crate) struct WobbleSample {
 /// several stages
 /// - Wobble smoothing : dampens high-frequency noise from quantization error
 /// - Position modeling : models the pen tip as a mass, connected by a spring, to a moving
-/// anchor
+///   anchor
 /// - Stylus state modeling : constructs stylus states for modeled positions by interpolating
-/// over the raw input
+///   over the raw input
 ///
 /// Additional, this class provides prediction of the modeled stroke
 ///
@@ -260,9 +260,8 @@ impl StrokeModeler {
                 self.state_modeler.update(input.clone());
 
                 // calculate the number of element to predict
-                let n_tsteps = (((new_time - latest_time) * self.params.sampling_min_output_rate)
-                    .ceil() as i32)
-                    .min(i32::MAX);
+                let n_tsteps = ((new_time - latest_time) * self.params.sampling_min_output_rate)
+                    .ceil() as i32;
 
                 // this errors if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]
