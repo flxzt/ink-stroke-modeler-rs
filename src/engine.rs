@@ -197,8 +197,8 @@ impl StrokeModeler {
                 self.state_modeler.update(input.clone());
 
                 // calculate the number of element to predict
-                let n_steps = ((new_time - latest_time) * self.params.sampling_min_output_rate)
-                    .ceil() as i32;
+                let n_steps =
+                    ((new_time - latest_time) * self.params.sampling_min_output_rate).ceil() as i32;
 
                 // this errors if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]
@@ -260,8 +260,8 @@ impl StrokeModeler {
                 self.state_modeler.update(input.clone());
 
                 // calculate the number of element to predict
-                let n_tsteps = ((new_time - latest_time) * self.params.sampling_min_output_rate)
-                    .ceil() as i32;
+                let n_tsteps =
+                    ((new_time - latest_time) * self.params.sampling_min_output_rate).ceil() as i32;
 
                 // this errors if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]
