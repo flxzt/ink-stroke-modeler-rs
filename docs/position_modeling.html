@@ -1,76 +1,594 @@
 <h2>Position modeling</h2>
 <div class="box">
-<p>The raw input is processed as follow</p>
-<p>raw input
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
-wobble smoother
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
-upsampled
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
-position modeling</p>
+    <p>The raw input is processed as follow</p>
+    <p>raw input
+        <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mo>→</mo>
+                <annotation encoding="application/x-tex">\rightarrow</annotation>
+            </semantics>
+        </math>
+        wobble smoother
+        <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mo>→</mo>
+                <annotation encoding="application/x-tex">\rightarrow</annotation>
+            </semantics>
+        </math>
+        upsampled
+        <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mo>→</mo>
+                <annotation encoding="application/x-tex">\rightarrow</annotation>
+            </semantics>
+        </math>
+        position modeling
+    </p>
 </div>
 <div class="box">
-<p>The position of the pen is modeled as a weight connected by a spring
-to an anchor.</p>
-<p>The anchor moves along the <em>resampled dewobbled inputs</em>,
-pulling the weight along with it across a surface, with some amount of
-friction. Euler integration is used to solve for the position of the
-pen.</p>
-<figure>
-<p><img src="position_model.svg" /></p>
-</figure>
-<p>The physical model that is used to model the stroke is the following
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><msup><mi>d</mi><mn>2</mn></msup><mi>s</mi></mrow><mrow><mi>d</mi><msup><mi>t</mi><mn>2</mn></msup></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>s</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><msub><mi>k</mi><mrow><mtext mathvariant="normal">spring </mtext><mspace width="0.333em"></mspace></mrow></msub></mfrac><mo>−</mo><msub><mi>k</mi><mrow><mtext mathvariant="normal">drag </mtext><mspace width="0.333em"></mspace></mrow></msub><mfrac><mrow><mi>d</mi><mi>s</mi></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{d^{2}s}{dt^{2}} = \frac{\Phi(t) - s(t)}{k_{\text{spring }}} - k_{\text{drag }}\frac{ds}{dt}</annotation></semantics></math>
-where</p>
-<ul>
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-is time</p></li>
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">s(t)</annotation></semantics></math>
-is the position of the pen</p></li>
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Phi(t)</annotation></semantics></math>
-is the position of the anchor</p></li>
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>k</mi><mtext mathvariant="normal">spring</mtext></msub><annotation encoding="application/x-tex">k_{\text{spring}}</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>k</mi><mtext mathvariant="normal">drag</mtext></msub><annotation encoding="application/x-tex">k_{\text{drag}}</annotation></semantics></math>
-are constants that sets how the spring and drag occurs</p></li>
-</ul>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>k</mi><mtext mathvariant="normal">spring</mtext></msub><annotation encoding="application/x-tex">k_{\text{spring}}</annotation></semantics></math>
-is given by <code>position_modeler_spring_mass_constant</code> and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>k</mi><mtext mathvariant="normal">drag</mtext></msub><annotation encoding="application/x-tex">k_{\text{drag}}</annotation></semantics></math>
-by <code>position_modeler_drag_constant</code></p>
-<p>We will thus have as input the <em>upsampled dewobbled inputs</em>
-taking the role of discretized
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Phi(t)</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">s(t)</annotation></semantics></math>
-will be the output</p>
+    <p>The position of the pen is modeled as a weight connected by a spring
+        to an anchor.</p>
+    <p>The anchor moves along the <em>resampled dewobbled inputs</em>,
+        pulling the weight along with it across a surface, with some amount of
+        friction. Euler integration is used to solve for the position of the
+        pen.</p>
+    <figure>
+        <p><img src="position_model.svg" /></p>
+    </figure>
+    <p>The physical model that is used to model the stroke is the following
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mrow>
+                    <mfrac>
+                        <mrow>
+                            <msup>
+                                <mi>d</mi>
+                                <mn>2</mn>
+                            </msup>
+                            <mi>s</mi>
+                        </mrow>
+                        <mrow>
+                            <mi>d</mi>
+                            <msup>
+                                <mi>t</mi>
+                                <mn>2</mn>
+                            </msup>
+                        </mrow>
+                    </mfrac>
+                    <mo>=</mo>
+                    <mfrac>
+                        <mrow>
+                            <mi>Φ</mi>
+                            <mrow>
+                                <mo stretchy="true" form="prefix">(</mo>
+                                <mi>t</mi>
+                                <mo stretchy="true" form="postfix">)</mo>
+                            </mrow>
+                            <mo>−</mo>
+                            <mi>s</mi>
+                            <mrow>
+                                <mo stretchy="true" form="prefix">(</mo>
+                                <mi>t</mi>
+                                <mo stretchy="true" form="postfix">)</mo>
+                            </mrow>
+                        </mrow>
+                        <msub>
+                            <mi>k</mi>
+                            <mrow>
+                                <mtext mathvariant="normal">spring </mtext>
+                                <mspace width="0.333em"></mspace>
+                            </mrow>
+                        </msub>
+                    </mfrac>
+                    <mo>−</mo>
+                    <msub>
+                        <mi>k</mi>
+                        <mrow>
+                            <mtext mathvariant="normal">drag </mtext>
+                            <mspace width="0.333em"></mspace>
+                        </mrow>
+                    </msub>
+                    <mfrac>
+                        <mrow>
+                            <mi>d</mi>
+                            <mi>s</mi>
+                        </mrow>
+                        <mrow>
+                            <mi>d</mi>
+                            <mi>t</mi>
+                        </mrow>
+                    </mfrac>
+                </mrow>
+                <annotation encoding="application/x-tex">\frac{d^{2}s}{dt^{2}} = \frac{\Phi(t) - s(t)}{k_{\text{spring
+                    }}} - k_{\text{drag }}\frac{ds}{dt}</annotation>
+            </semantics>
+        </math>
+        where
+    </p>
+    <ul>
+        <li>
+            <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+                    <semantics>
+                        <mi>t</mi>
+                        <annotation encoding="application/x-tex">t</annotation>
+                    </semantics>
+                </math>
+                is time</p>
+        </li>
+        <li>
+            <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+                    <semantics>
+                        <mrow>
+                            <mi>s</mi>
+                            <mrow>
+                                <mo stretchy="true" form="prefix">(</mo>
+                                <mi>t</mi>
+                                <mo stretchy="true" form="postfix">)</mo>
+                            </mrow>
+                        </mrow>
+                        <annotation encoding="application/x-tex">s(t)</annotation>
+                    </semantics>
+                </math>
+                is the position of the pen</p>
+        </li>
+        <li>
+            <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+                    <semantics>
+                        <mrow>
+                            <mi>Φ</mi>
+                            <mrow>
+                                <mo stretchy="true" form="prefix">(</mo>
+                                <mi>t</mi>
+                                <mo stretchy="true" form="postfix">)</mo>
+                            </mrow>
+                        </mrow>
+                        <annotation encoding="application/x-tex">\Phi(t)</annotation>
+                    </semantics>
+                </math>
+                is the position of the anchor</p>
+        </li>
+        <li>
+            <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+                    <semantics>
+                        <msub>
+                            <mi>k</mi>
+                            <mtext mathvariant="normal">spring</mtext>
+                        </msub>
+                        <annotation encoding="application/x-tex">k_{\text{spring}}</annotation>
+                    </semantics>
+                </math>
+                and
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+                    <semantics>
+                        <msub>
+                            <mi>k</mi>
+                            <mtext mathvariant="normal">drag</mtext>
+                        </msub>
+                        <annotation encoding="application/x-tex">k_{\text{drag}}</annotation>
+                    </semantics>
+                </math>
+                are constants that sets how the spring and drag occurs
+            </p>
+        </li>
+    </ul>
+    <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <msub>
+                    <mi>k</mi>
+                    <mtext mathvariant="normal">spring</mtext>
+                </msub>
+                <annotation encoding="application/x-tex">k_{\text{spring}}</annotation>
+            </semantics>
+        </math>
+        is given by <code>position_modeler_spring_mass_constant</code> and
+        <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <msub>
+                    <mi>k</mi>
+                    <mtext mathvariant="normal">drag</mtext>
+                </msub>
+                <annotation encoding="application/x-tex">k_{\text{drag}}</annotation>
+            </semantics>
+        </math>
+        by <code>position_modeler_drag_constant</code>
+    </p>
+    <p>We will thus have as input the <em>upsampled dewobbled inputs</em>
+        taking the role of discretized
+        <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mrow>
+                    <mi>Φ</mi>
+                    <mrow>
+                        <mo stretchy="true" form="prefix">(</mo>
+                        <mi>t</mi>
+                        <mo stretchy="true" form="postfix">)</mo>
+                    </mrow>
+                </mrow>
+                <annotation encoding="application/x-tex">\Phi(t)</annotation>
+            </semantics>
+        </math>
+        and
+        <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mrow>
+                    <mi>s</mi>
+                    <mrow>
+                        <mo stretchy="true" form="prefix">(</mo>
+                        <mi>t</mi>
+                        <mo stretchy="true" form="postfix">)</mo>
+                    </mrow>
+                </mrow>
+                <annotation encoding="application/x-tex">s(t)</annotation>
+            </semantics>
+        </math>
+        will be the output
+    </p>
 </div>
 <div class="box">
-<p>Modeling a stroke.</p>
-<ul>
-<li><p>Input : input stream
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">{</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mn>0</mn><mo>≤</mo><mi>k</mi><mo>≤</mo><mi>n</mi><mo stretchy="true" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\left\{ \left( p\lbrack k\rbrack,t\lbrack k\rbrack \right),0 \leq k \leq n \right\}</annotation></semantics></math></p></li>
-<li><p>Output : smoothed stream
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">{</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>p</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><msub><mi>v</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><msub><mi>a</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mn>0</mn><mo>≤</mo><mi>k</mi><mo>≤</mo><mi>n</mi><mo stretchy="true" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\left\{ \left( p_{f}\lbrack k\rbrack,v_{f}\lbrack k\rbrack,a_{f}\lbrack k\rbrack \right),0 \leq k \leq n \right\}</annotation></semantics></math></p></li>
-</ul>
-<p>We define
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Φ</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\Phi\lbrack k\rbrack = p\lbrack k\rbrack</annotation></semantics></math>.
-An euler scheme integration scheme is used with the initial conditions
-being
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">v\lbrack 0\rbrack = 0</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">p_{f}\lbrack 0\rbrack = p\lbrack 0\rbrack</annotation></semantics></math>
-(same initial conditions)</p>
-<p>Update rule is simply
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>a</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><msub><mi>p</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><msub><mi>k</mi><mrow><mtext mathvariant="normal">spring </mtext><mspace width="0.333em"></mspace></mrow></msub></mfrac><mo>−</mo><msub><mi>k</mi><mrow><mtext mathvariant="normal">drag </mtext><mspace width="0.333em"></mspace></mrow></msub><msub><mi>v</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>v</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><msub><mi>v</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>a</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>p</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><msub><mi>p</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>v</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{array}{r}
-a_{f}\lbrack j\rbrack = \frac{p\lbrack j\rbrack - p_{f}\lbrack j - 1\rbrack}{k_{\text{spring }}} - k_{\text{drag }}v_{f}\lbrack j - 1\rbrack \\
-v_{f}\lbrack j\rbrack = v_{f}\lbrack j - 1\rbrack + \left( t\lbrack j\rbrack - t\lbrack j - 1\rbrack \right)a_{f}\lbrack j\rbrack \\
-p_{f}\lbrack j\rbrack = p_{f}\lbrack j - 1\rbrack + \left( t\lbrack j\rbrack - t\lbrack j - 1\rbrack \right)v_{f}\lbrack j\rbrack
-\end{array}</annotation></semantics></math> The position
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">s\lbrack j\rbrack</annotation></semantics></math>
-is the main thing to export but we can also export speed and
-acceleration if needed. We denote
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>p</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><msub><mi>v</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><msub><mi>a</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">q\lbrack j\rbrack = \left( p_{f}\lbrack j\rbrack,v_{f}\lbrack j\rbrack,a_{f}\lbrack j\rbrack,t\lbrack j\rbrack \right)</annotation></semantics></math>
-and this will be our output with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>≤</mo><mi>j</mi><mo>≤</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">0 \leq j \leq n</annotation></semantics></math></p>
+    <p>Modeling a stroke.</p>
+    <ul>
+        <li>
+            <p>Input : input stream
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+                    <semantics>
+                        <mrow>
+                            <mo stretchy="true" form="prefix">{</mo>
+                            <mrow>
+                                <mo stretchy="true" form="prefix">(</mo>
+                                <mi>p</mi>
+                                <mo stretchy="false" form="prefix">[</mo>
+                                <mi>k</mi>
+                                <mo stretchy="false" form="postfix">]</mo>
+                                <mo>,</mo>
+                                <mi>t</mi>
+                                <mo stretchy="false" form="prefix">[</mo>
+                                <mi>k</mi>
+                                <mo stretchy="false" form="postfix">]</mo>
+                                <mo stretchy="true" form="postfix">)</mo>
+                            </mrow>
+                            <mo>,</mo>
+                            <mn>0</mn>
+                            <mo>≤</mo>
+                            <mi>k</mi>
+                            <mo>≤</mo>
+                            <mi>n</mi>
+                            <mo stretchy="true" form="postfix">}</mo>
+                        </mrow>
+                        <annotation encoding="application/x-tex">\left\{ \left( p\lbrack k\rbrack,t\lbrack k\rbrack
+                            \right),0 \leq k \leq n \right\}</annotation>
+                    </semantics>
+                </math>
+            </p>
+        </li>
+        <li>
+            <p>Output : smoothed stream
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+                    <semantics>
+                        <mrow>
+                            <mo stretchy="true" form="prefix">{</mo>
+                            <mrow>
+                                <mo stretchy="true" form="prefix">(</mo>
+                                <msub>
+                                    <mi>p</mi>
+                                    <mi>f</mi>
+                                </msub>
+                                <mo stretchy="false" form="prefix">[</mo>
+                                <mi>k</mi>
+                                <mo stretchy="false" form="postfix">]</mo>
+                                <mo>,</mo>
+                                <msub>
+                                    <mi>v</mi>
+                                    <mi>f</mi>
+                                </msub>
+                                <mo stretchy="false" form="prefix">[</mo>
+                                <mi>k</mi>
+                                <mo stretchy="false" form="postfix">]</mo>
+                                <mo>,</mo>
+                                <msub>
+                                    <mi>a</mi>
+                                    <mi>f</mi>
+                                </msub>
+                                <mo stretchy="false" form="prefix">[</mo>
+                                <mi>k</mi>
+                                <mo stretchy="false" form="postfix">]</mo>
+                                <mo stretchy="true" form="postfix">)</mo>
+                            </mrow>
+                            <mo>,</mo>
+                            <mn>0</mn>
+                            <mo>≤</mo>
+                            <mi>k</mi>
+                            <mo>≤</mo>
+                            <mi>n</mi>
+                            <mo stretchy="true" form="postfix">}</mo>
+                        </mrow>
+                        <annotation encoding="application/x-tex">\left\{ \left( p_{f}\lbrack k\rbrack,v_{f}\lbrack
+                            k\rbrack,a_{f}\lbrack k\rbrack \right),0 \leq k \leq n \right\}</annotation>
+                    </semantics>
+                </math>
+            </p>
+        </li>
+    </ul>
+    <p>We define
+        <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mrow>
+                    <mi>Φ</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>k</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo>=</mo>
+                    <mi>p</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>k</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                </mrow>
+                <annotation encoding="application/x-tex">\Phi\lbrack k\rbrack = p\lbrack k\rbrack</annotation>
+            </semantics>
+        </math>.
+        An euler scheme integration scheme is used with the initial conditions
+        being
+        <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mrow>
+                    <mi>v</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mn>0</mn>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo>=</mo>
+                    <mn>0</mn>
+                </mrow>
+                <annotation encoding="application/x-tex">v\lbrack 0\rbrack = 0</annotation>
+            </semantics>
+        </math>
+        and
+        <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mrow>
+                    <msub>
+                        <mi>p</mi>
+                        <mi>f</mi>
+                    </msub>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mn>0</mn>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo>=</mo>
+                    <mi>p</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mn>0</mn>
+                    <mo stretchy="false" form="postfix">]</mo>
+                </mrow>
+                <annotation encoding="application/x-tex">p_{f}\lbrack 0\rbrack = p\lbrack 0\rbrack</annotation>
+            </semantics>
+        </math>
+        (same initial conditions)
+    </p>
+    <p>Update rule is simply
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mtable>
+                    <mtr>
+                        <mtd columnalign="right" style="text-align: right">
+                            <msub>
+                                <mi>a</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo stretchy="false" form="prefix">[</mo>
+                            <mi>j</mi>
+                            <mo stretchy="false" form="postfix">]</mo>
+                            <mo>=</mo>
+                            <mfrac>
+                                <mrow>
+                                    <mi>p</mi>
+                                    <mo stretchy="false" form="prefix">[</mo>
+                                    <mi>j</mi>
+                                    <mo stretchy="false" form="postfix">]</mo>
+                                    <mo>−</mo>
+                                    <msub>
+                                        <mi>p</mi>
+                                        <mi>f</mi>
+                                    </msub>
+                                    <mo stretchy="false" form="prefix">[</mo>
+                                    <mi>j</mi>
+                                    <mo>−</mo>
+                                    <mn>1</mn>
+                                    <mo stretchy="false" form="postfix">]</mo>
+                                </mrow>
+                                <msub>
+                                    <mi>k</mi>
+                                    <mrow>
+                                        <mtext mathvariant="normal">spring </mtext>
+                                        <mspace width="0.333em"></mspace>
+                                    </mrow>
+                                </msub>
+                            </mfrac>
+                            <mo>−</mo>
+                            <msub>
+                                <mi>k</mi>
+                                <mrow>
+                                    <mtext mathvariant="normal">drag </mtext>
+                                    <mspace width="0.333em"></mspace>
+                                </mrow>
+                            </msub>
+                            <msub>
+                                <mi>v</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo stretchy="false" form="prefix">[</mo>
+                            <mi>j</mi>
+                            <mo>−</mo>
+                            <mn>1</mn>
+                            <mo stretchy="false" form="postfix">]</mo>
+                        </mtd>
+                    </mtr>
+                    <mtr>
+                        <mtd columnalign="right" style="text-align: right">
+                            <msub>
+                                <mi>v</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo stretchy="false" form="prefix">[</mo>
+                            <mi>j</mi>
+                            <mo stretchy="false" form="postfix">]</mo>
+                            <mo>=</mo>
+                            <msub>
+                                <mi>v</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo stretchy="false" form="prefix">[</mo>
+                            <mi>j</mi>
+                            <mo>−</mo>
+                            <mn>1</mn>
+                            <mo stretchy="false" form="postfix">]</mo>
+                            <mo>+</mo>
+                            <mrow>
+                                <mo stretchy="true" form="prefix">(</mo>
+                                <mi>t</mi>
+                                <mo stretchy="false" form="prefix">[</mo>
+                                <mi>j</mi>
+                                <mo stretchy="false" form="postfix">]</mo>
+                                <mo>−</mo>
+                                <mi>t</mi>
+                                <mo stretchy="false" form="prefix">[</mo>
+                                <mi>j</mi>
+                                <mo>−</mo>
+                                <mn>1</mn>
+                                <mo stretchy="false" form="postfix">]</mo>
+                                <mo stretchy="true" form="postfix">)</mo>
+                            </mrow>
+                            <msub>
+                                <mi>a</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo stretchy="false" form="prefix">[</mo>
+                            <mi>j</mi>
+                            <mo stretchy="false" form="postfix">]</mo>
+                        </mtd>
+                    </mtr>
+                    <mtr>
+                        <mtd columnalign="right" style="text-align: right">
+                            <msub>
+                                <mi>p</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo stretchy="false" form="prefix">[</mo>
+                            <mi>j</mi>
+                            <mo stretchy="false" form="postfix">]</mo>
+                            <mo>=</mo>
+                            <msub>
+                                <mi>p</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo stretchy="false" form="prefix">[</mo>
+                            <mi>j</mi>
+                            <mo>−</mo>
+                            <mn>1</mn>
+                            <mo stretchy="false" form="postfix">]</mo>
+                            <mo>+</mo>
+                            <mrow>
+                                <mo stretchy="true" form="prefix">(</mo>
+                                <mi>t</mi>
+                                <mo stretchy="false" form="prefix">[</mo>
+                                <mi>j</mi>
+                                <mo stretchy="false" form="postfix">]</mo>
+                                <mo>−</mo>
+                                <mi>t</mi>
+                                <mo stretchy="false" form="prefix">[</mo>
+                                <mi>j</mi>
+                                <mo>−</mo>
+                                <mn>1</mn>
+                                <mo stretchy="false" form="postfix">]</mo>
+                                <mo stretchy="true" form="postfix">)</mo>
+                            </mrow>
+                            <msub>
+                                <mi>v</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo stretchy="false" form="prefix">[</mo>
+                            <mi>j</mi>
+                            <mo stretchy="false" form="postfix">]</mo>
+                        </mtd>
+                    </mtr>
+                </mtable>
+                <annotation encoding="application/x-tex">\begin{array}{r}
+                    a_{f}\lbrack j\rbrack = \frac{p\lbrack j\rbrack - p_{f}\lbrack j - 1\rbrack}{k_{\text{spring }}} -
+                    k_{\text{drag }}v_{f}\lbrack j - 1\rbrack \\
+                    v_{f}\lbrack j\rbrack = v_{f}\lbrack j - 1\rbrack + \left( t\lbrack j\rbrack - t\lbrack j - 1\rbrack
+                    \right)a_{f}\lbrack j\rbrack \\
+                    p_{f}\lbrack j\rbrack = p_{f}\lbrack j - 1\rbrack + \left( t\lbrack j\rbrack - t\lbrack j - 1\rbrack
+                    \right)v_{f}\lbrack j\rbrack
+                    \end{array}</annotation>
+            </semantics>
+        </math> The position
+        <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mrow>
+                    <mi>s</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>j</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                </mrow>
+                <annotation encoding="application/x-tex">s\lbrack j\rbrack</annotation>
+            </semantics>
+        </math>
+        is the main thing to export but we can also export speed and
+        acceleration if needed. We denote
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mrow>
+                    <mi>q</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>j</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo>=</mo>
+                    <mrow>
+                        <mo stretchy="true" form="prefix">(</mo>
+                        <msub>
+                            <mi>p</mi>
+                            <mi>f</mi>
+                        </msub>
+                        <mo stretchy="false" form="prefix">[</mo>
+                        <mi>j</mi>
+                        <mo stretchy="false" form="postfix">]</mo>
+                        <mo>,</mo>
+                        <msub>
+                            <mi>v</mi>
+                            <mi>f</mi>
+                        </msub>
+                        <mo stretchy="false" form="prefix">[</mo>
+                        <mi>j</mi>
+                        <mo stretchy="false" form="postfix">]</mo>
+                        <mo>,</mo>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>f</mi>
+                        </msub>
+                        <mo stretchy="false" form="prefix">[</mo>
+                        <mi>j</mi>
+                        <mo stretchy="false" form="postfix">]</mo>
+                        <mo>,</mo>
+                        <mi>t</mi>
+                        <mo stretchy="false" form="prefix">[</mo>
+                        <mi>j</mi>
+                        <mo stretchy="false" form="postfix">]</mo>
+                        <mo stretchy="true" form="postfix">)</mo>
+                    </mrow>
+                </mrow>
+                <annotation encoding="application/x-tex">q\lbrack j\rbrack = \left( p_{f}\lbrack j\rbrack,v_{f}\lbrack
+                    j\rbrack,a_{f}\lbrack j\rbrack,t\lbrack j\rbrack \right)</annotation>
+            </semantics>
+        </math>
+        and this will be our output with
+        <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+            <semantics>
+                <mrow>
+                    <mn>0</mn>
+                    <mo>≤</mo>
+                    <mi>j</mi>
+                    <mo>≤</mo>
+                    <mi>n</mi>
+                </mrow>
+                <annotation encoding="application/x-tex">0 \leq j \leq n</annotation>
+            </semantics>
+        </math>
+    </p>
 </div>
