@@ -32,9 +32,9 @@ pub(crate) struct WobbleSample {
 /// several stages
 /// - Wobble smoothing : dampens high-frequency noise from quantization error
 /// - Position modeling : models the pen tip as a mass, connected by a spring, to a moving
-/// anchor
+///   anchor
 /// - Stylus state modeling : constructs stylus states for modeled positions by interpolating
-/// over the raw input
+///   over the raw input
 ///
 /// Additional, this class provides prediction of the modeled stroke
 ///
@@ -197,13 +197,12 @@ impl StrokeModeler {
                 self.state_modeler.update(input.clone());
 
                 // calculate the number of element to predict
-                let n_tsteps = (((new_time - latest_time) * self.params.sampling_min_output_rate)
-                    .ceil() as i32)
-                    .min(i32::MAX);
+                let n_steps =
+                    ((new_time - latest_time) * self.params.sampling_min_output_rate).ceil() as i32;
 
                 // this errors if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]
-                if n_tsteps as usize > self.params.sampling_max_outputs_per_call {
+                if n_steps as usize > self.params.sampling_max_outputs_per_call {
                     return Err(ModelerError::Element {
                         src: ElementError::TooFarApart,
                     });
@@ -217,7 +216,7 @@ impl StrokeModeler {
                     .position_modeler
                     .as_mut()
                     .unwrap()
-                    .update_along_linear_path(p_start, latest_time, p_end, new_time, n_tsteps)
+                    .update_along_linear_path(p_start, latest_time, p_end, new_time, n_steps)
                     .into_iter()
                     .map(|i| ModelerResult {
                         pressure: self.state_modeler.query(i.pos),
@@ -261,9 +260,8 @@ impl StrokeModeler {
                 self.state_modeler.update(input.clone());
 
                 // calculate the number of element to predict
-                let n_tsteps = (((new_time - latest_time) * self.params.sampling_min_output_rate)
-                    .ceil() as i32)
-                    .min(i32::MAX);
+                let n_tsteps =
+                    ((new_time - latest_time) * self.params.sampling_min_output_rate).ceil() as i32;
 
                 // this errors if the number of steps is larger than
                 // [ModelParams::sampling_max_outputs_per_call]

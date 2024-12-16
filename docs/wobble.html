@@ -1,37 +1,720 @@
 <h1>Wobble smoothing</h1>
 <p>To reduce high frequency noise.</p>
 <p><strong>Algorithm</strong>: Wobble smoothing<br />
-<strong>Input</strong> :
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">{</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>y</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><msup><mi>ℝ</mi><mn>2</mn></msup><mo>×</mo><msub><mi>ℝ</mi><mo>+</mo></msub><mo>,</mo><mn>0</mn><mo>≤</mo><mi>k</mi><mo>≤</mo><mi>n</mi><mo stretchy="true" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\left\{ \left( x\lbrack k\rbrack,y\lbrack k\rbrack,t\lbrack k\rbrack \right) \in {\mathbb{R}}^{2} \times {\mathbb{R}}_{+},0 \leq k \leq n \right\}</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><mi>T</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\Delta T &gt; 0</annotation></semantics></math>
-(from <code>wobble_smoother_timeout</code>),
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mtext mathvariant="normal">min</mtext></msub><annotation encoding="application/x-tex">v_{\text{min}}</annotation></semantics></math>
-(from <code>wobble_smoother_speed_floor</code>) and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mtext mathvariant="normal">max</mtext></msub><annotation encoding="application/x-tex">v_{\text{max}}</annotation></semantics></math>
-( from <code>wobble_smoother_speed_ceiling</code>)<br />
-Compute a weighted moving average of the positions
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi>p</mi><mo accent="true">¯</mo></munder><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><munder><mi>x</mi><mo accent="true">¯</mo></munder><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><munder><mi>y</mi><mo accent="true">¯</mo></munder><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\underset{¯}{p}\lbrack j\rbrack = \left( \underset{¯}{x}\lbrack j\rbrack,\underset{¯}{y}\lbrack j\rbrack \right)</annotation></semantics></math>
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∀</mo><mi>j</mi><mo>∈</mo><mo stretchy="false" form="prefix">⟦</mo><mn>0</mn><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">⟧</mo><mo>,</mo><munder><mi>p</mi><mo accent="true">¯</mo></munder><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><msub><mn>𝟙</mn><mrow><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><mi>Δ</mi><mi>T</mi><mo>,</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">]</mo></mrow></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mn>𝟙</mn><mrow><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><mi>Δ</mi><mi>T</mi><mo>,</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">]</mo></mrow></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mtd><mtd columnalign="left" style="text-align: left"><mrow><mtext mathvariant="normal">if the numerator </mtext><mspace width="0.333em"></mspace></mrow><mo>≠</mo><mn>0</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">otherwise</mtext></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\forall j \in ⟦0,n⟧,\underset{¯}{p}\lbrack j\rbrack = \begin{cases}
-\frac{\sum_{k = 1}^{n}p\lbrack k\rbrack\left( t\lbrack k\rbrack - t\lbrack k - 1\rbrack \right)\mathbb{1}_{\left. \left\lbrack t\lbrack j\rbrack - \Delta T,t\lbrack j\rbrack \right\rbrack \right.}\left( t\lbrack k\rbrack \right)}{\sum_{k = 1}^{n}\mathbb{1}_{\left. \left\lbrack t\lbrack j\rbrack - \Delta T,t\lbrack j\rbrack \right\rbrack \right.}\left( t\lbrack k\rbrack \right)} &amp; \text{if the numerator } \neq 0 \\
-p\lbrack j\rbrack &amp; \text{otherwise}
-\end{cases}</annotation></semantics></math> Calculate a moving average
-velocity
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi>v</mi><mo accent="true">¯</mo></munder><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\underset{¯}{v}\lbrack j\rbrack</annotation></semantics></math>
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∀</mo><mi>j</mi><mo>∈</mo><mo stretchy="false" form="prefix">⟦</mo><mn>0</mn><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">⟧</mo><mo>,</mo><munder><mi>v</mi><mo accent="true">¯</mo></munder><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mi>j</mi><mo>=</mo><mn>0</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mo>∥</mo><mrow><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow></mrow><mo>∥</mo><msub><mn>𝟙</mn><mrow><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><mi>Δ</mi><mi>T</mi><mo>,</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">]</mo></mrow></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><msub><mn>𝟙</mn><mrow><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><mi>Δ</mi><mi>T</mi><mo>,</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">]</mo></mrow></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mspace width="1.0em"></mspace></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">otherwise</mtext></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\forall j \in ⟦0,n⟧,\underset{¯}{v}\lbrack j\rbrack = \begin{cases}
-0 &amp; j = 0 \\
-\frac{\sum_{k = 1}^{n}\left. \parallel{p\lbrack k\rbrack - p\lbrack k - 1\rbrack} \right.\parallel\mathbb{1}_{\left. \left\lbrack t\lbrack j\rbrack - \Delta T,t\lbrack j\rbrack \right\rbrack \right.}\left( t\lbrack k\rbrack \right)}{\sum_{k = 1}^{n}\left( t\lbrack k\rbrack - t\lbrack k - 1\rbrack \right)\mathbb{1}_{\left. \left\lbrack t\lbrack j\rbrack - \Delta T,t\lbrack j\rbrack \right\rbrack \right.}\left( t\lbrack k\rbrack \right)}\quad &amp; \text{otherwise}
-\end{cases}</annotation></semantics></math> Interpolate between the
-average position and the raw ones based on the average speed
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mo>∀</mo><mi>j</mi><mo>∈</mo><mo stretchy="false" form="prefix">⟦</mo><mn>0</mn><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">⟧</mo><mo>,</mo><mi>p</mi><mi>′</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo></mtd><mtd columnalign="left" style="text-align: left"><mo>min</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><munder><mi>v</mi><mo accent="true">¯</mo></munder><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><msub><mi>v</mi><mtext mathvariant="normal">min</mtext></msub></mrow><mrow><msub><mi>v</mi><mrow><mtext mathvariant="normal">max </mtext><mspace width="0.333em"></mspace></mrow></msub><mo>−</mo><msub><mi>v</mi><mtext mathvariant="normal">min</mtext></msub></mrow></mfrac><msub><mn>𝟙</mn><mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>v</mi><mtext mathvariant="normal">min</mtext></msub><mo>,</mo><mi>∞</mi><mo stretchy="false" form="prefix">[</mo></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><munder><mi>v</mi><mo accent="true">¯</mo></munder><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><munder><mi>p</mi><mo accent="true">¯</mo></munder><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>+</mi></mtd><mtd columnalign="left" style="text-align: left"><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mo>min</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><munder><mi>v</mi><mo accent="true">¯</mo></munder><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>−</mo><msub><mi>v</mi><mtext mathvariant="normal">min</mtext></msub></mrow><mrow><msub><mi>v</mi><mrow><mtext mathvariant="normal">max </mtext><mspace width="0.333em"></mspace></mrow></msub><mo>−</mo><msub><mi>v</mi><mtext mathvariant="normal">min</mtext></msub></mrow></mfrac><msub><mn>𝟙</mn><mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>v</mi><mtext mathvariant="normal">min</mtext></msub><mo>,</mo><mi>∞</mi><mo stretchy="false" form="prefix">[</mo></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><munder><mi>v</mi><mo accent="true">¯</mo></munder><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mi>p</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
-\forall j \in ⟦0,n⟧,p\prime\lbrack j\rbrack = &amp; \min(\frac{\underset{¯}{v}\lbrack j\rbrack - v_{\text{min}}}{v_{\text{max }} - v_{\text{min}}}\mathbb{1}_{\lbrack v_{\text{min}},\infty\lbrack}\left( \underset{¯}{v}\lbrack j\rbrack \right),1)\underset{¯}{p}\lbrack j\rbrack \\
- + &amp; \left( 1 - \min(\frac{\underset{¯}{v}\lbrack j\rbrack - v_{\text{min}}}{v_{\text{max }} - v_{\text{min}}}\mathbb{1}_{\lbrack v_{\text{min}},\infty\lbrack}\left( \underset{¯}{v}\lbrack j\rbrack \right)) \right)p\lbrack j\rbrack
-\end{aligned}</annotation></semantics></math> where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mi>′</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mi>′</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>y</mi><mi>′</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p\prime\lbrack j\rbrack = \left( x\prime\lbrack j\rbrack,y\prime\lbrack j\rbrack \right)</annotation></semantics></math><br />
-<strong>Output</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">{</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mi>′</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>y</mi><mi>′</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><msup><mi>ℝ</mi><mn>2</mn></msup><mo>,</mo><mn>0</mn><mo>≤</mo><mi>k</mi><mo>≤</mo><mi>n</mi><mo stretchy="true" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\left\{ \left( x\prime\lbrack k\rbrack,y\prime\lbrack k\rbrack \right) \in {\mathbb{R}}^{2},0 \leq k \leq n \right\}</annotation></semantics></math>
-the filtered positions.<br />
-Hence for low local speeds, the smoothing is maximum (we take exactly
-the average position over the time
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><mi>T</mi></mrow><annotation encoding="application/x-tex">\Delta T</annotation></semantics></math>)
-and for high speed there is no smoothing. We also note that the first
-position is thus never filtered.</p>
+    <strong>Input</strong> :
+    <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <mrow>
+                <mo stretchy="true" form="prefix">{</mo>
+                <mrow>
+                    <mo stretchy="true" form="prefix">(</mo>
+                    <mi>x</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>k</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo>,</mo>
+                    <mi>y</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>k</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo>,</mo>
+                    <mi>t</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>k</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo stretchy="true" form="postfix">)</mo>
+                </mrow>
+                <mo>∈</mo>
+                <msup>
+                    <mi>ℝ</mi>
+                    <mn>2</mn>
+                </msup>
+                <mo>×</mo>
+                <msub>
+                    <mi>ℝ</mi>
+                    <mo>+</mo>
+                </msub>
+                <mo>,</mo>
+                <mn>0</mn>
+                <mo>≤</mo>
+                <mi>k</mi>
+                <mo>≤</mo>
+                <mi>n</mi>
+                <mo stretchy="true" form="postfix">}</mo>
+            </mrow>
+            <annotation encoding="application/x-tex">\left\{ \left( x\lbrack k\rbrack,y\lbrack k\rbrack,t\lbrack
+                k\rbrack \right) \in {\mathbb{R}}^{2} \times {\mathbb{R}}_{+},0 \leq k \leq n \right\}</annotation>
+        </semantics>
+    </math>,
+    <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <mrow>
+                <mi>Δ</mi>
+                <mi>T</mi>
+                <mo>&gt;</mo>
+                <mn>0</mn>
+            </mrow>
+            <annotation encoding="application/x-tex">\Delta T &gt; 0</annotation>
+        </semantics>
+    </math>
+    (from <code>wobble_smoother_timeout</code>),
+    <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <msub>
+                <mi>v</mi>
+                <mtext mathvariant="normal">min</mtext>
+            </msub>
+            <annotation encoding="application/x-tex">v_{\text{min}}</annotation>
+        </semantics>
+    </math>
+    (from <code>wobble_smoother_speed_floor</code>) and
+    <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <msub>
+                <mi>v</mi>
+                <mtext mathvariant="normal">max</mtext>
+            </msub>
+            <annotation encoding="application/x-tex">v_{\text{max}}</annotation>
+        </semantics>
+    </math>
+    ( from <code>wobble_smoother_speed_ceiling</code>)<br />
+    Compute a weighted moving average of the positions
+    <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <mrow>
+                <munder>
+                    <mi>p</mi>
+                    <mo accent="true">¯</mo>
+                </munder>
+                <mo stretchy="false" form="prefix">[</mo>
+                <mi>j</mi>
+                <mo stretchy="false" form="postfix">]</mo>
+                <mo>=</mo>
+                <mrow>
+                    <mo stretchy="true" form="prefix">(</mo>
+                    <munder>
+                        <mi>x</mi>
+                        <mo accent="true">¯</mo>
+                    </munder>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>j</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo>,</mo>
+                    <munder>
+                        <mi>y</mi>
+                        <mo accent="true">¯</mo>
+                    </munder>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>j</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo stretchy="true" form="postfix">)</mo>
+                </mrow>
+            </mrow>
+            <annotation encoding="application/x-tex">\underset{¯}{p}\lbrack j\rbrack = \left( \underset{¯}{x}\lbrack
+                j\rbrack,\underset{¯}{y}\lbrack j\rbrack \right)</annotation>
+        </semantics>
+    </math>
+    <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <mrow>
+                <mo>∀</mo>
+                <mi>j</mi>
+                <mo>∈</mo>
+                <mo stretchy="false" form="prefix">⟦</mo>
+                <mn>0</mn>
+                <mo>,</mo>
+                <mi>n</mi>
+                <mo stretchy="false" form="postfix">⟧</mo>
+                <mo>,</mo>
+                <munder>
+                    <mi>p</mi>
+                    <mo accent="true">¯</mo>
+                </munder>
+                <mo stretchy="false" form="prefix">[</mo>
+                <mi>j</mi>
+                <mo stretchy="false" form="postfix">]</mo>
+                <mo>=</mo>
+                <mrow>
+                    <mo stretchy="true" form="prefix">{</mo>
+                    <mtable>
+                        <mtr>
+                            <mtd columnalign="left" style="text-align: left">
+                                <mfrac>
+                                    <mrow>
+                                        <munderover>
+                                            <mo>∑</mo>
+                                            <mrow>
+                                                <mi>k</mi>
+                                                <mo>=</mo>
+                                                <mn>1</mn>
+                                            </mrow>
+                                            <mi>n</mi>
+                                        </munderover>
+                                        <mi>p</mi>
+                                        <mo stretchy="false" form="prefix">[</mo>
+                                        <mi>k</mi>
+                                        <mo stretchy="false" form="postfix">]</mo>
+                                        <mrow>
+                                            <mo stretchy="true" form="prefix">(</mo>
+                                            <mi>t</mi>
+                                            <mo stretchy="false" form="prefix">[</mo>
+                                            <mi>k</mi>
+                                            <mo stretchy="false" form="postfix">]</mo>
+                                            <mo>−</mo>
+                                            <mi>t</mi>
+                                            <mo stretchy="false" form="prefix">[</mo>
+                                            <mi>k</mi>
+                                            <mo>−</mo>
+                                            <mn>1</mn>
+                                            <mo stretchy="false" form="postfix">]</mo>
+                                            <mo stretchy="true" form="postfix">)</mo>
+                                        </mrow>
+                                        <msub>
+                                            <mn>𝟙</mn>
+                                            <mrow>
+                                                <mrow>
+                                                    <mo stretchy="true" form="prefix">[</mo>
+                                                    <mi>t</mi>
+                                                    <mo stretchy="false" form="prefix">[</mo>
+                                                    <mi>j</mi>
+                                                    <mo stretchy="false" form="postfix">]</mo>
+                                                    <mo>−</mo>
+                                                    <mi>Δ</mi>
+                                                    <mi>T</mi>
+                                                    <mo>,</mo>
+                                                    <mi>t</mi>
+                                                    <mo stretchy="false" form="prefix">[</mo>
+                                                    <mi>j</mi>
+                                                    <mo stretchy="false" form="postfix">]</mo>
+                                                    <mo stretchy="true" form="postfix">]</mo>
+                                                </mrow>
+                                            </mrow>
+                                        </msub>
+                                        <mrow>
+                                            <mo stretchy="true" form="prefix">(</mo>
+                                            <mi>t</mi>
+                                            <mo stretchy="false" form="prefix">[</mo>
+                                            <mi>k</mi>
+                                            <mo stretchy="false" form="postfix">]</mo>
+                                            <mo stretchy="true" form="postfix">)</mo>
+                                        </mrow>
+                                    </mrow>
+                                    <mrow>
+                                        <munderover>
+                                            <mo>∑</mo>
+                                            <mrow>
+                                                <mi>k</mi>
+                                                <mo>=</mo>
+                                                <mn>1</mn>
+                                            </mrow>
+                                            <mi>n</mi>
+                                        </munderover>
+                                        <msub>
+                                            <mn>𝟙</mn>
+                                            <mrow>
+                                                <mrow>
+                                                    <mo stretchy="true" form="prefix">[</mo>
+                                                    <mi>t</mi>
+                                                    <mo stretchy="false" form="prefix">[</mo>
+                                                    <mi>j</mi>
+                                                    <mo stretchy="false" form="postfix">]</mo>
+                                                    <mo>−</mo>
+                                                    <mi>Δ</mi>
+                                                    <mi>T</mi>
+                                                    <mo>,</mo>
+                                                    <mi>t</mi>
+                                                    <mo stretchy="false" form="prefix">[</mo>
+                                                    <mi>j</mi>
+                                                    <mo stretchy="false" form="postfix">]</mo>
+                                                    <mo stretchy="true" form="postfix">]</mo>
+                                                </mrow>
+                                            </mrow>
+                                        </msub>
+                                        <mrow>
+                                            <mo stretchy="true" form="prefix">(</mo>
+                                            <mi>t</mi>
+                                            <mo stretchy="false" form="prefix">[</mo>
+                                            <mi>k</mi>
+                                            <mo stretchy="false" form="postfix">]</mo>
+                                            <mo stretchy="true" form="postfix">)</mo>
+                                        </mrow>
+                                    </mrow>
+                                </mfrac>
+                            </mtd>
+                            <mtd columnalign="left" style="text-align: left">
+                                <mrow>
+                                    <mtext mathvariant="normal">if the numerator </mtext>
+                                    <mspace width="0.333em"></mspace>
+                                </mrow>
+                                <mo>≠</mo>
+                                <mn>0</mn>
+                            </mtd>
+                        </mtr>
+                        <mtr>
+                            <mtd columnalign="left" style="text-align: left">
+                                <mi>p</mi>
+                                <mo stretchy="false" form="prefix">[</mo>
+                                <mi>j</mi>
+                                <mo stretchy="false" form="postfix">]</mo>
+                            </mtd>
+                            <mtd columnalign="left" style="text-align: left">
+                                <mtext mathvariant="normal">otherwise</mtext>
+                            </mtd>
+                        </mtr>
+                    </mtable>
+                </mrow>
+            </mrow>
+            <annotation encoding="application/x-tex">\forall j \in ⟦0,n⟧,\underset{¯}{p}\lbrack j\rbrack = \begin{cases}
+                \frac{\sum_{k = 1}^{n}p\lbrack k\rbrack\left( t\lbrack k\rbrack - t\lbrack k - 1\rbrack
+                \right)\mathbb{1}_{\left. \left\lbrack t\lbrack j\rbrack - \Delta T,t\lbrack j\rbrack \right\rbrack
+                \right.}\left( t\lbrack k\rbrack \right)}{\sum_{k = 1}^{n}\mathbb{1}_{\left. \left\lbrack t\lbrack
+                j\rbrack - \Delta T,t\lbrack j\rbrack \right\rbrack \right.}\left( t\lbrack k\rbrack \right)} &amp;
+                \text{if the numerator } \neq 0 \\
+                p\lbrack j\rbrack &amp; \text{otherwise}
+                \end{cases}</annotation>
+        </semantics>
+    </math> Calculate a moving average
+    velocity
+    <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <mrow>
+                <munder>
+                    <mi>v</mi>
+                    <mo accent="true">¯</mo>
+                </munder>
+                <mo stretchy="false" form="prefix">[</mo>
+                <mi>j</mi>
+                <mo stretchy="false" form="postfix">]</mo>
+            </mrow>
+            <annotation encoding="application/x-tex">\underset{¯}{v}\lbrack j\rbrack</annotation>
+        </semantics>
+    </math>
+    <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <mrow>
+                <mo>∀</mo>
+                <mi>j</mi>
+                <mo>∈</mo>
+                <mo stretchy="false" form="prefix">⟦</mo>
+                <mn>0</mn>
+                <mo>,</mo>
+                <mi>n</mi>
+                <mo stretchy="false" form="postfix">⟧</mo>
+                <mo>,</mo>
+                <munder>
+                    <mi>v</mi>
+                    <mo accent="true">¯</mo>
+                </munder>
+                <mo stretchy="false" form="prefix">[</mo>
+                <mi>j</mi>
+                <mo stretchy="false" form="postfix">]</mo>
+                <mo>=</mo>
+                <mrow>
+                    <mo stretchy="true" form="prefix">{</mo>
+                    <mtable>
+                        <mtr>
+                            <mtd columnalign="left" style="text-align: left">
+                                <mn>0</mn>
+                            </mtd>
+                            <mtd columnalign="left" style="text-align: left">
+                                <mi>j</mi>
+                                <mo>=</mo>
+                                <mn>0</mn>
+                            </mtd>
+                        </mtr>
+                        <mtr>
+                            <mtd columnalign="left" style="text-align: left">
+                                <mfrac>
+                                    <mrow>
+                                        <munderover>
+                                            <mo>∑</mo>
+                                            <mrow>
+                                                <mi>k</mi>
+                                                <mo>=</mo>
+                                                <mn>1</mn>
+                                            </mrow>
+                                            <mi>n</mi>
+                                        </munderover>
+                                        <mrow>
+                                            <mo>∥</mo>
+                                            <mrow>
+                                                <mi>p</mi>
+                                                <mo stretchy="false" form="prefix">[</mo>
+                                                <mi>k</mi>
+                                                <mo stretchy="false" form="postfix">]</mo>
+                                                <mo>−</mo>
+                                                <mi>p</mi>
+                                                <mo stretchy="false" form="prefix">[</mo>
+                                                <mi>k</mi>
+                                                <mo>−</mo>
+                                                <mn>1</mn>
+                                                <mo stretchy="false" form="postfix">]</mo>
+                                            </mrow>
+                                        </mrow>
+                                        <mo>∥</mo>
+                                        <msub>
+                                            <mn>𝟙</mn>
+                                            <mrow>
+                                                <mrow>
+                                                    <mo stretchy="true" form="prefix">[</mo>
+                                                    <mi>t</mi>
+                                                    <mo stretchy="false" form="prefix">[</mo>
+                                                    <mi>j</mi>
+                                                    <mo stretchy="false" form="postfix">]</mo>
+                                                    <mo>−</mo>
+                                                    <mi>Δ</mi>
+                                                    <mi>T</mi>
+                                                    <mo>,</mo>
+                                                    <mi>t</mi>
+                                                    <mo stretchy="false" form="prefix">[</mo>
+                                                    <mi>j</mi>
+                                                    <mo stretchy="false" form="postfix">]</mo>
+                                                    <mo stretchy="true" form="postfix">]</mo>
+                                                </mrow>
+                                            </mrow>
+                                        </msub>
+                                        <mrow>
+                                            <mo stretchy="true" form="prefix">(</mo>
+                                            <mi>t</mi>
+                                            <mo stretchy="false" form="prefix">[</mo>
+                                            <mi>k</mi>
+                                            <mo stretchy="false" form="postfix">]</mo>
+                                            <mo stretchy="true" form="postfix">)</mo>
+                                        </mrow>
+                                    </mrow>
+                                    <mrow>
+                                        <munderover>
+                                            <mo>∑</mo>
+                                            <mrow>
+                                                <mi>k</mi>
+                                                <mo>=</mo>
+                                                <mn>1</mn>
+                                            </mrow>
+                                            <mi>n</mi>
+                                        </munderover>
+                                        <mrow>
+                                            <mo stretchy="true" form="prefix">(</mo>
+                                            <mi>t</mi>
+                                            <mo stretchy="false" form="prefix">[</mo>
+                                            <mi>k</mi>
+                                            <mo stretchy="false" form="postfix">]</mo>
+                                            <mo>−</mo>
+                                            <mi>t</mi>
+                                            <mo stretchy="false" form="prefix">[</mo>
+                                            <mi>k</mi>
+                                            <mo>−</mo>
+                                            <mn>1</mn>
+                                            <mo stretchy="false" form="postfix">]</mo>
+                                            <mo stretchy="true" form="postfix">)</mo>
+                                        </mrow>
+                                        <msub>
+                                            <mn>𝟙</mn>
+                                            <mrow>
+                                                <mrow>
+                                                    <mo stretchy="true" form="prefix">[</mo>
+                                                    <mi>t</mi>
+                                                    <mo stretchy="false" form="prefix">[</mo>
+                                                    <mi>j</mi>
+                                                    <mo stretchy="false" form="postfix">]</mo>
+                                                    <mo>−</mo>
+                                                    <mi>Δ</mi>
+                                                    <mi>T</mi>
+                                                    <mo>,</mo>
+                                                    <mi>t</mi>
+                                                    <mo stretchy="false" form="prefix">[</mo>
+                                                    <mi>j</mi>
+                                                    <mo stretchy="false" form="postfix">]</mo>
+                                                    <mo stretchy="true" form="postfix">]</mo>
+                                                </mrow>
+                                            </mrow>
+                                        </msub>
+                                        <mrow>
+                                            <mo stretchy="true" form="prefix">(</mo>
+                                            <mi>t</mi>
+                                            <mo stretchy="false" form="prefix">[</mo>
+                                            <mi>k</mi>
+                                            <mo stretchy="false" form="postfix">]</mo>
+                                            <mo stretchy="true" form="postfix">)</mo>
+                                        </mrow>
+                                    </mrow>
+                                </mfrac>
+                                <mspace width="1.0em"></mspace>
+                            </mtd>
+                            <mtd columnalign="left" style="text-align: left">
+                                <mtext mathvariant="normal">otherwise</mtext>
+                            </mtd>
+                        </mtr>
+                    </mtable>
+                </mrow>
+            </mrow>
+            <annotation encoding="application/x-tex">\forall j \in ⟦0,n⟧,\underset{¯}{v}\lbrack j\rbrack = \begin{cases}
+                0 &amp; j = 0 \\
+                \frac{\sum_{k = 1}^{n}\left. \parallel{p\lbrack k\rbrack - p\lbrack k - 1\rbrack}
+                \right.\parallel\mathbb{1}_{\left. \left\lbrack t\lbrack j\rbrack - \Delta T,t\lbrack j\rbrack
+                \right\rbrack \right.}\left( t\lbrack k\rbrack \right)}{\sum_{k = 1}^{n}\left( t\lbrack k\rbrack -
+                t\lbrack k - 1\rbrack \right)\mathbb{1}_{\left. \left\lbrack t\lbrack j\rbrack - \Delta T,t\lbrack
+                j\rbrack \right\rbrack \right.}\left( t\lbrack k\rbrack \right)}\quad &amp; \text{otherwise}
+                \end{cases}</annotation>
+        </semantics>
+    </math> Interpolate between the
+    average position and the raw ones based on the average speed
+    <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <mtable>
+                <mtr>
+                    <mtd columnalign="right" style="text-align: right">
+                        <mo>∀</mo>
+                        <mi>j</mi>
+                        <mo>∈</mo>
+                        <mo stretchy="false" form="prefix">⟦</mo>
+                        <mn>0</mn>
+                        <mo>,</mo>
+                        <mi>n</mi>
+                        <mo stretchy="false" form="postfix">⟧</mo>
+                        <mo>,</mo>
+                        <mi>p</mi>
+                        <mi>′</mi>
+                        <mo stretchy="false" form="prefix">[</mo>
+                        <mi>j</mi>
+                        <mo stretchy="false" form="postfix">]</mo>
+                        <mo>=</mo>
+                    </mtd>
+                    <mtd columnalign="left" style="text-align: left">
+                        <mo>min</mo>
+                        <mrow>
+                            <mo stretchy="true" form="prefix">(</mo>
+                            <mfrac>
+                                <mrow>
+                                    <munder>
+                                        <mi>v</mi>
+                                        <mo accent="true">¯</mo>
+                                    </munder>
+                                    <mo stretchy="false" form="prefix">[</mo>
+                                    <mi>j</mi>
+                                    <mo stretchy="false" form="postfix">]</mo>
+                                    <mo>−</mo>
+                                    <msub>
+                                        <mi>v</mi>
+                                        <mtext mathvariant="normal">min</mtext>
+                                    </msub>
+                                </mrow>
+                                <mrow>
+                                    <msub>
+                                        <mi>v</mi>
+                                        <mrow>
+                                            <mtext mathvariant="normal">max </mtext>
+                                            <mspace width="0.333em"></mspace>
+                                        </mrow>
+                                    </msub>
+                                    <mo>−</mo>
+                                    <msub>
+                                        <mi>v</mi>
+                                        <mtext mathvariant="normal">min</mtext>
+                                    </msub>
+                                </mrow>
+                            </mfrac>
+                            <msub>
+                                <mn>𝟙</mn>
+                                <mrow>
+                                    <mo stretchy="false" form="prefix">[</mo>
+                                    <msub>
+                                        <mi>v</mi>
+                                        <mtext mathvariant="normal">min</mtext>
+                                    </msub>
+                                    <mo>,</mo>
+                                    <mi>∞</mi>
+                                    <mo stretchy="false" form="prefix">[</mo>
+                                </mrow>
+                            </msub>
+                            <mrow>
+                                <mo stretchy="true" form="prefix">(</mo>
+                                <munder>
+                                    <mi>v</mi>
+                                    <mo accent="true">¯</mo>
+                                </munder>
+                                <mo stretchy="false" form="prefix">[</mo>
+                                <mi>j</mi>
+                                <mo stretchy="false" form="postfix">]</mo>
+                                <mo stretchy="true" form="postfix">)</mo>
+                            </mrow>
+                            <mo>,</mo>
+                            <mn>1</mn>
+                            <mo stretchy="true" form="postfix">)</mo>
+                        </mrow>
+                        <munder>
+                            <mi>p</mi>
+                            <mo accent="true">¯</mo>
+                        </munder>
+                        <mo stretchy="false" form="prefix">[</mo>
+                        <mi>j</mi>
+                        <mo stretchy="false" form="postfix">]</mo>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd columnalign="right" style="text-align: right">
+                        <mi>+</mi>
+                    </mtd>
+                    <mtd columnalign="left" style="text-align: left">
+                        <mrow>
+                            <mo stretchy="true" form="prefix">(</mo>
+                            <mn>1</mn>
+                            <mo>−</mo>
+                            <mo>min</mo>
+                            <mrow>
+                                <mo stretchy="true" form="prefix">(</mo>
+                                <mfrac>
+                                    <mrow>
+                                        <munder>
+                                            <mi>v</mi>
+                                            <mo accent="true">¯</mo>
+                                        </munder>
+                                        <mo stretchy="false" form="prefix">[</mo>
+                                        <mi>j</mi>
+                                        <mo stretchy="false" form="postfix">]</mo>
+                                        <mo>−</mo>
+                                        <msub>
+                                            <mi>v</mi>
+                                            <mtext mathvariant="normal">min</mtext>
+                                        </msub>
+                                    </mrow>
+                                    <mrow>
+                                        <msub>
+                                            <mi>v</mi>
+                                            <mrow>
+                                                <mtext mathvariant="normal">max </mtext>
+                                                <mspace width="0.333em"></mspace>
+                                            </mrow>
+                                        </msub>
+                                        <mo>−</mo>
+                                        <msub>
+                                            <mi>v</mi>
+                                            <mtext mathvariant="normal">min</mtext>
+                                        </msub>
+                                    </mrow>
+                                </mfrac>
+                                <msub>
+                                    <mn>𝟙</mn>
+                                    <mrow>
+                                        <mo stretchy="false" form="prefix">[</mo>
+                                        <msub>
+                                            <mi>v</mi>
+                                            <mtext mathvariant="normal">min</mtext>
+                                        </msub>
+                                        <mo>,</mo>
+                                        <mi>∞</mi>
+                                        <mo stretchy="false" form="prefix">[</mo>
+                                    </mrow>
+                                </msub>
+                                <mrow>
+                                    <mo stretchy="true" form="prefix">(</mo>
+                                    <munder>
+                                        <mi>v</mi>
+                                        <mo accent="true">¯</mo>
+                                    </munder>
+                                    <mo stretchy="false" form="prefix">[</mo>
+                                    <mi>j</mi>
+                                    <mo stretchy="false" form="postfix">]</mo>
+                                    <mo stretchy="true" form="postfix">)</mo>
+                                </mrow>
+                                <mo stretchy="true" form="postfix">)</mo>
+                            </mrow>
+                            <mo stretchy="true" form="postfix">)</mo>
+                        </mrow>
+                        <mi>p</mi>
+                        <mo stretchy="false" form="prefix">[</mo>
+                        <mi>j</mi>
+                        <mo stretchy="false" form="postfix">]</mo>
+                    </mtd>
+                </mtr>
+            </mtable>
+            <annotation encoding="application/x-tex">\begin{aligned}
+                \forall j \in ⟦0,n⟧,p\prime\lbrack j\rbrack = &amp; \min(\frac{\underset{¯}{v}\lbrack j\rbrack -
+                v_{\text{min}}}{v_{\text{max }} - v_{\text{min}}}\mathbb{1}_{\lbrack v_{\text{min}},\infty\lbrack}\left(
+                \underset{¯}{v}\lbrack j\rbrack \right),1)\underset{¯}{p}\lbrack j\rbrack \\
+                + &amp; \left( 1 - \min(\frac{\underset{¯}{v}\lbrack j\rbrack - v_{\text{min}}}{v_{\text{max }} -
+                v_{\text{min}}}\mathbb{1}_{\lbrack v_{\text{min}},\infty\lbrack}\left( \underset{¯}{v}\lbrack j\rbrack
+                \right)) \right)p\lbrack j\rbrack
+                \end{aligned}</annotation>
+        </semantics>
+    </math> where
+    <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <mrow>
+                <mi>p</mi>
+                <mi>′</mi>
+                <mo stretchy="false" form="prefix">[</mo>
+                <mi>j</mi>
+                <mo stretchy="false" form="postfix">]</mo>
+                <mo>=</mo>
+                <mrow>
+                    <mo stretchy="true" form="prefix">(</mo>
+                    <mi>x</mi>
+                    <mi>′</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>j</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo>,</mo>
+                    <mi>y</mi>
+                    <mi>′</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>j</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo stretchy="true" form="postfix">)</mo>
+                </mrow>
+            </mrow>
+            <annotation encoding="application/x-tex">p\prime\lbrack j\rbrack = \left( x\prime\lbrack
+                j\rbrack,y\prime\lbrack j\rbrack \right)</annotation>
+        </semantics>
+    </math><br />
+    <strong>Output</strong>:
+    <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <mrow>
+                <mo stretchy="true" form="prefix">{</mo>
+                <mrow>
+                    <mo stretchy="true" form="prefix">(</mo>
+                    <mi>x</mi>
+                    <mi>′</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>k</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo>,</mo>
+                    <mi>y</mi>
+                    <mi>′</mi>
+                    <mo stretchy="false" form="prefix">[</mo>
+                    <mi>k</mi>
+                    <mo stretchy="false" form="postfix">]</mo>
+                    <mo stretchy="true" form="postfix">)</mo>
+                </mrow>
+                <mo>∈</mo>
+                <msup>
+                    <mi>ℝ</mi>
+                    <mn>2</mn>
+                </msup>
+                <mo>,</mo>
+                <mn>0</mn>
+                <mo>≤</mo>
+                <mi>k</mi>
+                <mo>≤</mo>
+                <mi>n</mi>
+                <mo stretchy="true" form="postfix">}</mo>
+            </mrow>
+            <annotation encoding="application/x-tex">\left\{ \left( x\prime\lbrack k\rbrack,y\prime\lbrack k\rbrack
+                \right) \in {\mathbb{R}}^{2},0 \leq k \leq n \right\}</annotation>
+        </semantics>
+    </math>
+    the filtered positions.<br />
+    Hence for low local speeds, the smoothing is maximum (we take exactly
+    the average position over the time
+    <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+        <semantics>
+            <mrow>
+                <mi>Δ</mi>
+                <mi>T</mi>
+            </mrow>
+            <annotation encoding="application/x-tex">\Delta T</annotation>
+        </semantics>
+    </math>)
+    and for high speed there is no smoothing. We also note that the first
+    position is thus never filtered.
+</p>

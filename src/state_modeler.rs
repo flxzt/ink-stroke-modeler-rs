@@ -69,7 +69,7 @@ impl StateModeler {
         // iterate over the deque
         match self.last_strokes.len() {
             0 => 1.0,
-            1 => return self.last_strokes.front().unwrap().pressure,
+            1 => self.last_strokes.front().unwrap().pressure,
             _ => {
                 let mut distance = f64::INFINITY;
                 let mut r: f64 = 0.0;
