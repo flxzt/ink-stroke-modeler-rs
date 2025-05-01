@@ -10,11 +10,7 @@ use std::ops::{Add, Mul, Sub};
 /// and (value - start)/(end - start) otherwise
 pub(crate) fn normalize01_64(start: f64, end: f64, value: f64) -> f64 {
     if start == end {
-        if value > start {
-            1.0
-        } else {
-            0.0
-        }
+        if value > start { 1.0 } else { 0.0 }
     } else {
         ((value - start) / (end - start)).clamp(0.0, 1.0)
     }

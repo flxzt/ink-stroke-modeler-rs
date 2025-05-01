@@ -154,44 +154,52 @@ fn straight_line() {
     let mut current_time: f64 = 0.0;
 
     current_time += default_ts;
-    assert!(modeler
-        .update((1.0, 0.0), current_time)
-        .near(ModelerPartial {
-            pos: (0.0909, 0.0),
-            velocity: (16.3636, 0.0),
-            acceleration: (2945.4546, 0.0),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((1.0, 0.0), current_time)
+            .near(ModelerPartial {
+                pos: (0.0909, 0.0),
+                velocity: (16.3636, 0.0),
+                acceleration: (2945.4546, 0.0),
+                time: current_time
+            })
+    );
 
     current_time += default_ts;
-    assert!(modeler
-        .update((2.0, 0.0), current_time)
-        .near(ModelerPartial {
-            pos: (0.319, 0.0),
-            velocity: (41.0579, 0.0),
-            acceleration: (4444.9590, 0.0),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((2.0, 0.0), current_time)
+            .near(ModelerPartial {
+                pos: (0.319, 0.0),
+                velocity: (41.0579, 0.0),
+                acceleration: (4444.9590, 0.0),
+                time: current_time
+            })
+    );
 
     current_time += default_ts;
-    assert!(modeler
-        .update((3.0, 0.0), current_time)
-        .near(ModelerPartial {
-            pos: (0.6996, 0.0),
-            velocity: (68.5055, 0.0),
-            acceleration: (4940.5737, 0.0),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((3.0, 0.0), current_time)
+            .near(ModelerPartial {
+                pos: (0.6996, 0.0),
+                velocity: (68.5055, 0.0),
+                acceleration: (4940.5737, 0.0),
+                time: current_time
+            })
+    );
 
     current_time += default_ts;
-    assert!(modeler
-        .update((4.0, 0.0), current_time)
-        .near(ModelerPartial {
-            pos: (1.228, 0.0),
-            velocity: (95.1099, 0.0),
-            acceleration: (4788.8003, 0.0),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((4.0, 0.0), current_time)
+            .near(ModelerPartial {
+                pos: (1.228, 0.0),
+                velocity: (95.1099, 0.0),
+                acceleration: (4788.8003, 0.0),
+                time: current_time
+            })
+    );
 }
 
 #[test]
@@ -209,54 +217,64 @@ fn zigzag() {
     let default_ts = 1. / 180 as f64;
 
     current_time += default_ts;
-    assert!(modeler
-        .update((-0.5, -1.0), current_time)
-        .near(ModelerPartial {
-            pos: (-0.9545, -1.0),
-            velocity: (8.1818, 0.0),
-            acceleration: (1472.7273, 0.0),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((-0.5, -1.0), current_time)
+            .near(ModelerPartial {
+                pos: (-0.9545, -1.0),
+                velocity: (8.1818, 0.0),
+                acceleration: (1472.7273, 0.0),
+                time: current_time
+            })
+    );
 
     current_time += default_ts;
-    assert!(modeler
-        .update((-0.5, -0.5), current_time)
-        .near(ModelerPartial {
-            pos: (-0.886, -0.9545),
-            velocity: (12.3471, 8.1818),
-            acceleration: (749.7521, 1472.7273),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((-0.5, -0.5), current_time)
+            .near(ModelerPartial {
+                pos: (-0.886, -0.9545),
+                velocity: (12.3471, 8.1818),
+                acceleration: (749.7521, 1472.7273),
+                time: current_time
+            })
+    );
 
     current_time += default_ts;
-    assert!(modeler
-        .update((-0.0, -0.5), current_time)
-        .near(ModelerPartial {
-            pos: (-0.7643, -0.886),
-            velocity: (21.9056, 12.3471),
-            acceleration: (1720.5348, 749.7521),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((-0.0, -0.5), current_time)
+            .near(ModelerPartial {
+                pos: (-0.7643, -0.886),
+                velocity: (21.9056, 12.3471),
+                acceleration: (1720.5348, 749.7521),
+                time: current_time
+            })
+    );
 
     current_time += default_ts;
-    assert!(modeler
-        .update((0.0, 0.0), current_time)
-        .near(ModelerPartial {
-            pos: (-0.6218, -0.7643),
-            velocity: (25.6493, 21.9056),
-            acceleration: (673.8650, 1720.5348),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((0.0, 0.0), current_time)
+            .near(ModelerPartial {
+                pos: (-0.6218, -0.7643),
+                velocity: (25.6493, 21.9056),
+                acceleration: (673.8650, 1720.5348),
+                time: current_time
+            })
+    );
 
     current_time += default_ts;
-    assert!(modeler
-        .update((0.5, 0.0), current_time)
-        .near(ModelerPartial {
-            pos: (-0.4343, -0.6218),
-            velocity: (33.7456, 25.6493),
-            acceleration: (1457.3298, 673.8650),
-            time: current_time
-        }))
+    assert!(
+        modeler
+            .update((0.5, 0.0), current_time)
+            .near(ModelerPartial {
+                pos: (-0.4343, -0.6218),
+                velocity: (33.7456, 25.6493),
+                acceleration: (1457.3298, 673.8650),
+                time: current_time
+            })
+    )
 }
 
 #[test]
@@ -273,77 +291,93 @@ fn sharp_turn() {
     let default_ts = 1. / 180 as f64;
 
     current_time += default_ts;
-    assert!(modeler
-        .update((0.25, 0.25), current_time)
-        .near(ModelerPartial {
-            pos: (0.0227, 0.0227),
-            velocity: (4.0909, 4.0909),
-            acceleration: (736.3636, 736.3636),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((0.25, 0.25), current_time)
+            .near(ModelerPartial {
+                pos: (0.0227, 0.0227),
+                velocity: (4.0909, 4.0909),
+                acceleration: (736.3636, 736.3636),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update((0.5, 0.5), current_time)
-        .near(ModelerPartial {
-            pos: (0.0798, 0.0798),
-            velocity: (10.2645, 10.2645),
-            acceleration: (1111.2397, 1111.2397),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((0.5, 0.5), current_time)
+            .near(ModelerPartial {
+                pos: (0.0798, 0.0798),
+                velocity: (10.2645, 10.2645),
+                acceleration: (1111.2397, 1111.2397),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update((0.75, 0.75), current_time)
-        .near(ModelerPartial {
-            pos: (0.1749, 0.1749),
-            velocity: (17.1264, 17.1264),
-            acceleration: (1235.1434, 1235.1434),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((0.75, 0.75), current_time)
+            .near(ModelerPartial {
+                pos: (0.1749, 0.1749),
+                velocity: (17.1264, 17.1264),
+                acceleration: (1235.1434, 1235.1434),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update((1.0, 1.0), current_time)
-        .near(ModelerPartial {
-            pos: (0.307, 0.307),
-            velocity: (23.7775, 23.7775),
-            acceleration: (1197.2001, 1197.2001),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((1.0, 1.0), current_time)
+            .near(ModelerPartial {
+                pos: (0.307, 0.307),
+                velocity: (23.7775, 23.7775),
+                acceleration: (1197.2001, 1197.2001),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update((1.25, 0.75), current_time)
-        .near(ModelerPartial {
-            pos: (0.472, 0.4265),
-            velocity: (29.6975, 21.5157),
-            acceleration: (1065.5977, -407.1296),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((1.25, 0.75), current_time)
+            .near(ModelerPartial {
+                pos: (0.472, 0.4265),
+                velocity: (29.6975, 21.5157),
+                acceleration: (1065.5977, -407.1296),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update((1.5, 0.5), current_time)
-        .near(ModelerPartial {
-            pos: (0.6644, 0.5049),
-            velocity: (34.6406, 14.1117),
-            acceleration: (889.7637, -1332.7158),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((1.5, 0.5), current_time)
+            .near(ModelerPartial {
+                pos: (0.6644, 0.5049),
+                velocity: (34.6406, 14.1117),
+                acceleration: (889.7637, -1332.7158),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update((1.75, 0.25), current_time)
-        .near(ModelerPartial {
-            pos: (0.8786, 0.5288),
-            velocity: (38.5482, 4.2955),
-            acceleration: (703.3755, -1766.9114),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((1.75, 0.25), current_time)
+            .near(ModelerPartial {
+                pos: (0.8786, 0.5288),
+                velocity: (38.5482, 4.2955),
+                acceleration: (703.3755, -1766.9114),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update((2.0, 0.0), current_time)
-        .near(ModelerPartial {
-            pos: (1.109, 0.495),
-            velocity: (41.4794, -6.0756),
-            acceleration: (527.5996, -1866.8005),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update((2.0, 0.0), current_time)
+            .near(ModelerPartial {
+                pos: (1.109, 0.495),
+                velocity: (41.4794, -6.0756),
+                acceleration: (527.5996, -1866.8005),
+                time: current_time
+            })
+    );
 }
 
 #[test]
@@ -362,77 +396,93 @@ fn smooth_turn() {
     );
     let default_ts = 1. / 180 as f64;
     current_time += default_ts;
-    assert!(modeler
-        .update(point_on_circle(PI * 0.125), current_time)
-        .near(ModelerPartial {
-            pos: (0.9931, 0.0348),
-            velocity: (-1.2456, 6.2621),
-            acceleration: (-224.2095, 1127.1768),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update(point_on_circle(PI * 0.125), current_time)
+            .near(ModelerPartial {
+                pos: (0.9931, 0.0348),
+                velocity: (-1.2456, 6.2621),
+                acceleration: (-224.2095, 1127.1768),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update(point_on_circle(PI * 0.25), current_time)
-        .near(ModelerPartial {
-            pos: (0.9629, 0.1168),
-            velocity: (-5.4269, 14.7588),
-            acceleration: (-752.6373, 1529.4097),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update(point_on_circle(PI * 0.25), current_time)
+            .near(ModelerPartial {
+                pos: (0.9629, 0.1168),
+                velocity: (-5.4269, 14.7588),
+                acceleration: (-752.6373, 1529.4097),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update(point_on_circle(PI * 0.375), current_time)
-        .near(ModelerPartial {
-            pos: (0.8921, 0.2394),
-            velocity: (-12.7511, 22.0623),
-            acceleration: (-1318.3523, 1314.6320),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update(point_on_circle(PI * 0.375), current_time)
+            .near(ModelerPartial {
+                pos: (0.8921, 0.2394),
+                velocity: (-12.7511, 22.0623),
+                acceleration: (-1318.3523, 1314.6320),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update(point_on_circle(PI * 0.5), current_time)
-        .near(ModelerPartial {
-            pos: (0.7685, 0.3820),
-            velocity: (-22.2485, 25.6844),
-            acceleration: (-1709.5339, 651.9690),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update(point_on_circle(PI * 0.5), current_time)
+            .near(ModelerPartial {
+                pos: (0.7685, 0.3820),
+                velocity: (-22.2485, 25.6844),
+                acceleration: (-1709.5339, 651.9690),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update(point_on_circle(PI * 0.625), current_time)
-        .near(ModelerPartial {
-            pos: (0.5897, 0.5169),
-            velocity: (-32.1865, 24.2771),
-            acceleration: (-1788.8300, -253.3177),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update(point_on_circle(PI * 0.625), current_time)
+            .near(ModelerPartial {
+                pos: (0.5897, 0.5169),
+                velocity: (-32.1865, 24.2771),
+                acceleration: (-1788.8300, -253.3177),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update(point_on_circle(PI * 0.75), current_time)
-        .near(ModelerPartial {
-            pos: (0.3645, 0.6151),
-            velocity: (-40.5319, 17.6785),
-            acceleration: (-1502.1846, -1187.7462),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update(point_on_circle(PI * 0.75), current_time)
+            .near(ModelerPartial {
+                pos: (0.3645, 0.6151),
+                velocity: (-40.5319, 17.6785),
+                acceleration: (-1502.1846, -1187.7462),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update(point_on_circle(PI * 0.875), current_time)
-        .near(ModelerPartial {
-            pos: (0.1123, 0.6529),
-            velocity: (-45.4017, 6.8034),
-            acceleration: (-876.5552, -1957.5056),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update(point_on_circle(PI * 0.875), current_time)
+            .near(ModelerPartial {
+                pos: (0.1123, 0.6529),
+                velocity: (-45.4017, 6.8034),
+                acceleration: (-876.5552, -1957.5056),
+                time: current_time
+            })
+    );
     current_time += default_ts;
-    assert!(modeler
-        .update(point_on_circle(PI), current_time)
-        .near(ModelerPartial {
-            pos: (-0.1402, 0.6162),
-            velocity: (-45.4417, -6.6022),
-            acceleration: (-7.2061, -2413.0093),
-            time: current_time
-        }));
+    assert!(
+        modeler
+            .update(point_on_circle(PI), current_time)
+            .near(ModelerPartial {
+                pos: (-0.1402, 0.6162),
+                velocity: (-45.4417, -6.6022),
+                acceleration: (-7.2061, -2413.0093),
+                time: current_time
+            })
+    );
 }
 
 #[test]
@@ -480,10 +530,12 @@ fn test_update_linear_path() {
         },
     ];
 
-    assert!(linear_path
-        .into_iter()
-        .zip(expected)
-        .fold(true, |acc, x| { acc && x.0.near(x.1) }));
+    assert!(
+        linear_path
+            .into_iter()
+            .zip(expected)
+            .fold(true, |acc, x| { acc && x.0.near(x.1) })
+    );
 
     // second try
     let linear_path_2 = modeler.update_along_linear_path((15.0, 10.0), 3.05, (15.0, 16.0), 3.08, 3);
@@ -508,10 +560,12 @@ fn test_update_linear_path() {
         },
     ];
 
-    assert!(linear_path_2
-        .into_iter()
-        .zip(expected2)
-        .fold(true, |acc, x| { acc && x.0.near(x.1) }));
+    assert!(
+        linear_path_2
+            .into_iter()
+            .zip(expected2)
+            .fold(true, |acc, x| { acc && x.0.near(x.1) })
+    );
 }
 
 #[test]
@@ -588,10 +642,12 @@ fn model_end_of_stroke_stationary() {
         },
     ];
 
-    assert!(result
-        .into_iter()
-        .zip(expected)
-        .fold(true, |acc, x| { acc && x.0.near(x.1) }));
+    assert!(
+        result
+            .into_iter()
+            .zip(expected)
+            .fold(true, |acc, x| { acc && x.0.near(x.1) })
+    );
 }
 
 #[test]
@@ -659,10 +715,12 @@ fn end_of_stroke_motion() {
             time: 1.0547,
         },
     ];
-    assert!(result
-        .into_iter()
-        .zip(expected)
-        .fold(true, |acc, x| { acc && x.0.near(x.1) }));
+    assert!(
+        result
+            .into_iter()
+            .zip(expected)
+            .fold(true, |acc, x| { acc && x.0.near(x.1) })
+    );
 }
 
 #[test]
@@ -742,8 +800,10 @@ fn end_of_stroke_maxiters() {
             time: 1.0010,
         },
     ];
-    assert!(result
-        .into_iter()
-        .zip(expected)
-        .fold(true, |acc, x| { acc && x.0.near(x.1) }));
+    assert!(
+        result
+            .into_iter()
+            .zip(expected)
+            .fold(true, |acc, x| { acc && x.0.near(x.1) })
+    );
 }

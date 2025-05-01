@@ -2208,36 +2208,44 @@ mod tests {
     fn ignore_input_before_down() {
         let mut engine = StrokeModeler::default();
 
-        assert!(engine
-            .update(ModelerInput {
-                event_type: ModelerInputEventType::Move,
-                ..ModelerInput::default()
-            })
-            .is_err());
-        assert!(engine
-            .update(ModelerInput {
-                event_type: ModelerInputEventType::Up,
-                ..ModelerInput::default()
-            })
-            .is_err());
+        assert!(
+            engine
+                .update(ModelerInput {
+                    event_type: ModelerInputEventType::Move,
+                    ..ModelerInput::default()
+                })
+                .is_err()
+        );
+        assert!(
+            engine
+                .update(ModelerInput {
+                    event_type: ModelerInputEventType::Up,
+                    ..ModelerInput::default()
+                })
+                .is_err()
+        );
     }
 
     #[test]
     fn tdown_in_progress_error() {
         let mut engine = StrokeModeler::default();
 
-        assert!(engine
-            .update(ModelerInput {
-                event_type: ModelerInputEventType::Down,
-                ..ModelerInput::default()
-            })
-            .is_ok());
-        assert!(engine
-            .update(ModelerInput {
-                event_type: ModelerInputEventType::Down,
-                ..ModelerInput::default()
-            })
-            .is_err());
+        assert!(
+            engine
+                .update(ModelerInput {
+                    event_type: ModelerInputEventType::Down,
+                    ..ModelerInput::default()
+                })
+                .is_ok()
+        );
+        assert!(
+            engine
+                .update(ModelerInput {
+                    event_type: ModelerInputEventType::Down,
+                    ..ModelerInput::default()
+                })
+                .is_err()
+        );
     }
 
     #[test]

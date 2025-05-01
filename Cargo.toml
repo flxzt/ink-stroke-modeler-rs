@@ -1,15 +1,24 @@
 [package]
-name = "ink-stroke-modeler-rs"
+categories = ["gui", "graphics", "algorithms"]
+description = """\
+Unofficial and partial Rust rewrite of ink-stroke-modeler,
+a C++ library for beautifully smoothing freehand (touch/stylus/pointer) input\
+"""
+edition = "2024"
+homepage = "https://github.com/flxzt/ink-stroke-modeler-rs"
+keywords = ["input", "handwriting", "smoothing"]
 license = "MIT OR Apache-2.0"
+name = "ink-stroke-modeler-rs"
+readme = "README.md"
+repository = "https://github.com/flxzt/ink-stroke-modeler-rs"
+rust-version = "1.85"
 version = "0.1.0"
-edition = "2021"
-rust-version = "1.65"
 
 [dev-dependencies]
-approx = "0.5.1"
 anyhow = "1.0"
-svg = "0.16.0"
-tracing = "0.1.40"
+approx = "0.5.1"
+svg = "0.18.0"
+tracing = "0.1.41"
 
 [dependencies]
-thiserror = "1.0.61"
+thiserror = "2.0.12"
